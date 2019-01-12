@@ -1,0 +1,22 @@
+<?php
+/*******************************************************************************
+Tool:  dill2
+
+File:  bin/dill2.php
+
+Author:  Jannik Haberbosch
+
+Year: 2014
+
+Info:  This file is the script file that needs to be called in order to run dill2.
+
+*******************************************************************************/
+
+// Include the 'main.php' module in order to run Dill2.
+require_once(
+	".." . DIRECTORY_SEPARATOR .
+	"dill2" . DIRECTORY_SEPARATOR .
+	"code" . DIRECTORY_SEPARATOR .
+	"main.php"
+);
+?>
