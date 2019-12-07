@@ -56,6 +56,14 @@ require_once(
 	"helpers" . DIRECTORY_SEPARATOR .
 	"backup_helper_functions.php"
 );
+
+require_once(
+	".." . DIRECTORY_SEPARATOR .
+	"dill2" . DIRECTORY_SEPARATOR .
+	"code" . DIRECTORY_SEPARATOR .
+	"helpers" . DIRECTORY_SEPARATOR .
+	"wxPHP_helper_functions.php");
+	
 require_once(
 	"wxNewWebsiteProjectDialog.php"
 );
@@ -89,6 +97,9 @@ require_once(
 require_once(
 	"wxHelpDialog.php"
 );
+
+require_once("UploadWebsiteFTPS_Presenter.php");
+require_once("UploadWebsiteFTPS_View.php");
 
 
 class wxDill2Frame extends wxFrame
@@ -668,12 +679,18 @@ class wxDill2Frame extends wxFrame
 
 		// Separator.
 		$this->wxmenu_mainframe_project->AppendSeparator();
-		// Upload website to a web server.
+		// Upload website to a web server over SFTP
 		$this->wxmenu_mainframe_project->Append(
 			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE,
 			DILL2_TEXT_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE,
 			DILL2_HELPTEXT_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE
 		);
+		
+		// Upload website to a web server over FTPS
+		$this->wxmenu_mainframe_project->Append(
+			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS,
+			DILL2_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS_LABEL,
+			DILL2_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS_HELP);
 		
 		// Separator.
 		$this->wxmenu_mainframe_project->AppendSeparator();
@@ -910,7 +927,18 @@ class wxDill2Frame extends wxFrame
         		$this,
         		"on_upload_website"
         	)
-        );        
+        );
+		
+		/* Connect event handler that triggers opening the required
+		form to upload a website over FTPS. */
+		$this->Connect(
+			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS,
+			wxEVT_COMMAND_MENU_SELECTED,
+			array(
+				$this,
+				"on_dill2_wxid_mainframe_wxmenu_project_upload_website_ftps_selected"));
+
+		
         $this->connect(
         	DILL2_WXID_MAINFRAME_WXMENU_HELP_ABOUT,
         	wxEVT_COMMAND_MENU_SELECTED,
@@ -1141,6 +1169,10 @@ class wxDill2Frame extends wxFrame
 		$this->wxmenubar_mainframe_mainmenu->Enable(
 			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE, FALSE );
 		
+		wxphp_disable_menu_item(
+			$this->wxmenubar_mainframe_mainmenu,
+			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS);
+		
 		// The 'Open' menu item is disabled if there are no website projects.
 		$choices =	array_diff(
 			scandir(
@@ -1191,6 +1223,10 @@ class wxDill2Frame extends wxFrame
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_FILE_OPEN_PROJECT, TRUE );
 		$this->wxmenubar_mainframe_mainmenu->Enable(
 			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE, TRUE );
+			
+		wxphp_enable_menu_item(
+			$this->wxmenubar_mainframe_mainmenu,
+			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS);
 		
 		$this->root2 = NULL;
 		
@@ -2434,6 +2470,23 @@ class wxDill2Frame extends wxFrame
 				unset( $ssh_conn );			
 			}			
 		}
+	}
+	
+	/*
+	Event handler method that is called when the menu item to upload a website
+	over FTPS has been clicked.
+	*/
+	public function on_dill2_wxid_mainframe_wxmenu_project_upload_website_ftps_selected()
+	{
+		// Show new form and make it modal.
+		// TODO.
+		$upload_website_ftps_presenter = new UploadWebsiteFTPS_Presenter();
+		$upload_website_ftps_view = new UploadWebsiteFTPS_View(		
+			$this,
+			1,
+			"OINK");
+		$upload_website_ftps_presenter->setView($upload_website_ftps_view);
+		$upload_website_ftps_presenter->run();
 	}
 
 
