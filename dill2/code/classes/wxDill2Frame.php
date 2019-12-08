@@ -101,6 +101,10 @@ require_once(
 require_once("UploadWebsiteFTPS_Presenter.php");
 require_once("UploadWebsiteFTPS_View.php");
 
+require_once("WebsiteProjectSettings_Presenter.php");
+require_once("WebsiteProjectSettings_View.php");
+require_once("WebsiteProjectSettings_Model.php");
+
 
 class wxDill2Frame extends wxFrame
 {
@@ -1432,6 +1436,21 @@ class wxDill2Frame extends wxFrame
     
     public function on_dill2_mainframe_wxmenu_project_settings_clicked()
     {
+		$view = new WebsiteProjectSettings_View(
+       		$this,
+       		DILL2_WXID_WXMANAGEWEBSITEPROJECTSETTINGSDIALOG,
+			DILL2_TEXT_WXMANAGEWEBSITEPROJECTSETTINGSDIALOG_TITLE
+		);
+		
+		$model = new WebsiteProjectSettings_Model($this->website_project);
+		
+		$presenter = new WebsiteProjectSettings_Presenter(
+			$view,
+			$model);
+		
+		$presenter->run();
+
+		/*
        	$dialog = new wxManageWebsiteProjectSettingsDialog(
        		$this->website_project,
        		$this,
@@ -1441,6 +1460,7 @@ class wxDill2Frame extends wxFrame
        	$dialog->run();
        	
        	$this->set_unset_state_main_window();
+		*/
     }
     
     
