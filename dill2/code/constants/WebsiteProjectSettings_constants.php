@@ -1,0 +1,9 @@
+<?php
+define(
+	"DILL2_SFTP_AUTHENTICATION_METHOD_SSH",
+	"SSH");
+	
+define(
+	"DILL2_SFTP_AUTHENTICATION_METHOD_SFTP",
+	"SFTP");
+?>

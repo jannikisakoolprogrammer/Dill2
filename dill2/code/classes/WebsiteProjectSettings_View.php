@@ -20,14 +20,14 @@ require_once(
 	"dill2" . DIRECTORY_SEPARATOR .
 	"code" . DIRECTORY_SEPARATOR .
 	"constants" . DIRECTORY_SEPARATOR .
-	"WebsiteProjectSettings_View_wxphp_ids.php"
+	"WebsiteProjectSettings_wxphp_ids.php"
 );
 require_once(
 	".." . DIRECTORY_SEPARATOR .
 	"dill2" . DIRECTORY_SEPARATOR .
 	"code" . DIRECTORY_SEPARATOR .
 	"constants" . DIRECTORY_SEPARATOR .
-	"WebsiteProjectSettings_View_lang_en.php"
+	"WebsiteProjectSettings_lang_en.php"
 );
 
 
@@ -56,14 +56,14 @@ class WebsiteProjectSettings_View extends wxFrame
 		$this->wxboxsizer_vertical->Add(
 			$this->wxboxsizer_horizontal_wxnotebook,
 			1,
-			wxEXPAND | wxALL,
-			10);
+			wxALL | wxEXPAND,
+			1);
 			
 		$this->wxboxsizer_vertical->Add(
 			$this->wxboxsizer_horizontal_wxbuttons,
-			1,
-			wxEXPAND | wxALL,
-			10);			
+			0,
+			wxALL | wxALIGN_TOP,
+			1);			
 			
 		
 		// Place notebook inside panel now.		
@@ -80,8 +80,8 @@ class WebsiteProjectSettings_View extends wxFrame
 		$this->wxboxsizer_horizontal_wxnotebook->Add(
 			$this->wxnotebook_parent,
 			1,
-			wxEXPAND | wxALL,
-			10);
+			wxALL,
+			1);
 
 		// Place buttons inside panel.		
 		// Cancel button.
@@ -102,12 +102,12 @@ class WebsiteProjectSettings_View extends wxFrame
 		$this->wxboxsizer_horizontal_wxbuttons->Add(
 			$this->wxbutton_ok,
 			1,
-			wxALIGN_RIGHT
+			wxALIGN_LEFT
 		);	
 		$this->wxboxsizer_horizontal_wxbuttons->Add(
 			$this->wxbutton_cancel,
 			1,
-			wxALIGN_RIGHT
+			wxALIGN_LEFT
 		);			
 		
 			
@@ -187,8 +187,8 @@ class WebsiteProjectSettings_View extends wxFrame
 
 		$this->wxboxsizer_horizontal_website_title->Add(
 			$this->wxstatictext_websitetitle,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);
 		
 		// Put some horizontal space.
@@ -198,9 +198,10 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_website_title->Add(
 			$this->wxtextctrl_websitetitle,
-			2,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+			1,
+			wxEXPAND | wxALIGN_CENTRE_VERTICAL
 		);
+		
 
 
 		//
@@ -210,19 +211,19 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_website_testserver_address->Add(
 			$this->wxstatictext_websitetestserver_address,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);
 		
 		// Put some horizontal space.
-		$this->wxboxsizer_horizontal_website_title->Add(
+		$this->wxboxsizer_horizontal_website_testserver_address->Add(
 			5,
 			0);		
 		
 		$this->wxboxsizer_horizontal_website_testserver_address->Add(
 			$this->wxtextctrl_websitetestserver_address,
-			2,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+			1,
+			wxEXPAND | wxALIGN_CENTRE_VERTICAL
 		);			
 		
 		//
@@ -232,8 +233,8 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_website_testserver_port->Add(
 			$this->wxstatictext_websitetestserver_port,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);
 		
 		// Put some horizontal space.
@@ -243,8 +244,8 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_website_testserver_port->Add(
 			$this->wxtextctrl_websitetestserver_port,
-			2,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+			1,
+			wxEXPAND | wxALIGN_CENTRE_VERTICAL
 		);		
 		
 		
@@ -254,23 +255,23 @@ class WebsiteProjectSettings_View extends wxFrame
 		// On the first row is the setting for the website title.
 		$this->wxboxsizer_vertical_general_settings->Add(
 			$this->wxboxsizer_horizontal_website_title,
-			1,
-			wxEXPAND | wxALL,
-			10);
+			0,
+			wxALL | wxEXPAND,
+			1);
 
 		// On the second row is the setting for the website test server address.
 		$this->wxboxsizer_vertical_general_settings->Add(
 			$this->wxboxsizer_horizontal_website_testserver_address,
-			1,
-			wxEXPAND | wxALL,
-			10);
+			0,
+			wxALL | wxEXPAND,
+			1);
 			
 		// On the third row is the setting for the website test server port.
 		$this->wxboxsizer_vertical_general_settings->Add(
 			$this->wxboxsizer_horizontal_website_testserver_port,
-			1,
-			wxEXPAND | wxALL,
-			10);		
+			0,
+			wxALL | wxEXPAND,
+			1);		
 		
 		
 		// Now add this page to the notebook.
@@ -307,8 +308,7 @@ class WebsiteProjectSettings_View extends wxFrame
 		// Textbox
 		$this->wxtextctrl_sftp_path_on_webserver = new wxTextCtrl(
 			$this->wxpanel_sftp_settings,
-			DILL2_WXID_WXTEXTCTRL_SFTP_PATH_ON_WEBSERVER,
-			"settings_array[0]['webserver_path']"
+			DILL2_WXID_WXTEXTCTRL_SFTP_PATH_ON_WEBSERVER
 		);
 		
 		//
@@ -324,8 +324,7 @@ class WebsiteProjectSettings_View extends wxFrame
 		// Textbox
 		$this->wxtextctrl_sftp_webserver_ip_address = new wxTextCtrl(
 			$this->wxpanel_sftp_settings,
-			DILL2_WXID_WXTEXTCTRL_SFTP_WEBSERVER_IP_ADDRESS,
-			"settings_array[0]['webserver_ip_address']"
+			DILL2_WXID_WXTEXTCTRL_SFTP_WEBSERVER_IP_ADDRESS
 		);
 		
 		//
@@ -335,15 +334,12 @@ class WebsiteProjectSettings_View extends wxFrame
 		$this->wxstatictext_sftp_username = new wxStaticText(
 			$this->wxpanel_sftp_settings,
 			DILL2_WXID_WXSTATICTEXT_SFTP_USERNAME,
-			DILL2_LABEL_WXSTATICTEXT_SFTP_USERNAME
-		);
+			DILL2_LABEL_WXSTATICTEXT_SFTP_USERNAME);
 		
 		// Textbox
 		$this->wxtextctrl_sftp_username = new wxTextCtrl(
 			$this->wxpanel_sftp_settings,
-			DILL2_WXID_WXTEXTCTRL_SFTP_USERNAME,
-			"settings_array[0]['username']"
-		);
+			DILL2_WXID_WXTEXTCTRL_SFTP_USERNAME);
 		
 		
 		//
@@ -358,8 +354,7 @@ class WebsiteProjectSettings_View extends wxFrame
 		// Textbox
 		$this->wxtextctrl_sftp_password = new wxTextCtrl(
 			$this->wxpanel_sftp_settings,
-			DILL2_WXID_WXTEXTCTRL_SFTP_PASSWORD,
-			"");
+			DILL2_WXID_WXTEXTCTRL_SFTP_PASSWORD);
 		
 		
 		//
@@ -369,15 +364,12 @@ class WebsiteProjectSettings_View extends wxFrame
 		$this->wxstatictext_sftp_privatekey = new wxStaticText(
 			$this->wxpanel_sftp_settings,
 			DILL2_WXID_WXSTATICTEXT_SFTP_PRIVATEKEY,
-			DILL2_LABEL_WXSTATICTEXT_SFTP_PRIVATEKEY
-		);
+			DILL2_LABEL_WXSTATICTEXT_SFTP_PRIVATEKEY);
 		
 		// Textbox
 		$this->wxtextctrl_sftp_privatekey = new wxTextCtrl(
 			$this->wxpanel_sftp_settings,
-			DILL2_WXID_WXTEXTCTRL_SFTP_PRIVATEKEY,
-			"settings_array[0]['privatekey']"
-		);
+			DILL2_WXID_WXTEXTCTRL_SFTP_PRIVATEKEY);
 		
 		
 		//
@@ -404,8 +396,8 @@ class WebsiteProjectSettings_View extends wxFrame
 
 		$this->wxboxsizer_horizontal_sftp_path_on_webserver->Add(
 			$this->wxstatictext_sftp_path_on_webserver,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);
 		
 		// Put some horizontal space.
@@ -415,7 +407,7 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_sftp_path_on_webserver->Add(
 			$this->wxtextctrl_sftp_path_on_webserver,
-			2,
+			1,
 			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);
 		
@@ -425,8 +417,8 @@ class WebsiteProjectSettings_View extends wxFrame
 
 		$this->wxboxsizer_horizontal_sftp_webserver_ip_address->Add(
 			$this->wxstatictext_sftp_webserver_ip_address,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);
 		
 		// Put some horizontal space.
@@ -436,7 +428,7 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_sftp_webserver_ip_address->Add(
 			$this->wxtextctrl_sftp_webserver_ip_address,
-			2,
+			1,
 			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);
 		
@@ -446,8 +438,8 @@ class WebsiteProjectSettings_View extends wxFrame
 
 		$this->wxboxsizer_horizontal_sftp_username->Add(
 			$this->wxstatictext_sftp_username,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);
 		
 		// Put some horizontal space.
@@ -457,7 +449,7 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_sftp_username->Add(
 			$this->wxtextctrl_sftp_username,
-			2,
+			1,
 			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);		
 		
@@ -467,8 +459,8 @@ class WebsiteProjectSettings_View extends wxFrame
 
 		$this->wxboxsizer_horizontal_sftp_password->Add(
 			$this->wxstatictext_sftp_password,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);
 		
 		// Put some horizontal space.
@@ -478,7 +470,7 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_sftp_password->Add(
 			$this->wxtextctrl_sftp_password,
-			2,
+			1,
 			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);	
 		
@@ -488,8 +480,8 @@ class WebsiteProjectSettings_View extends wxFrame
 
 		$this->wxboxsizer_horizontal_sftp_privatekey->Add(
 			$this->wxstatictext_sftp_privatekey,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);
 		
 		// Put some horizontal space.
@@ -499,7 +491,7 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_sftp_privatekey->Add(
 			$this->wxtextctrl_sftp_privatekey,
-			2,
+			1,
 			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);
 		
@@ -509,8 +501,8 @@ class WebsiteProjectSettings_View extends wxFrame
 
 		$this->wxboxsizer_horizontal_sftp_authentication_method->Add(
 			$this->wxstatictext_sftp_authentication_method,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);
 		
 		// Put some horizontal space.
@@ -520,7 +512,7 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_sftp_authentication_method->Add(
 			$this->wxchoice_sftp_authentication_method,
-			2,
+			1,
 			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);	
 		
@@ -532,39 +524,39 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_vertical_sftp_settings->Add(
 			$this->wxboxsizer_horizontal_sftp_path_on_webserver,
-			1,
+			0,
 			wxEXPAND | wxALL,
-			10);
+			1);
 			
 		$this->wxboxsizer_vertical_sftp_settings->Add(
 			$this->wxboxsizer_horizontal_sftp_webserver_ip_address,
-			1,
+			0,
 			wxEXPAND | wxALL,
-			10);
+			1);
 		
 		$this->wxboxsizer_vertical_sftp_settings->Add(
 			$this->wxboxsizer_horizontal_sftp_username,
-			1,
+			0,
 			wxEXPAND | wxALL,
-			10);
+			1);
 			
 		$this->wxboxsizer_vertical_sftp_settings->Add(
 			$this->wxboxsizer_horizontal_sftp_password,
-			1,
+			0,
 			wxEXPAND | wxALL,
-			10);			
+			1);			
 		
 		$this->wxboxsizer_vertical_sftp_settings->Add(
 			$this->wxboxsizer_horizontal_sftp_privatekey,
-			1,
+			0,
 			wxEXPAND |wxALL,
-			10);
+			1);
 			
 		$this->wxboxsizer_vertical_sftp_settings->Add(
 			$this->wxboxsizer_horizontal_sftp_authentication_method,
-			1,
+			0,
 			wxEXPAND | wxALL,
-			10);
+			1);
 			
 		
 		// Now add this page to the notebook.
@@ -601,8 +593,7 @@ class WebsiteProjectSettings_View extends wxFrame
 		// Textbox
 		$this->wxtextctrl_ftps_path_on_webserver = new wxTextCtrl(
 			$this->wxpanel_ftps_settings,
-			DILL2_WXID_WXTEXTCTRL_FTPS_PATH_ON_WEBSERVER,
-			"todo...");
+			DILL2_WXID_WXTEXTCTRL_FTPS_PATH_ON_WEBSERVER);
 			
 		
 		// Add control to row.
@@ -610,8 +601,8 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_ftps_path_on_webserver->Add(
 			$this->wxstatictext_ftps_path_on_webserver,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL);
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL);
 			
 		// Spacing.
 		$this->wxboxsizer_horizontal_ftps_path_on_webserver->Add(
@@ -620,16 +611,16 @@ class WebsiteProjectSettings_View extends wxFrame
 			
 		$this->wxboxsizer_horizontal_ftps_path_on_webserver->Add(
 			$this->wxtextctrl_ftps_path_on_webserver,
-			2,
+			1,
 			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL);
 			
 		
 		// Add row to vertical row
 		$this->wxboxsizer_vertical_ftps_settings->Add(
 			$this->wxboxsizer_horizontal_ftps_path_on_webserver,
-			1,
+			0,
 			wxEXPAND | wxALL,
-			10);
+			1);
 			
 			
 		///
@@ -642,16 +633,15 @@ class WebsiteProjectSettings_View extends wxFrame
 			
 		$this->wxtextctrl_ftps_webserver_ip_address = new wxTextCtrl(
 			$this->wxpanel_ftps_settings,
-			DILL2_WXID_WXTEXTCTRL_FTPS_WEBSERVER_IP_ADDRESS,
-			"todo...");
+			DILL2_WXID_WXTEXTCTRL_FTPS_WEBSERVER_IP_ADDRESS);
 		
 		
 		$this->wxboxsizer_horizontal_ftps_webserver_ip_address = new wxBoxSizer(wxHORIZONTAL);
 		
 		$this->wxboxsizer_horizontal_ftps_webserver_ip_address->Add(
 			$this->wxstatictext_ftps_webserver_ip_address,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL);
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL);
 		
 		// Spacing
 		$this->wxboxsizer_horizontal_ftps_webserver_ip_address->Add(
@@ -660,15 +650,15 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_ftps_webserver_ip_address->Add(
 			$this->wxtextctrl_ftps_webserver_ip_address,
-			2,
+			1,
 			wxEXPAND | wxALIGN_LEFT |wxALIGN_CENTRE_VERTICAL);
 			
 		// Add to vertical row.
 		$this->wxboxsizer_vertical_ftps_settings->Add(
 			$this->wxboxsizer_horizontal_ftps_webserver_ip_address,
-			1,
+			0,
 			wxEXPAND | wxALL,
-			10);
+			1);
 			
 		//
 		// FTPS username.
@@ -682,16 +672,15 @@ class WebsiteProjectSettings_View extends wxFrame
 		// Textbox
 		$this->wxtextctrl_ftps_username = new wxTextCtrl(
 			$this->wxpanel_ftps_settings,
-			DILL2_WXID_WXTEXTCTRL_FTPS_USERNAME,
-			"todo...");
+			DILL2_WXID_WXTEXTCTRL_FTPS_USERNAME);
 		
 		
 		$this->wxboxsizer_horizontal_ftps_username = new wxBoxSizer(wxHORIZONTAL);
 		
 		$this->wxboxsizer_horizontal_ftps_username->Add(
 			$this->wxstatictext_ftps_username,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL);
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL);
 		
 		// Spacing
 		$this->wxboxsizer_horizontal_ftps_username->Add(
@@ -700,15 +689,15 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_ftps_username->Add(
 			$this->wxtextctrl_ftps_username,
-			2,
+			1,
 			wxEXPAND | wxALIGN_LEFT |wxALIGN_CENTRE_VERTICAL);
 			
 		// Add to vertical row.
 		$this->wxboxsizer_vertical_ftps_settings->Add(
 			$this->wxboxsizer_horizontal_ftps_username,
-			1,
+			0,
 			wxEXPAND | wxALL,
-			10);
+			1);
 		
 		
 		//
@@ -723,16 +712,15 @@ class WebsiteProjectSettings_View extends wxFrame
 		// Textbox
 		$this->wxtextctrl_ftps_password = new wxTextCtrl(
 			$this->wxpanel_ftps_settings,
-			DILL2_WXID_WXTEXTCTRL_FTPS_PASSWORD,
-			"todo...");
+			DILL2_WXID_WXTEXTCTRL_FTPS_PASSWORD);
 		
 		
 		$this->wxboxsizer_horizontal_ftps_password = new wxBoxSizer(wxHORIZONTAL);
 		
 		$this->wxboxsizer_horizontal_ftps_password->Add(
 			$this->wxstatictext_ftps_password,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL);
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL);
 		
 		// Spacing
 		$this->wxboxsizer_horizontal_ftps_password->Add(
@@ -741,15 +729,15 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_ftps_password->Add(
 			$this->wxtextctrl_ftps_password,
-			2,
+			1,
 			wxEXPAND | wxALIGN_LEFT |wxALIGN_CENTRE_VERTICAL);
 			
 		// Add to vertical row.
 		$this->wxboxsizer_vertical_ftps_settings->Add(
 			$this->wxboxsizer_horizontal_ftps_password,
-			1,
+			0,
 			wxEXPAND | wxALL,
-			10);
+			1);
 		
 		
 		//
@@ -772,15 +760,15 @@ class WebsiteProjectSettings_View extends wxFrame
 			boolval(
 				0
 			)
-		); // $settings_array[0]["auto_upload"]
+		);
 		
 		
 		$this->wxboxsizer_horizontal_use_ftp = new wxBoxSizer(wxHORIZONTAL);
 		
 		$this->wxboxsizer_horizontal_use_ftp->Add(
 			$this->wxstatictext_ftps_use_ftp,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL);
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL);
 		
 		// Spacing
 		$this->wxboxsizer_horizontal_use_ftp->Add(
@@ -789,15 +777,15 @@ class WebsiteProjectSettings_View extends wxFrame
 		
 		$this->wxboxsizer_horizontal_use_ftp->Add(
 			$this->wxcheckbox_ftps_use_ftp,
-			2,
+			1,
 			wxEXPAND | wxALIGN_LEFT |wxALIGN_CENTRE_VERTICAL);
 			
 		// Add to vertical row.
 		$this->wxboxsizer_vertical_ftps_settings->Add(
 			$this->wxboxsizer_horizontal_use_ftp,
-			1,
+			0,
 			wxEXPAND | wxALL,
-			10);		
+			1);		
 		
 			
 		// Now add this page to the notebook.
