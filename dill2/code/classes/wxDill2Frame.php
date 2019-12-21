@@ -105,6 +105,11 @@ require_once("WebsiteProjectSettings_Presenter.php");
 require_once("WebsiteProjectSettings_View.php");
 require_once("WebsiteProjectSettings_Model.php");
 
+require_once("UploadWebsiteSFTP_Presenter.php");
+require_once("UploadWebsiteSFTP_View.php");
+require_once("UploadWebsiteSFTP_Model.php");
+require_once("UploadWebsiteSFTP_Logic.php");
+
 
 class wxDill2Frame extends wxFrame
 {
@@ -929,7 +934,7 @@ class wxDill2Frame extends wxFrame
         	wxEVT_COMMAND_MENU_SELECTED,
         	array(
         		$this,
-        		"on_upload_website"
+        		"on_upload_website_sftp"
         	)
         );
 		
@@ -2249,8 +2254,27 @@ class wxDill2Frame extends wxFrame
 	// <-- Dill2 v2.0.0 - 02.07.2017, Jannik Haberbosch (JANHAB)	
 
 
-	public function on_upload_website()
+	public function on_upload_website_sftp()
 	{
+		$view = new UploadWebsiteSFTP_View(
+			$this);
+			
+		$model = new UploadWebsiteSFTP_Model(
+			$this->website_project);
+		
+		$logic = new UploadWebsiteSFTP_Logic();
+			
+		$presenter = new UploadWebsiteSFTP_Presenter(
+			$view,
+			$model,
+			$logic);
+		
+		$presenter->run();		
+		
+		
+		
+		return;
+		
 		/* Uploads the generated website to the webserver.  The path can be set
 		in the projects' settings.
 

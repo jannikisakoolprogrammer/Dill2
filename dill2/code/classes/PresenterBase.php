@@ -8,10 +8,12 @@ abstract class PresenterBase
 	
 	public function __construct(
 		$_view,
-		$_model)
+		$_model,
+		$_logic = NULL)
 	{
 		$this->view = $_view;
-		$this->model = $_model;	
+		$this->model = $_model;
+		$this->logic = $_logic;
 		
 		// Register event handlers.
 		$this->view->Connect(
