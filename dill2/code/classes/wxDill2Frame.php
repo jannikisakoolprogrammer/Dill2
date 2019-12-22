@@ -2467,18 +2467,6 @@ class wxDill2Frame extends wxFrame
 
 					// webserver:
 					$webserver_abspath = $settings_array[0]["webserver_path"];
-					
-#					$stream1 = ssh2_exec(
-#						$ssh_conn,
-#						sprintf(
-#							"cd %s; ls -al",
-#							$webserver_abspath
-#						)
-#					);
-#					stream_set_blocking( $stream1, TRUE );
-#					echo stream_get_contents( $stream1 );
-#					fclose( $stream1 );
-#					#chdir( "bin" );
 
 					// Now let's upload the website.
 					$ssh2_sftp = ssh2_sftp( $ssh_conn );

@@ -9,6 +9,12 @@ abstract class ModelBase
 	{
 		$this->website_project = $_website_project;
 	}
+	
+	
+	public function get_website_project()
+	{
+		return $this->website_project;
+	}
 }
 
 ?>

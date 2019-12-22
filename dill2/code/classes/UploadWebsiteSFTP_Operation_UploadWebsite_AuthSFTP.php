@@ -15,6 +15,8 @@ class UploadWebsiteSFTP_Operation_UploadWebsite_AuthSFTP extends UploadWebsiteOp
 		$this->port = 22;
 		$this->webserver_path = $this->website_project_settings[0]["sftp_webserver_path"];
 		
+		echo "Total files: " . $this->total_files_dirs;
+		
 		// Let's try to establish the connection.
 		$ssh_conn = ssh2_connect(
 			$this->webserver_ip_address,
@@ -32,18 +34,30 @@ class UploadWebsiteSFTP_Operation_UploadWebsite_AuthSFTP extends UploadWebsiteOp
 				$this->username,
 				$this->password))
 			{
+				// And now it is time to upload the website to the webserver.
+				// We change the current directory on the local computer and
+				// on the webserver aswell.
+
+				// Local computer:
+				$root_dir = getcwd() . DIRECTORY_SEPARATOR . $this->website_project->abspath_websiteproject_website;	
+
+				chdir($root_dir);
+					
 				// Now let's upload the website.
 				$ssh2_sftp = ssh2_sftp($ssh_conn);
 				
-				echo "Upload files now...";
+				echo "Upload files now..." . PHP_EOL;
 				
-				for($x = 1; $x <= 100; $x++)
-				{
-					$this->notify_observers();
-					usleep(250000);
-				}
+				$this->upload_sync(
+					$ssh_conn,
+					$ssh2_sftp,
+					$root_dir,
+					$this->webserver_path
+				);
+
+				chdir( "../../../bin" );
 				
-				echo "DONE with uploading files.";				
+				echo "Done with uploading files." . PHP_EOL;
 			}
 			
 			// Logout

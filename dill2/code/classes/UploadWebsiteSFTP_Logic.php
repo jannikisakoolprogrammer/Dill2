@@ -29,12 +29,14 @@ class UploadWebsiteSFTP_Logic extends UploadWebsiteLogicBase
 		{
 			case DILL2_SFTP_AUTHENTICATION_METHOD_SSH:
 				$this->operation = new UploadWebsiteSFTP_Operation_UploadWebsite_AuthSSH(
-					$this->website_project_settings);
+					$this->website_project_settings,
+					$this->website_project);
 				break;
 				
 			case DILL2_SFTP_AUTHENTICATION_METHOD_SFTP:
 				$this->operation = new UploadWebsiteSFTP_Operation_UploadWebsite_AuthSFTP(
-					$this->website_project_settings);
+					$this->website_project_settings,
+					$this->website_project);
 				break;
 				
 			default:

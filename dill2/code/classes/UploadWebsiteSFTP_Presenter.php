@@ -39,8 +39,15 @@ class UploadWebsiteSFTP_Presenter extends PresenterBase
 			$this->logic->set_website_project_settings(
 				$this->model->get_website_project_settings());
 			
+			$this->logic->set_website_project(
+				$this->model->get_website_project());
+			
 			// Init operation to use.
 			$this->logic->init_operation_upload_website();
+			
+			// Update progress bar count to the amount of files to upload.
+			$this->view->setRange(
+				$this->logic->get_operation()->get_total_files_dirs());
 			
 			// Register presenter as observer.
 			$this->logic->get_operation()->register_observer($this);			
