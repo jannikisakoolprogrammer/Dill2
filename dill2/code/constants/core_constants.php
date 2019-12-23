@@ -226,7 +226,15 @@ define(
 	"ALTER TABLE 'website_project_settings' ADD COLUMN sftp_privatekey TEXT;");
 	
 define(	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_AUTHENTICATION_METHOD",
-	"ALTER TABLE 'website_project_settings' ADD COLUMN sftp_authentication_method TEXT;");	
+	"ALTER TABLE 'website_project_settings' ADD COLUMN sftp_authentication_method TEXT;");
+
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_PUBLICKEY",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN sftp_publickey TEXT;");
+
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_PRIVATEKEY_PASSPRHASE",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN sftp_privatekey_passphrase;");
 	
 	
 // FTPS

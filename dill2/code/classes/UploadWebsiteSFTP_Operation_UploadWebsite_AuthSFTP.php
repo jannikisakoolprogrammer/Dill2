@@ -11,7 +11,7 @@ class UploadWebsiteSFTP_Operation_UploadWebsite_AuthSFTP extends UploadWebsiteOp
 	{
 		$this->webserver_ip_address = $this->website_project_settings[0]["sftp_webserver_ip_address"];
 		$this->username = $this->website_project_settings[0]["sftp_username"];
-		$this->password = $this->website_project_settings[0]["sftp_password"];
+		$this->password = file_get_contents($this->website_project_settings[0]["sftp_password"]);
 		$this->port = 22;
 		$this->webserver_path = $this->website_project_settings[0]["sftp_webserver_path"];
 		

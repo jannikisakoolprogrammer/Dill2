@@ -91,11 +91,17 @@ class WebsiteProjectSettings_Presenter extends PresenterBase
 		$this->view->wxtextctrl_sftp_username->SetValue(
 			$this->model->get_sftp_username());
 			
-		$this->view->wxtextctrl_sftp_password->SetValue(
+		$this->view->wxfilepickerctrl_sftp_password->SetPath(
 			$this->model->get_sftp_password());
 			
-		$this->view->wxtextctrl_sftp_privatekey->SetValue(
-			$this->model->get_sftp_privatekey());			
+		$this->view->wxfilepickerctrl_sftp_privatekey->SetPath(
+			$this->model->get_sftp_privatekey());
+			
+		$this->view->wxfilepickerctrl_sftp_privatekey_passphrase->SetPath(
+			$this->model->get_sftp_privatekey_passphrase());	
+
+		$this->view->wxfilepickerctrl_sftp_publickey->SetPath(
+			$this->model->get_sftp_publickey());			
 			
 		$this->view->wxchoice_sftp_authentication_method->SetStringSelection(
 			$this->model->get_sftp_authentication_method());
@@ -109,7 +115,7 @@ class WebsiteProjectSettings_Presenter extends PresenterBase
 		$this->view->wxtextctrl_ftps_username->SetValue(
 			$this->model->get_ftps_username());
 
-		$this->view->wxtextctrl_ftps_password->SetValue(
+		$this->view->wxfilepickerctrl_ftps_password->SetPath(
 			$this->model->get_ftps_password());
 
 		$this->view->wxcheckbox_ftps_use_ftp->SetValue(
@@ -141,10 +147,16 @@ class WebsiteProjectSettings_Presenter extends PresenterBase
 			$this->view->wxtextctrl_sftp_username->GetValue());
 			
 		$this->model->set_sftp_password(
-			$this->view->wxtextctrl_sftp_password->GetValue());
+			$this->view->wxfilepickerctrl_sftp_password->GetPath());
 
 		$this->model->set_sftp_privatekey(
-			$this->view->wxtextctrl_sftp_privatekey->GetValue());
+			$this->view->wxfilepickerctrl_sftp_privatekey->GetPath());
+			
+		$this->model->set_sftp_privatekey_passphrase(
+			$this->view->wxfilepickerctrl_sftp_privatekey_passphrase->GetPath());			
+			
+		$this->model->set_sftp_publickey(
+			$this->view->wxfilepickerctrl_sftp_publickey->GetPath());			
 
 		$this->model->set_sftp_authentication_method(			
 			$this->view->wxchoice_sftp_authentication_method->GetStringSelection());
@@ -160,7 +172,7 @@ class WebsiteProjectSettings_Presenter extends PresenterBase
 			$this->view->wxtextctrl_ftps_username->GetValue());
 
 		$this->model->set_ftps_password(
-			$this->view->wxtextctrl_ftps_password->GetValue());
+			$this->view->wxfilepickerctrl_ftps_password->GetPath());
 
 		$this->model->set_ftps_use_ftp(
 			$this->view->wxcheckbox_ftps_use_ftp->GetValue());		

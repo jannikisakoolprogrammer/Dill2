@@ -352,9 +352,9 @@ class WebsiteProjectSettings_View extends wxFrame
 			DILL2_LABEL_WXSTATICTEXT_SFTP_PASSWORD);
 		
 		// Textbox
-		$this->wxtextctrl_sftp_password = new wxTextCtrl(
+		$this->wxfilepickerctrl_sftp_password = new wxFilePickerCtrl(
 			$this->wxpanel_sftp_settings,
-			DILL2_WXID_WXTEXTCTRL_SFTP_PASSWORD);
+			DILL2_WXID_WXFILEPICKERCTRL_SFTP_PASSWORD);
 		
 		
 		//
@@ -367,9 +367,39 @@ class WebsiteProjectSettings_View extends wxFrame
 			DILL2_LABEL_WXSTATICTEXT_SFTP_PRIVATEKEY);
 		
 		// Textbox
-		$this->wxtextctrl_sftp_privatekey = new wxTextCtrl(
+		$this->wxfilepickerctrl_sftp_privatekey = new wxFilePickerCtrl(
 			$this->wxpanel_sftp_settings,
-			DILL2_WXID_WXTEXTCTRL_SFTP_PRIVATEKEY);
+			DILL2_WXID_WXFILEPICKERCTRL_SFTP_PRIVATEKEY);
+			
+			
+		//
+		// Option "Private key passphrase"
+		//
+		// Label
+		$this->wxstatictext_sftp_privatekey_passphrase = new wxStaticText(
+			$this->wxpanel_sftp_settings,
+			DILL2_WXID_WXSTATICTEXT_SFTP_PRIVATEKEY_PASSPHRASE,
+			DILL2_LABEL_WXSTATICTEXT_SFTP_PRIVATEKEY_PASSPHRASE);
+		
+		// Textbox
+		$this->wxfilepickerctrl_sftp_privatekey_passphrase = new wxFilePickerCtrl(
+			$this->wxpanel_sftp_settings,
+			DILL2_WXID_WXFILEPICKERCTRL_SFTP_PRIVATEKEY_PASSPHRASE);			
+			
+			
+		//
+		// Option "Public key"
+		//
+		// Label
+		$this->wxstatictext_sftp_publickey = new wxStaticText(
+			$this->wxpanel_sftp_settings,
+			DILL2_WXID_WXSTATICTEXT_SFTP_PUBLICKEY,
+			DILL2_LABEL_WXSTATICTEXT_SFTP_PUBLICKEY);
+		
+		// Textbox
+		$this->wxfilepickerctrl_sftp_publickey = new wxFilePickerCtrl(
+			$this->wxpanel_sftp_settings,
+			DILL2_WXID_WXFILEPICKERCTRL_SFTP_PUBLICKEY);			
 		
 		
 		//
@@ -469,10 +499,10 @@ class WebsiteProjectSettings_View extends wxFrame
 			0);
 		
 		$this->wxboxsizer_horizontal_sftp_password->Add(
-			$this->wxtextctrl_sftp_password,
+			$this->wxfilepickerctrl_sftp_password,
 			1,
 			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
-		);	
+		);
 		
 		
 		// sftp ssh private key.
@@ -490,10 +520,52 @@ class WebsiteProjectSettings_View extends wxFrame
 			0);
 		
 		$this->wxboxsizer_horizontal_sftp_privatekey->Add(
-			$this->wxtextctrl_sftp_privatekey,
+			$this->wxfilepickerctrl_sftp_privatekey,
 			1,
 			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
 		);
+		
+		
+		// sftp ssh private key passphrase.
+		$this->wxboxsizer_horizontal_sftp_privatekey_passphrase = new wxBoxSizer(wxHORIZONTAL);
+
+		$this->wxboxsizer_horizontal_sftp_privatekey_passphrase->Add(
+			$this->wxstatictext_sftp_privatekey_passphrase,
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+		);
+		
+		// Put some horizontal space.
+		$this->wxboxsizer_horizontal_sftp_privatekey_passphrase->Add(
+			5,
+			0);
+		
+		$this->wxboxsizer_horizontal_sftp_privatekey_passphrase->Add(
+			$this->wxfilepickerctrl_sftp_privatekey_passphrase,
+			1,
+			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+		);
+		
+		
+		// sftp ssh public key.
+		$this->wxboxsizer_horizontal_sftp_publickey = new wxBoxSizer(wxHORIZONTAL);
+
+		$this->wxboxsizer_horizontal_sftp_publickey->Add(
+			$this->wxstatictext_sftp_publickey,
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+		);
+		
+		// Put some horizontal space.
+		$this->wxboxsizer_horizontal_sftp_publickey->Add(
+			5,
+			0);
+		
+		$this->wxboxsizer_horizontal_sftp_publickey->Add(
+			$this->wxfilepickerctrl_sftp_publickey,
+			1,
+			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
+		);			
 		
 		
 		// sftp authentication method.
@@ -551,6 +623,18 @@ class WebsiteProjectSettings_View extends wxFrame
 			0,
 			wxEXPAND |wxALL,
 			1);
+			
+		$this->wxboxsizer_vertical_sftp_settings->Add(
+			$this->wxboxsizer_horizontal_sftp_privatekey_passphrase,
+			0,
+			wxEXPAND |wxALL,
+			1);
+
+		$this->wxboxsizer_vertical_sftp_settings->Add(
+			$this->wxboxsizer_horizontal_sftp_publickey,
+			0,
+			wxEXPAND |wxALL,
+			1);			
 			
 		$this->wxboxsizer_vertical_sftp_settings->Add(
 			$this->wxboxsizer_horizontal_sftp_authentication_method,
@@ -710,9 +794,9 @@ class WebsiteProjectSettings_View extends wxFrame
 			DILL2_LABEL_WXSTATICTEXT_FTPS_PASSWORD);
 		
 		// Textbox
-		$this->wxtextctrl_ftps_password = new wxTextCtrl(
+		$this->wxfilepickerctrl_ftps_password = new wxFilePickerCtrl(
 			$this->wxpanel_ftps_settings,
-			DILL2_WXID_WXTEXTCTRL_FTPS_PASSWORD);
+			DILL2_WXID_WXFILEPICKERCTRL_FTPS_PASSWORD);
 		
 		
 		$this->wxboxsizer_horizontal_ftps_password = new wxBoxSizer(wxHORIZONTAL);
@@ -728,7 +812,7 @@ class WebsiteProjectSettings_View extends wxFrame
 			0);
 		
 		$this->wxboxsizer_horizontal_ftps_password->Add(
-			$this->wxtextctrl_ftps_password,
+			$this->wxfilepickerctrl_ftps_password,
 			1,
 			wxEXPAND | wxALIGN_LEFT |wxALIGN_CENTRE_VERTICAL);
 			
