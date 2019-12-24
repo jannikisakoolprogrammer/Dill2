@@ -2,20 +2,54 @@
 
 require_once("UploadWebsiteOperationBase.php");
 
-class UploadWebsiteSFTP_Operation_UploadWebsite_AuthSFTP extends UploadWebsiteOperationBase
+class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTPS extends UploadWebsiteOperationBase
 {	
 	protected $password = NULL;
 	
 	
 	public function run()
 	{
-		$this->webserver_ip_address = $this->website_project_settings[0]["sftp_webserver_ip_address"];
-		$this->username = $this->website_project_settings[0]["sftp_username"];
-		$this->password = file_get_contents($this->website_project_settings[0]["sftp_password"]);
-		$this->port = 22;
-		$this->webserver_path = $this->website_project_settings[0]["sftp_webserver_path"];
+		$this->webserver_ip_address = $this->website_project_settings[0]["ftps_webserver_ip_address"];
+		$this->username = $this->website_project_settings[0]["ftps_username"];
+		$this->password = file_get_contents($this->website_project_settings[0]["ftps_password"]);
+		$this->port = 21;
+		$this->webserver_path = $this->website_project_settings[0]["ftps_webserver_path"];
 		
 		echo "Total files: " . $this->total_files_dirs . PHP_EOL;
+		
+		// Connent using FTP
+		// Note: FTPS support will come once wxPHP is ready for PHP7 :).
+		$ftps_conn = ftp_connect(
+			$this->webserver_ip_address,
+			$this->port);
+		
+		if ($ftps_conn)
+		{
+			echo "Connection established." . PHP_EOL;
+			
+			if(ftp_login(
+				$ftps_conn,
+				$this->username,
+				$this->password))
+			{
+				echo "Logged in." . PHP_EOL;
+				
+				ftp_chdir(
+					$ftps_conn,
+					"public_html");
+				print_r(ftp_nlist($ftps_conn, ".")) . PHP_EOL;
+				print_r(
+					ftp_raw(
+						$ftps_conn,
+						sprintf(
+							"md5sum %s",
+							"index.php")));
+			}
+			
+			ftp_close($ftps_conn);
+		}		
+		
+		return;
 		
 		// Let's try to establish the connection.
 		$ssh_conn = ssh2_connect(

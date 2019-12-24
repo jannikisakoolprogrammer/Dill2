@@ -2,20 +2,34 @@
 
 require_once("UploadWebsiteOperationBase.php");
 
-class UploadWebsiteSFTP_Operation_UploadWebsite_AuthSFTP extends UploadWebsiteOperationBase
+class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOperationBase
 {	
 	protected $password = NULL;
 	
 	
 	public function run()
 	{
-		$this->webserver_ip_address = $this->website_project_settings[0]["sftp_webserver_ip_address"];
-		$this->username = $this->website_project_settings[0]["sftp_username"];
-		$this->password = file_get_contents($this->website_project_settings[0]["sftp_password"]);
-		$this->port = 22;
-		$this->webserver_path = $this->website_project_settings[0]["sftp_webserver_path"];
+		$this->webserver_ip_address = $this->website_project_settings[0]["ftps_webserver_ip_address"];
+		$this->username = $this->website_project_settings[0]["ftps_username"];
+		$this->password = file_get_contents($this->website_project_settings[0]["ftps_password"]);
+		$this->port = 21;
+		$this->webserver_path = $this->website_project_settings[0]["ftps_webserver_path"];
 		
 		echo "Total files: " . $this->total_files_dirs . PHP_EOL;
+		
+		// Connent using FTP
+		$ftps_conn = ftp_connect(
+			$this->webserver_ip_address,
+			$this->port);
+		
+		if ($ftps_conn)
+		{
+			echo "Connection established.";
+			
+			ftp_close($ftps_conn);
+		}		
+		
+		return;
 		
 		// Let's try to establish the connection.
 		$ssh_conn = ssh2_connect(

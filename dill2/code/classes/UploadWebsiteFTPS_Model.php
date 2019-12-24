@@ -1,48 +1,49 @@
 <?php
 
-require_once(
-	".." . DIRECTORY_SEPARATOR .
-	"dill2" . DIRECTORY_SEPARATOR .	
-	"code" . DIRECTORY_SEPARATOR .
-	"constants" . DIRECTORY_SEPARATOR .
-	"core_constants.php"
-);
-require_once(
-	".." . DIRECTORY_SEPARATOR .
-	"dill2" . DIRECTORY_SEPARATOR .	
-	"code" . DIRECTORY_SEPARATOR .
-	"constants" . DIRECTORY_SEPARATOR .
-	"lang_en.php"
-);
+require_once("ModelBase.php");
 require_once(
 	".." . DIRECTORY_SEPARATOR .
 	"dill2" . DIRECTORY_SEPARATOR .
 	"code" . DIRECTORY_SEPARATOR .
 	"constants" . DIRECTORY_SEPARATOR .
-	"wxphp_ids.php"
-);
+	"WebsiteProjectSettings_constants.php");
 
-class wxDialogUploadWebsiteFTPS extends wxDialog
+
+class UploadWebsiteFTPS_Model extends ModelBase
 {
-	protected static $_instance = NULL;	
+	protected $website_project_settings = NULL;
+	protected $authentication_method = NULL;
 	
-	protected function __construct(){}
-	protected function __clone(){}
 	
-	public static function getInstance(
-		$_parent,
-		$_id,
-		$_title)
+	public function retrieve_website_project_settings()
 	{
-		if (self::$_instance == NULL)
+		$this->website_project_settings = $this->website_project->db_select(
+			"website_project_settings");
+	}
+	
+	
+	public function retrieve_authentication_method()
+	{
+		if ($this->website_project_settings[0]["ftps_use_ftp"])
 		{
-			self::$_instance = parent::__construct(
-				$_parent,
-				$_id,
-				$_title);
-			
-			self::$_instance->prepare_dialog();
+			$this->authentication_method = DILL2_FTPS_AUTHENTICATION_METHOD_FTP;
 		}
+		else			
+		{
+			$this->authentication_method = DILL2_FTPS_AUTHENTICATION_METHOD_FTPS;
+		}
+	}
+	
+	
+	public function get_authentication_method()
+	{
+		return $this->authentication_method;
+	}
+	
+	
+	public function get_website_project_settings()
+	{
+		return $this->website_project_settings;
 	}
 }
 ?>

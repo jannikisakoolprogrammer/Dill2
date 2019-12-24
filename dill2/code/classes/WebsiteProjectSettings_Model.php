@@ -23,7 +23,6 @@ class WebsiteProjectSettings_Model extends ModelBase
 	protected $sftp_password = "";
 	protected $sftp_privatekey = "";
 	protected $sftp_privatekey_passphrase = "";
-	protected $sftp_publickey = "";
 	protected $sftp_authentication_method = "";
 	
 	protected $ftps_webserver_path = "";
@@ -94,7 +93,6 @@ class WebsiteProjectSettings_Model extends ModelBase
 		$this->set_sftp_password("");
 		$this->set_sftp_privatekey("");
 		$this->set_sftp_privatekey_passhrase("");
-		$this->set_sftp_publickey("");
 		$this->set_sftp_authentication_method(DILL2_SFTP_AUTHENTICATION_METHOD_SSH); // Default is SSH
 		
 		$this->set_ftps_webserver_path("/var/www");
@@ -119,7 +117,6 @@ class WebsiteProjectSettings_Model extends ModelBase
 				"sftp_password",
 				"sftp_privatekey",
 				"sftp_privatekey_passphrase",
-				"sftp_publickey",
 				"sftp_authentication_method",
 				"ftps_webserver_path",
 				"ftps_webserver_ip_address",
@@ -137,7 +134,6 @@ class WebsiteProjectSettings_Model extends ModelBase
 				$this->get_sftp_password(),
 				$this->get_sftp_privatekey(),
 				$this->get_sftp_privatekey_passphrase(),
-				$this->get_sftp_publickey(),
 				$this->get_sftp_authentication_method(),
 				$this->get_ftps_webserver_path(),
 				$this->get_ftps_webserver_ip_address(),
@@ -149,7 +145,6 @@ class WebsiteProjectSettings_Model extends ModelBase
 				SQLITE3_TEXT,
 				SQLITE3_TEXT,
 				SQLITE3_INTEGER,
-				SQLITE3_TEXT,
 				SQLITE3_TEXT,
 				SQLITE3_TEXT,
 				SQLITE3_TEXT,
@@ -180,7 +175,7 @@ class WebsiteProjectSettings_Model extends ModelBase
 		$this->set_sftp_password($this->settings_array[0]["sftp_password"]);
 		$this->set_sftp_privatekey($this->settings_array[0]["sftp_privatekey"]);
 		$this->set_sftp_privatekey_passphrase($this->settings_array[0]["sftp_privatekey_passphrase"]);
-		$this->set_sftp_publickey($this->settings_array[0]["sftp_publickey"]);
+
 		if ($this->settings_array[0]["sftp_authentication_method"] == '')		
 		{
 			$this->set_sftp_authentication_method(DILL2_SFTP_AUTHENTICATION_METHOD_SSH); // Default is SSH.
@@ -313,20 +308,6 @@ class WebsiteProjectSettings_Model extends ModelBase
 	}
 	
 	
-	// Sets the sftp publickey
-	public function set_sftp_publickey($_sftp_publickey)
-	{
-		$this->sftp_publickey = $_sftp_publickey;
-	}
-	
-	
-	// Gets the sftp publickey
-	public function get_sftp_publickey()
-	{
-		return $this->sftp_publickey;
-	}
-	
-	
 	// Sets the sftp authentication method
 	public function set_sftp_authentication_method($_sftp_authentication_method)
 	{
@@ -425,7 +406,6 @@ class WebsiteProjectSettings_Model extends ModelBase
 				"sftp_password",
 				"sftp_privatekey",
 				"sftp_privatekey_passphrase",
-				"sftp_publickey",
 				"sftp_authentication_method",
 				"ftps_webserver_path",
 				"ftps_webserver_ip_address",
@@ -443,7 +423,6 @@ class WebsiteProjectSettings_Model extends ModelBase
 				$this->get_sftp_password(),
 				$this->get_sftp_privatekey(),
 				$this->get_sftp_privatekey_passphrase(),
-				$this->get_sftp_publickey(),
 				$this->get_sftp_authentication_method(),
 				$this->get_ftps_webserver_path(),
 				$this->get_ftps_webserver_ip_address(),
@@ -455,7 +434,6 @@ class WebsiteProjectSettings_Model extends ModelBase
 				SQLITE3_TEXT,
 				SQLITE3_TEXT,
 				SQLITE3_INTEGER,
-				SQLITE3_TEXT,
 				SQLITE3_TEXT,
 				SQLITE3_TEXT,
 				SQLITE3_TEXT,

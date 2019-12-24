@@ -384,22 +384,7 @@ class WebsiteProjectSettings_View extends wxFrame
 		// Textbox
 		$this->wxfilepickerctrl_sftp_privatekey_passphrase = new wxFilePickerCtrl(
 			$this->wxpanel_sftp_settings,
-			DILL2_WXID_WXFILEPICKERCTRL_SFTP_PRIVATEKEY_PASSPHRASE);			
-			
-			
-		//
-		// Option "Public key"
-		//
-		// Label
-		$this->wxstatictext_sftp_publickey = new wxStaticText(
-			$this->wxpanel_sftp_settings,
-			DILL2_WXID_WXSTATICTEXT_SFTP_PUBLICKEY,
-			DILL2_LABEL_WXSTATICTEXT_SFTP_PUBLICKEY);
-		
-		// Textbox
-		$this->wxfilepickerctrl_sftp_publickey = new wxFilePickerCtrl(
-			$this->wxpanel_sftp_settings,
-			DILL2_WXID_WXFILEPICKERCTRL_SFTP_PUBLICKEY);			
+			DILL2_WXID_WXFILEPICKERCTRL_SFTP_PRIVATEKEY_PASSPHRASE);						
 		
 		
 		//
@@ -416,7 +401,7 @@ class WebsiteProjectSettings_View extends wxFrame
 			$this->wxpanel_sftp_settings,
 			DILL2_WXID_WXCHOICE_SFTP_AUTHENTICATION_METHOD,
 			new wxPoint(),
-			new wxSize(),
+			new wxSize(100,25),
 			[]);			
 		
 
@@ -544,28 +529,7 @@ class WebsiteProjectSettings_View extends wxFrame
 			$this->wxfilepickerctrl_sftp_privatekey_passphrase,
 			1,
 			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
-		);
-		
-		
-		// sftp ssh public key.
-		$this->wxboxsizer_horizontal_sftp_publickey = new wxBoxSizer(wxHORIZONTAL);
-
-		$this->wxboxsizer_horizontal_sftp_publickey->Add(
-			$this->wxstatictext_sftp_publickey,
-			0,
-			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
-		);
-		
-		// Put some horizontal space.
-		$this->wxboxsizer_horizontal_sftp_publickey->Add(
-			5,
-			0);
-		
-		$this->wxboxsizer_horizontal_sftp_publickey->Add(
-			$this->wxfilepickerctrl_sftp_publickey,
-			1,
-			wxEXPAND | wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL
-		);			
+		);		
 		
 		
 		// sftp authentication method.
@@ -628,13 +592,7 @@ class WebsiteProjectSettings_View extends wxFrame
 			$this->wxboxsizer_horizontal_sftp_privatekey_passphrase,
 			0,
 			wxEXPAND |wxALL,
-			1);
-
-		$this->wxboxsizer_vertical_sftp_settings->Add(
-			$this->wxboxsizer_horizontal_sftp_publickey,
-			0,
-			wxEXPAND |wxALL,
-			1);			
+			1);		
 			
 		$this->wxboxsizer_vertical_sftp_settings->Add(
 			$this->wxboxsizer_horizontal_sftp_authentication_method,

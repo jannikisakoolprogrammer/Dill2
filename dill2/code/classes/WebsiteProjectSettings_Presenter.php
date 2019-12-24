@@ -98,10 +98,7 @@ class WebsiteProjectSettings_Presenter extends PresenterBase
 			$this->model->get_sftp_privatekey());
 			
 		$this->view->wxfilepickerctrl_sftp_privatekey_passphrase->SetPath(
-			$this->model->get_sftp_privatekey_passphrase());	
-
-		$this->view->wxfilepickerctrl_sftp_publickey->SetPath(
-			$this->model->get_sftp_publickey());			
+			$this->model->get_sftp_privatekey_passphrase());			
 			
 		$this->view->wxchoice_sftp_authentication_method->SetStringSelection(
 			$this->model->get_sftp_authentication_method());
@@ -153,10 +150,7 @@ class WebsiteProjectSettings_Presenter extends PresenterBase
 			$this->view->wxfilepickerctrl_sftp_privatekey->GetPath());
 			
 		$this->model->set_sftp_privatekey_passphrase(
-			$this->view->wxfilepickerctrl_sftp_privatekey_passphrase->GetPath());			
-			
-		$this->model->set_sftp_publickey(
-			$this->view->wxfilepickerctrl_sftp_publickey->GetPath());			
+			$this->view->wxfilepickerctrl_sftp_privatekey_passphrase->GetPath());					
 
 		$this->model->set_sftp_authentication_method(			
 			$this->view->wxchoice_sftp_authentication_method->GetStringSelection());

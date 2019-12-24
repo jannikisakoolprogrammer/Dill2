@@ -1,39 +1,15 @@
 <?php
 
-require_once(
-	".." . DIRECTORY_SEPARATOR .
-	"dill2" . DIRECTORY_SEPARATOR .	
-	"code" . DIRECTORY_SEPARATOR .
-	"constants" . DIRECTORY_SEPARATOR .
-	"core_constants.php"
-);
-require_once(
-	".." . DIRECTORY_SEPARATOR .
-	"dill2" . DIRECTORY_SEPARATOR .	
-	"code" . DIRECTORY_SEPARATOR .
-	"constants" . DIRECTORY_SEPARATOR .
-	"lang_en.php"
-);
-require_once(
-	".." . DIRECTORY_SEPARATOR .
-	"dill2" . DIRECTORY_SEPARATOR .
-	"code" . DIRECTORY_SEPARATOR .
-	"constants" . DIRECTORY_SEPARATOR .
-	"wxphp_ids.php"
-);
-
-class UploadWebsiteFTPS_View extends wxDialog
+class UploadWebsiteFTPS_View extends wxGenericProgressDialog
 {
 	public function __construct(
-		$_parent,
-		$_id,
-		$_title
-	)
+		$_wxwindow_parent)
 	{
 		parent::__construct(
-			$_parent,
-			$_id,
-			$_title);		
+			"FTP(S)",
+			"Upload in progress...",
+			100,
+			$_wxwindow_parent);
 	}
 }
 ?>
