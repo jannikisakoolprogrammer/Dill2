@@ -87,8 +87,17 @@ define( "DILL2_TEXT_MAINFRAME_WXMENU_PROJECT_CREATE_BACKUP", "Create backup" );
 define( "DILL2_HELPTEXT_MAINFRAME_WXMENU_PROJECT_CREATE_BACKUP", "Click here to create a backup (.tar backup) of the current website project." );
 define( "DILL2_TEXT_MAINFRAME_WXMENU_FILE_IMPORT_BACKUP", "Import a backup" );
 define( "DILL2_HELPTEXT_MAINFRAME_WXMENU_FILE_IMPORT_BACKUP", "Click here to import a backup and create a project out of it." );
-define( "DILL2_TEXT_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE", "Upload website" );
-define( "DILL2_HELPTEXT_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE", "Uploads the entire generated website to a webserver" );
+define( "DILL2_TEXT_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE", "Upload website (SFTP over SSH)" );
+define( "DILL2_HELPTEXT_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE", "Uploads the entire generated website to a webserver (SFTP OVER SSH)" );
+
+// Label and help text for the context menu to upload a website to an ftps server.
+define(
+	"DILL2_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS_LABEL",
+	"Upload website (FTPS)");
+define(
+	"DILL2_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS_HELP",
+	"Uploads the entire generated website to a webserver (FTPS)");
+
 define( "DILL2_TEXT_MAINFRAME_WXSTATICTEXT_PICTURE_PREVIEW", "Picture preview" );
 
 define( "DILL2_USERS_MANUAL_LABEL", "Dill 2 - Users manual" );
@@ -173,6 +182,7 @@ define( "DILL2_TEXT_WXMANAGEWEBSITEPROJECTSETTINGSDIALOG_WXSTATICTEXT_PUBLICKEY"
 define( "DILL2_TEXT_WXMANAGEWEBSITEPROJECTSETTINGSDIALOG_WXSTATICTEXT_PRIVATEKEY", "SSH private key:" );
 define( "DILL2_TEXT_WXMANAGEWEBSITEPROJECTSETTINGSDIALOG_WXSTATICTEXT_AUTO_UPLOAD", "Auto upload:" );
 // <-- Dill2 v2.0.0 - 02.07.2017, Jannik Haberbosch (JANHAB)
+
 
 // wxCreateBackupDialog
 define( "DILL2_TEXT_WXMANAGEWEBSITEPROJECTCREATEBACKUP_WXSTATICTEXT_MESSAGE", "Choose a location to create a .tar backup of the website project." );

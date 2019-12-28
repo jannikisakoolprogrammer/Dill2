@@ -56,6 +56,14 @@ require_once(
 	"helpers" . DIRECTORY_SEPARATOR .
 	"backup_helper_functions.php"
 );
+
+require_once(
+	".." . DIRECTORY_SEPARATOR .
+	"dill2" . DIRECTORY_SEPARATOR .
+	"code" . DIRECTORY_SEPARATOR .
+	"helpers" . DIRECTORY_SEPARATOR .
+	"wxPHP_helper_functions.php");
+	
 require_once(
 	"wxNewWebsiteProjectDialog.php"
 );
@@ -89,6 +97,20 @@ require_once(
 require_once(
 	"wxHelpDialog.php"
 );
+
+require_once("WebsiteProjectSettings_Presenter.php");
+require_once("WebsiteProjectSettings_View.php");
+require_once("WebsiteProjectSettings_Model.php");
+
+require_once("UploadWebsiteSFTP_Presenter.php");
+require_once("UploadWebsiteSFTP_View.php");
+require_once("UploadWebsiteSFTP_Model.php");
+require_once("UploadWebsiteSFTP_Logic.php");
+
+require_once("UploadWebsiteFTPS_Presenter.php");
+require_once("UploadWebsiteFTPS_View.php");
+require_once("UploadWebsiteFTPS_Model.php");
+require_once("UploadWebsiteFTPS_Logic.php");
 
 
 class wxDill2Frame extends wxFrame
@@ -668,12 +690,18 @@ class wxDill2Frame extends wxFrame
 
 		// Separator.
 		$this->wxmenu_mainframe_project->AppendSeparator();
-		// Upload website to a web server.
+		// Upload website to a web server over SFTP
 		$this->wxmenu_mainframe_project->Append(
 			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE,
 			DILL2_TEXT_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE,
 			DILL2_HELPTEXT_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE
 		);
+		
+		// Upload website to a web server over FTPS
+		$this->wxmenu_mainframe_project->Append(
+			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS,
+			DILL2_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS_LABEL,
+			DILL2_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS_HELP);
 		
 		// Separator.
 		$this->wxmenu_mainframe_project->AppendSeparator();
@@ -908,9 +936,20 @@ class wxDill2Frame extends wxFrame
         	wxEVT_COMMAND_MENU_SELECTED,
         	array(
         		$this,
-        		"on_upload_website"
+        		"on_upload_website_sftp"
         	)
-        );        
+        );
+		
+		/* Connect event handler that triggers opening the required
+		form to upload a website over FTPS. */
+		$this->Connect(
+			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS,
+			wxEVT_COMMAND_MENU_SELECTED,
+			array(
+				$this,
+				"on_dill2_wxid_mainframe_wxmenu_project_upload_website_ftps_selected"));
+
+		
         $this->connect(
         	DILL2_WXID_MAINFRAME_WXMENU_HELP_ABOUT,
         	wxEVT_COMMAND_MENU_SELECTED,
@@ -1141,6 +1180,10 @@ class wxDill2Frame extends wxFrame
 		$this->wxmenubar_mainframe_mainmenu->Enable(
 			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE, FALSE );
 		
+		wxphp_disable_menu_item(
+			$this->wxmenubar_mainframe_mainmenu,
+			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS);
+		
 		// The 'Open' menu item is disabled if there are no website projects.
 		$choices =	array_diff(
 			scandir(
@@ -1191,6 +1234,10 @@ class wxDill2Frame extends wxFrame
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_FILE_OPEN_PROJECT, TRUE );
 		$this->wxmenubar_mainframe_mainmenu->Enable(
 			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE, TRUE );
+			
+		wxphp_enable_menu_item(
+			$this->wxmenubar_mainframe_mainmenu,
+			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_UPLOAD_WEBSITE_FTPS);
 		
 		$this->root2 = NULL;
 		
@@ -1396,6 +1443,21 @@ class wxDill2Frame extends wxFrame
     
     public function on_dill2_mainframe_wxmenu_project_settings_clicked()
     {
+		$view = new WebsiteProjectSettings_View(
+       		$this,
+       		DILL2_WXID_WXMANAGEWEBSITEPROJECTSETTINGSDIALOG,
+			DILL2_TEXT_WXMANAGEWEBSITEPROJECTSETTINGSDIALOG_TITLE
+		);
+		
+		$model = new WebsiteProjectSettings_Model($this->website_project);
+		
+		$presenter = new WebsiteProjectSettings_Presenter(
+			$view,
+			$model);
+		
+		$presenter->run();
+
+		/*
        	$dialog = new wxManageWebsiteProjectSettingsDialog(
        		$this->website_project,
        		$this,
@@ -1405,6 +1467,7 @@ class wxDill2Frame extends wxFrame
        	$dialog->run();
        	
        	$this->set_unset_state_main_window();
+		*/
     }
     
     
@@ -2193,247 +2256,34 @@ class wxDill2Frame extends wxFrame
 	// <-- Dill2 v2.0.0 - 02.07.2017, Jannik Haberbosch (JANHAB)	
 
 
-	public function on_upload_website()
+	public function on_upload_website_sftp()
 	{
-		/* Uploads the generated website to the webserver.  The path can be set
-		in the projects' settings.
-
-		*/
+		$view = new UploadWebsiteSFTP_View($this);			
+		$model = new UploadWebsiteSFTP_Model($this->website_project);		
+		$logic = new UploadWebsiteSFTP_Logic();			
+		$presenter = new UploadWebsiteSFTP_Presenter(
+			$view,
+			$model,
+			$logic);
 		
-		// --> Dill2 v2.0.0 - 02.07.2017, Jannik Haberbosch (JANHAB)
-		/*  If the option "auto_upload" has been activated and if both key-paths
-		have been set, don't show a dialog, but connect automatically and upload
-		the website automatically.
-		*/
-		// 1. We need to establish a connection to the webserver.
-		// Where to connect to?  Let's fetch the ip address from SQLite.
-		$settings_array = $this->website_project->db_select(
-				"website_project_settings"
-		);
+		$presenter->run();
+	}
+	
+	/*
+	Event handler method that is called when the menu item to upload a website
+	over FTPS has been clicked.
+	*/
+	public function on_dill2_wxid_mainframe_wxmenu_project_upload_website_ftps_selected()
+	{
+		$view = new UploadWebsiteFTPS_View($this);
+		$model = new UploadWebsiteFTPS_Model($this->website_project);
+		$logic = new UploadWebsiteFTPS_Logic();
+		$presenter = new UploadWebsiteFTPS_Presenter(
+			$view,
+			$model,
+			$logic);
 		
-		// We also need the absolute paths to the public and private key files.
-		$auto_upload = $settings_array[0]["auto_upload"];
-		$path_publickey = $settings_array[0]["publickey"];
-		$path_privatekey = $settings_array[0]["privatekey"];
-
-		if( $auto_upload == TRUE
-			&& strlen( $path_publickey )
-			&& strlen( $path_privatekey ))
-		{
-			$this->auto_upload_website();
-			return;
-		}
-		// <-- Dill2 v2.0.0 - 02.07.2017, Jannik Haberbosch (JANHAB)
-
-
-		// We need a dialog to request a username and a password to log into the
-		// machine by using the SSH protocol.
-		$wxdialog_credentials = new wxDialog(
-			$this,
-			DILL2_WXID_WXDIALOG_UPLOADWEBSITE,
-			DILL2_TEXT_WXDIALOG_UPLOADWEBSITE_TITLE
-		);
-		
-		$wxpanel = new wxPanel(
-			$wxdialog_credentials
-		);
-
-		$wxboxsizer_horizontal_username = new wxBoxSizer(
-			wxHORIZONTAL
-		);
-		
-		$wxboxsizer_horizontal_password = new wxBoxSizer(
-			wxHORIZONTAL
-		);
-		
-		$wxboxsizer_horizontal_buttons = new wxBoxSizer(
-			wxHORIZONTAL
-		);
-		
-		$wxboxsizer_vertical_parent = new wxBoxSizer(
-			wxVERTICAL
-		);
-
-		$wxboxsizer_children = array(
-			$wxboxsizer_horizontal_username,
-			$wxboxsizer_horizontal_password,
-			$wxboxsizer_horizontal_buttons
-		);
-		
-		foreach( $wxboxsizer_children as $key => $value )
-		{
-			$wxboxsizer_vertical_parent->Add(
-				$value,
-				1,
-				wxEXPAND | wxALL,
-				10
-			);		
-		}
-
-		// Static text "Username:"
-		$wxstatictext_username = new wxStaticText(
-			$wxpanel,
-			wxID_ANY,
-			DILL2_TEXT_WXCREDENTIALSDIALOG_WXSTATICTEXT_USERNAME
-		);
-		$wxboxsizer_horizontal_username->Add(
-			$wxstatictext_username,
-			1,
-			wxEXPAND | wxALIGN_BOTTOM | wxRIGHT,
-			5
-		);
-		// Text control "Username"
-		$wxtextcontrol_username = new wxTextCtrl(
-			$wxpanel,
-			wxID_ANY,
-			""
-		);
-		$wxboxsizer_horizontal_username->Add(
-			$wxtextcontrol_username,
-			1,
-			wxEXPAND | wxALIGN_TOP
-		);
-		
-		// Static text "Password:"
-		$wxstatictext_password = new wxStaticText(
-			$wxpanel,
-			wxID_ANY,
-			DILL2_TEXT_WXCREDENTIALSDIALOG_WXSTATICTEXT_PASSWORD
-		);
-		$wxboxsizer_horizontal_password->Add(
-			$wxstatictext_password,
-			1,
-			wxEXPAND | wxALIGN_BOTTOM | wxRIGHT,
-			5
-		);
-		// Text control "Password"
-		$wxtextcontrol_password = new wxTextCtrl(
-			$wxpanel,
-			wxID_ANY,
-			"",
-			wxDefaultPosition,
-			wxDefaultSize,
-			wxTE_PASSWORD
-		);
-		$wxboxsizer_horizontal_password->Add(
-			$wxtextcontrol_password,
-			1,
-			wxEXPAND | wxALIGN_TOP
-		);
-		
-		// Button "Cancel"
-		$wxbutton_cancel = new wxButton(
-			$wxpanel,
-			wxID_CANCEL,
-			"Cancel"
-		);
-		$wxboxsizer_horizontal_buttons->Add(
-			$wxbutton_cancel,
-			1,
-			wxALIGN_RIGHT
-		);
-		// Button "Ok"
-		$wxbutton_ok = new wxButton(
-			$wxpanel,
-			wxID_OK,
-			"Ok"
-		);
-		$wxboxsizer_horizontal_buttons->Add(
-			$wxbutton_ok,
-			1,
-			wxALIGN_RIGHT
-		);
-
-		// Fit all controls into the dialog so each of them is visible and aligned.
-		$wxpanel->SetSizer( $wxboxsizer_vertical_parent );
-		$wxboxsizer_vertical_parent->SetSizeHints( $wxdialog_credentials );
-
-
-		// The dialog has now been set up.
-
-		
-		// 1. We need to establish a connection to the webserver.
-		// Where to connect to?  Let's fetch the ip address from SQLite.
-		$settings_array = $this->website_project->db_select(
-				"website_project_settings"
-		);
-		$webserver_ip_address = $settings_array[0]["webserver_ip_address"];
-
-		// Let's try to establish the connection.
-		$ssh_conn = ssh2_connect( $webserver_ip_address, 22 );
-		if( $ssh_conn != FALSE )
-		{
-			// A connection to the web-server has now been established.
-			// Accecpt the fingerprint automatically.
-			ssh2_fingerprint( $ssh_conn );
-			
-			// Next we need to show the dialog so that the user can log into
-			// the remote machine.
-			if( $wxdialog_credentials->ShowModal() == wxID_OK )
-			{
-				$username = $wxtextcontrol_username->GetValue();
-				$password = $wxtextcontrol_password->GetValue();
-
-				if( ssh2_auth_password( $ssh_conn, $username, $password ))
-				{
-					// And now it is time to upload the website to the webserver.
-					// We change the current directory on the local computer and
-					// on the webserver aswell.
-
-					// Local computer:
-					chdir( ".." );					
-					$abspath_website = getcwd() . DIRECTORY_SEPARATOR . "website_projects" . DIRECTORY_SEPARATOR . $this->website_project->project_name . DIRECTORY_SEPARATOR . "website";
-					chdir( $abspath_website );
-
-					// webserver:
-					$webserver_abspath = $settings_array[0]["webserver_path"];
-					
-#					$stream1 = ssh2_exec(
-#						$ssh_conn,
-#						sprintf(
-#							"cd %s; ls -al",
-#							$webserver_abspath
-#						)
-#					);
-#					stream_set_blocking( $stream1, TRUE );
-#					echo stream_get_contents( $stream1 );
-#					fclose( $stream1 );
-#					#chdir( "bin" );
-
-					// Now let's upload the website.
-					$ssh2_sftp = ssh2_sftp( $ssh_conn );
-
-					$this->Enable( FALSE );
-
-					$this->upload_sync(
-						$ssh_conn,
-						$ssh2_sftp,
-						$abspath_website,
-						$webserver_abspath
-					);
-
-					chdir( "../../../bin" );
-
-					// Upload finished, inform the user.
-					$wxdialog_uploaddone = new wxMessageDialog(
-						$this,
-						"The website has been uploaded.",
-						"Website upload finished",
-						wxICON_INFORMATION
-					);
-					$this->Enable( TRUE );
-					$wxdialog_uploaddone->ShowModal();				
-							
-					ssh2_exec( $ssh_conn, "exit" );
-					unset( $ssh_conn );
-				}
-			}
-			else
-			{
-				ssh2_exec( $ssh_conn, "exit" );
-				unset( $ssh_conn );			
-			}			
-		}
+		$presenter->run();
 	}
 
 

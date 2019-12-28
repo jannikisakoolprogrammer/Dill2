@@ -157,19 +157,21 @@ define(
 		website_project_title TEXT,
 		testserver_address TEXT,
 		testserver_port INTEGER,
-		webserver_path TEXT,
-		webserver_ip_address TEXT," .
-		// --> Dill2 v2.0.0 - 02.07.2017, Jannik Haberbosch (JANHAB)
-		// New fields for the auto-login option.
-		"username TEXT,
-		 publickey TEXT,
-		 privatekey TEXT,
-		 auto_upload INTEGER" .
-		// <-- Dill2 v2.0.0 - 02.07.2017, Jannik Haberbosch (JANHAB)
-		"
+		sftp_webserver_path TEXT,
+		sftp_webserver_ip_address TEXT,
+		sftp_username TEXT,
+		sftp_password TEXT,
+		sftp_privatekey TEXT,
+		sftp_authentication_method TEXT,
+		ftps_webserver_path TEXT,
+		ftps_webserver_ip_address TEXT,
+		ftps_username TEXT,
+		ftps_password TEXT,
+		ftps_use_ftp INTEGER
 	);
 	"
 );
+
 
 // --> Dill2 v2.0.0 - 02.07.2017, Jannik Haberbosch (JANHAB)
 /* Alteration of the table 'website_project_settings' for existing website projects.
@@ -201,6 +203,63 @@ define(
 	"ALTER TABLE 'website_project_settings' ADD COLUMN auto_upload INTEGER;"
 );
 // <-- Dill2 v2.0.0 - 02.07.2017, Jannik Haberbosch (JANHAB)
+
+// SFTP
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_WEBSERVER_PATH",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN sftp_webserver_path TEXT;");
+	
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_WEBSERVER_IP_ADDRESS",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN sftp_webserver_ip_address TEXT;");
+
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_USERNAME",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN sftp_username TEXT;");
+	
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_PASSWORD",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN sftp_password TEXT;");	
+
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_PRIVATEKEY",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN sftp_privatekey TEXT;");
+	
+define(	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_AUTHENTICATION_METHOD",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN sftp_authentication_method TEXT;");
+
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_PUBLICKEY",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN sftp_publickey TEXT;");
+
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_PRIVATEKEY_PASSPRHASE",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN sftp_privatekey_passphrase;");
+	
+	
+// FTPS
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_FTPS_WEBSERVER_PATH",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN ftps_webserver_path TEXT;");
+	
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_FTPS_WEBSERVER_IP_ADDRESS",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN ftps_webserver_ip_address TEXT;");
+	
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_FTPS_USERNAME",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN ftps_username TEXT;");
+	
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_FTPS_PASSWORD",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN ftps_password TEXT;");
+
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_FTPS_USE_FTP",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN ftps_use_ftp INTEGER;");	
+
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
