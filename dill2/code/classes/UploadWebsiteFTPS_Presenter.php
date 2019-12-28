@@ -49,6 +49,9 @@ class UploadWebsiteFTPS_Presenter extends PresenterBase
 			$this->view->setRange(
 				$this->logic->get_operation()->get_total_files_dirs());
 			
+			// Register presenter as observer.
+			$this->logic->get_operation()->register_observer($this);					
+			
 			$this->logic->run();
 			
 			$status = TRUE;
