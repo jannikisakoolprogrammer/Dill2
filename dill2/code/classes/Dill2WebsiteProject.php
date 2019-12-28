@@ -191,6 +191,8 @@ class Dill2WebsiteProject
 			$db->exec( DILL2_CORE_WEBSITE_PROJECT_ALTERTABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_AUTO_UPLOAD );			
 		}
 		
+		$res = $db->query( "SELECT * FROM 'website_project_settings';");		
+		
 		if (($res->numColumns() >= 10) && ($res->numColumns() < 21))
 		{
 			// Add new columns.
@@ -206,6 +208,8 @@ class Dill2WebsiteProject
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_FTPS_PASSWORD);						
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_FTPS_USE_FTP);			
 		}
+		
+		$res = $db->query( "SELECT * FROM 'website_project_settings';");		
 		
 		if (($res->numColumns() == 21))
 		{
