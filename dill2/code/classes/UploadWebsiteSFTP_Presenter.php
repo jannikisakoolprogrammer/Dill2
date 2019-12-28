@@ -60,6 +60,8 @@ class UploadWebsiteSFTP_Presenter extends PresenterBase
 		{
 			$status = FALSE;
 			$exception_msg = $e->GetMessage();
+			echo $exception_msg . PHP_EOL;
+			$this->view->destroy();			
 		}
 		
 		

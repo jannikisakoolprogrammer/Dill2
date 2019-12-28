@@ -6,8 +6,8 @@ class UploadWebsiteSFTP_View extends wxGenericProgressDialog
 		$_wxwindow_parent)
 	{
 		parent::__construct(
-			"TITLE",
-			"MESSAGE",
+			"SFTP",
+			"Upload in progress...",
 			100,
 			$_wxwindow_parent);
 	}

@@ -84,7 +84,7 @@ class UploadWebsiteSFTP_Operation_UploadWebsite_AuthSSH extends UploadWebsiteOpe
 		}
 		else
 		{
-			echo "Connection failed.";
+			throw new Exception("Upload failed.");
 		}
 					
 		unset($key);

@@ -60,6 +60,8 @@ class UploadWebsiteFTPS_Presenter extends PresenterBase
 		{
 			$status = FALSE;
 			$exception_msg = $e->GetMessage();
+			echo $exception_msg . PHP_EOL;
+			$this->view->destroy();
 		}
 			
 		// Show new dialog with either an success message or error message.

@@ -59,11 +59,20 @@ class UploadWebsiteSFTP_Operation_UploadWebsite_AuthSFTP extends UploadWebsiteOp
 				
 				echo "Done with uploading files." . PHP_EOL;
 			}
+			else
+			{
+				unset( $ssh_conn );				
+				throw new Exception("Upload failed.");
+			}
 			
 			// Logout
 			ssh2_exec( $ssh_conn, "exit" );
 			unset( $ssh_conn );
-		}		
+		}
+		else
+		{
+			throw new Exception("Upload failed.");
+		}
 	}
 	
 	

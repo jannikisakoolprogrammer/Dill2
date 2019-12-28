@@ -62,8 +62,8 @@ class WebsiteProjectSettings_View extends wxFrame
 		$this->wxboxsizer_vertical->Add(
 			$this->wxboxsizer_horizontal_wxbuttons,
 			0,
-			wxALL | wxALIGN_TOP,
-			1);			
+			wxALL,
+			1);		
 			
 		
 		// Place notebook inside panel now.		
@@ -108,12 +108,16 @@ class WebsiteProjectSettings_View extends wxFrame
 			$this->wxbutton_cancel,
 			1,
 			wxALIGN_LEFT
-		);			
+		);
 		
 			
-		// Fit all controls into the dialog so each of them is visible and aligned.				
-		$this->wxpanel->SetSizer( $this->wxboxsizer_vertical );
-		$this->wxboxsizer_vertical->SetSizeHints( $this->wxpanel );		
+		// Fit all controls into the dialog so each of them is visible and aligned.					
+		$this->wxpanel->SetSizer($this->wxboxsizer_vertical);
+		$this->wxboxsizer_vertical->SetSizeHints($this->wxpanel);
+		$this->SetSize(
+				700,
+				290);		
+		
 	}
 	
 	
@@ -400,9 +404,9 @@ class WebsiteProjectSettings_View extends wxFrame
 		$this->wxchoice_sftp_authentication_method = new wxChoice(
 			$this->wxpanel_sftp_settings,
 			DILL2_WXID_WXCHOICE_SFTP_AUTHENTICATION_METHOD,
-			new wxPoint(),
-			new wxSize(100,25),
-			[]);			
+			wxDefaultPosition,
+			wxDefaultSize,
+			[]);
 		
 
 		// Layout wxcontrols.
@@ -611,7 +615,7 @@ class WebsiteProjectSettings_View extends wxFrame
 
 		// Fit all controls into the dialog so each of them is visible and aligned.
 		$this->wxpanel_sftp_settings->SetSizer($this->wxboxsizer_vertical_sftp_settings);
-		$this->wxboxsizer_vertical_sftp_settings->SetSizeHints($this->wxpanel_sftp_settings);			
+		$this->wxboxsizer_vertical_sftp_settings->SetSizeHints($this->wxpanel_sftp_settings);
 	}
 	
 	protected function createwxNotebookPageFTPSOptions()

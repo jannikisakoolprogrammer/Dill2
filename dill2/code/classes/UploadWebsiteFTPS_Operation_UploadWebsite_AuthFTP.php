@@ -23,6 +23,12 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 		
 		if ($ftps_conn)
 		{
+			// Change timeout to 10 seconds.
+			ftp_set_option(
+				$ftps_conn,
+				FTP_TIMEOUT_SEC,
+				10);
+				
 			echo "Connection established." . PHP_EOL;
 			
 			if(ftp_login(
@@ -56,9 +62,17 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 				
 				echo "Done with uploading files." . PHP_EOL;
 			}
+			else
+			{
+				throw new Exception("Login failed.");
+			}			
 			
 			ftp_close($ftps_conn);
-		}	
+		}
+		else
+		{
+			throw new Exception("Connection failed.");
+		}		
 	}
 	
 	
