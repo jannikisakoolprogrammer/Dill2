@@ -41,7 +41,7 @@ class Dill2 extends wxApp
 		$wxbitmap_splashscreen = new wxBitmap(
 			".." . 
 			DIRECTORY_SEPARATOR .
-			"logo_icon" .
+			"graphics" .
 			DIRECTORY_SEPARATOR .
 			"dill2_logo.jpg",
 			wxBITMAP_TYPE_ANY
@@ -49,7 +49,8 @@ class Dill2 extends wxApp
 		
 		$wxsplashscreen = new wxSplashScreen(
 			$wxbitmap_splashscreen,
-			wxSPLASH_CENTRE_ON_SCREEN | wxSPLASH_TIMEOUT,
+			wxSPLASH_TIMEOUT |
+			wxSPLASH_CENTRE_ON_PARENT,
 			4000,
 			NULL,
 			-1
@@ -69,7 +70,7 @@ class Dill2 extends wxApp
 			new wxIcon(
 				".." . 
 				DIRECTORY_SEPARATOR .
-				"logo_icon" .
+				"graphics" .
 				DIRECTORY_SEPARATOR .				
 				"dill2_logo_icon.ico",
 				wxBITMAP_TYPE_ICO
