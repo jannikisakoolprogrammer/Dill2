@@ -18,7 +18,11 @@ Info:  Provides core constants for the tool.  Every constant begins
 define( "DILL2_CORE_CONSTANT_TOOL_NAME", "Dill2" );
 define( "DILL2_CORE_CONSTANT_TOOL_CAPTION", "A tool for creating and maintaining static websites." );
 define( "DILL2_CORE_CONSTANT_TOOL_AUTHOR", "Jannik Haberbosch" );
+<<<<<<< HEAD
 define( "DILL2_CORE_CONSTANT_TOOL_CURRENT_VERSION", "2.1.2" );
+=======
+define( "DILL2_CORE_CONSTANT_TOOL_CURRENT_VERSION", "2.1.0" );
+>>>>>>> 484f9449a7a62569719efc485159793b7d6d870f
 define( "DILL2_CORE_CONSTANT_TOOL_CURRENT_VERSION_RELEASE", "" );
 define( "DILL2_CORE_CONSTANT_TOOL_LICENSE", "GNU General Public License 3.0" );
 define(
