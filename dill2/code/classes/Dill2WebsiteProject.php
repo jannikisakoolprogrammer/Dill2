@@ -38,6 +38,8 @@ class Dill2WebsiteProject
 	public $item_already_edited;
 	/* 2015-04-19 - JHA - END */
 	
+	public $observer_generate_website_view = NULL;
+	
 	
 	function __construct( $_name, $_create_new = TRUE )
 	{
@@ -1218,6 +1220,9 @@ class Dill2WebsiteProject
 				$php_content
 			);
 		}
+		
+		// Always close progress dialog window.
+		$this->close_observer_generate_website_view();		
 	}
 	
 	
@@ -1331,9 +1336,12 @@ class Dill2WebsiteProject
 				$page_content
 			);
 			
+			// Upgrade progress bar.
+			$this->notify_observer_generate_website_view();
+			
 			// Go deeper.
 			$this->generate_pages( $node["id"], $cur_dir, $website_project_title, $all_pages_array );
-		}
+		}	
 	}
 	
 	
@@ -1686,6 +1694,24 @@ class Dill2WebsiteProject
 			}
 		}
 		return FALSE;	
+	}
+	
+	
+	public function register_observer_generate_website(
+		$_generate_website_view)
+	{
+		$this->observer_generate_website_view = $_generate_website_view;
+	}
+	
+	
+	public function notify_observer_generate_website_view()
+	{
+		$this->observer_generate_website_view->update_progress_dialog();
+	}
+	
+	public function close_observer_generate_website_view()
+	{
+		$this->observer_generate_website_view->Show(0);
 	}
 }
 ?>

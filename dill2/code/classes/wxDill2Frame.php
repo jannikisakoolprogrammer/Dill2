@@ -112,6 +112,8 @@ require_once("UploadWebsiteFTPS_View.php");
 require_once("UploadWebsiteFTPS_Model.php");
 require_once("UploadWebsiteFTPS_Logic.php");
 
+require_once("GenerateWebsite_View.php");
+
 
 class wxDill2Frame extends wxFrame
 {
@@ -1933,7 +1935,24 @@ class wxDill2Frame extends wxFrame
 	
 	public function on_dill2_mainframe_wxmenu_project_generate_website_clicked()
 	{
+		// Create instance of generic progress bar.
+		// And pass to it the website project instance "$this->website_project".
+		// For fetch the amount of pages to generate.
+		// And to register "$this->website_project" for the callback function.
+		$generate_website_view = new GenerateWebsite_View(
+			$this,
+			$this->website_project);
+		
+		// Run generation.
 		$this->website_project->generate_website();
+		
+		// Show a success message.
+		$info_dialog = new wxMessageDialog(
+			$this,
+			"The website was generated successfully.",
+			"Website creation successful");
+			
+		$info_dialog->ShowModal();
 	}
 	
 	
