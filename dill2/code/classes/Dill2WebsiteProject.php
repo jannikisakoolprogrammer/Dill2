@@ -74,6 +74,9 @@ class Dill2WebsiteProject
 			done. */
 			$this->update_website_project_database( $_name );
 			// <-- Dill2 v2.0.0 - 02.07.2017, Jannik Haberbosch (JANHAB)
+			
+			// Update database table 'page' if necessary.
+			$this->update_database_table_page($_name);
 
 			// Set project variables.
 			$this->project_name = $_name;
@@ -170,8 +173,7 @@ class Dill2WebsiteProject
 	}
 	
 	
-	/*  This function updates the 'website_project_settings' database table.
-	It adds three new fields (username, password and auto_upload) to the table.
+	/*  This function updates the several database tables.
 	*/
 	private function update_website_project_database( $_name )
 	{
@@ -222,6 +224,33 @@ class Dill2WebsiteProject
 
 		// Close the connection.
 		$db->close();
+	}
+	
+	
+	private function update_database_table_page($_name)
+	{
+		// Connect to the existing db.
+		$db_path = ".." . DIRECTORY_SEPARATOR .
+			DILL2_CORE_CONSTANT_WEBSITE_PROJECTS_PATH . DIRECTORY_SEPARATOR .
+			$_name . DIRECTORY_SEPARATOR .
+			DILL2_CORE_WEBSITE_PROJECT_DATABASE_PATH;
+			
+		$db = new SQLite3( $db_path );
+		
+		$res = $db->query( "SELECT * FROM 'page';");
+		
+		if (($res->numColumns() == 6)) // Add field 'state'.
+		{
+			// Add new field 'state'.
+			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTERTABLE_PAGE_ADD_COL_STATE);
+			
+			// Set field 'state' to:
+			// DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_ENABLED
+			$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_TABLE_PAGE_COL_STATE);			
+		}
+		
+		// Close the connection.
+		$db->close();		
 	}
 	
 	
@@ -1268,6 +1297,11 @@ class Dill2WebsiteProject
 		$cur_dir_static = $cur_dir;
 		foreach( $nodes as $node )
 		{
+			if ($node["state"] == DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_DISABLED)
+			{
+				continue; // Do not generate disabled pages.
+			}
+			
 			$cur_dir = $cur_dir_static . DIRECTORY_SEPARATOR . $node["name"];
 			mkdir( $this->abspath_websiteproject_website_pages . $cur_dir );
 			

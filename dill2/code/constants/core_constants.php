@@ -96,10 +96,20 @@ define(
 		sort_id INTEGER,
 		parent_id INTEGER,
 		template_id INTEGER,
+		state TEXT,
 		FOREIGN KEY(parent_id) REFERENCES page(id) ON DELETE CASCADE
 	);
 	"
 );
+
+/* Add a new column "state" to the table "page".  This column defines the state
+ of the page (Enabled, Preview, Disabled).  These control, if a page is created
+ and/or uploaded. */
+ define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTERTABLE_PAGE_ADD_COL_STATE",
+	"ALTER TABLE 'page' ADD COLUMN state TEXT;");
+
+
 // CSS files are stored in this table.
 define(
 	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_CSS",
@@ -295,5 +305,26 @@ define(
 	"DILL2_CORE_CONSTANT_PREVIEW_IMAGE_HEIGHT",
 	120
 );
+
+define(
+	"DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_EMPTY",
+	"");
+
+define(
+	"DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_ENABLED",
+	"Enabled");
+	
+define(
+	"DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW",
+	"Preview");
+
+define(
+	"DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_DISABLED",
+	"Disabled");
+	
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_TABLE_PAGE_COL_STATE",
+	"UPDATE 'page'
+		SET state = 'Enabled';");
 
 ?>

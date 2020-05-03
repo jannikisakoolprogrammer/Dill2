@@ -68,6 +68,10 @@ class wxManageWebsiteStructureDialog extends wxDialog
 	structure once again, but without the website branch (and elements below it).
 	
 	*/
+	
+	protected $wxcombobox_state = NULL;
+	
+	
 	function __construct(
 		$website_project,
 		$parent,
@@ -78,7 +82,10 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		parent::__construct(
 			$parent,
 			$id,
-			$title
+			$title,
+			wxDefaultPosition,
+			wxDefaultSize,
+			wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER
 		);
 		
 		$this->parent = $parent;
@@ -149,7 +156,7 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_right_child->Add(
 			$this->wxbutton_addelement,
-			1,
+			0,
 			wxEXPAND
 		);
 		
@@ -162,7 +169,7 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		$this->wxbutton_renameelement->Enable( FALSE );
 		$this->wxboxsizer_vertical_right_child->Add(
 			$this->wxbutton_renameelement,
-			1,
+			0,
 			wxEXPAND
 		);
 		// Button for deleting an existing element.
@@ -174,7 +181,7 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		$this->wxbutton_deleteelement->Enable( FALSE );		
 		$this->wxboxsizer_vertical_right_child->Add(
 			$this->wxbutton_deleteelement,
-			1,
+			0,
 			wxEXPAND
 		);
 		// Button for moving an element up.
@@ -186,7 +193,7 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		$this->wxbutton_moveelementup->Enable( FALSE );		
 		$this->wxboxsizer_vertical_right_child->Add(
 			$this->wxbutton_moveelementup,
-			1,
+			0,
 			wxEXPAND
 		);
 		// Button for moving an element down.
@@ -198,7 +205,7 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		$this->wxbutton_moveelementdown->Enable( FALSE );		
 		$this->wxboxsizer_vertical_right_child->Add(
 			$this->wxbutton_moveelementdown,
-			1,
+			0,
 			wxEXPAND
 		);
 			
@@ -211,7 +218,7 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		$this->wxbutton_moveelementtree->Enable( FALSE );		
 		$this->wxboxsizer_vertical_right_child->Add(
 			$this->wxbutton_moveelementtree,
-			1,
+			0,
 			wxEXPAND
 		);
 		
@@ -373,6 +380,9 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		$wxhbox_template_name = new wxBoxSizer(
 			wxHORIZONTAL
 		);
+		
+		$wxboxsizer_horizontal_state = new wxBoxSizer(wxHORIZONTAL);
+		
 		$wxhbox_okcancel_buttons = new wxBoxSizer(
 			wxHORIZONTAL
 		);
@@ -399,6 +409,33 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			$this->website_project->get_template_names(),
 			wxLB_SINGLE
 		);
+		
+		// Dropdown for selecting a page status.  Default is 'Enabled'.
+		// This controls whether a page is generated, uploaded or left alone
+		// during page generation.
+		$wxcombobox_state = new wxComboBox(
+			$wxpanel,
+			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE,
+			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_ENABLED,
+			wxDefaultPosition,
+			wxDefaultSize,
+			array(
+				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_ENABLED,
+				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW,
+				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_DISABLED
+			),
+			wxCB_DROPDOWN | wxCB_READONLY);
+		
+		// Add some space.
+		$wxboxsizer_horizontal_state->AddSpacer(2);
+		
+		// And combobox to the box sizer.
+		$wxboxsizer_horizontal_state->Add(
+			$wxcombobox_state,
+			0,
+			wxEXPAND);		
+		
+		
 		$wxbutton_canceldialog = new wxButton(
 			$wxpanel,
 			wxID_CANCEL,
@@ -410,31 +447,56 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			"Ok"
 		);
 		$wxhbox_page_name->Add(
-			$wxstatictext_page_name
+			$wxstatictext_page_name,
+			1,
+			wxEXPAND
 		);
 		$wxhbox_page_name->Add(
-			$wxtextctrl_page_name
+			$wxtextctrl_page_name,
+			2,
+			wxEXPAND
 		);
 		$wxhbox_template_name->Add(
-			$wxstatictext_template_name
+			$wxstatictext_template_name,
+			1,
+			wxEXPAND
 		);
 		$wxhbox_template_name->Add(
-			$wxlistbox_template_name
+			$wxlistbox_template_name,
+			2,
+			wxEXPAND
 		);
+		
 		$wxhbox_okcancel_buttons->Add(
-			$wxbutton_canceldialog
-		);
+			$wxbutton_okdialog,
+			0,
+			wxEXPAND);
+		
 		$wxhbox_okcancel_buttons->Add(
-			$wxbutton_okdialog
+			$wxbutton_canceldialog,
+			0,
+			wxEXPAND);
+
+		$wxvbox->Add(
+			$wxhbox_page_name,
+			0,
+			wxEXPAND
 		);
 		$wxvbox->Add(
-			$wxhbox_page_name
+			$wxhbox_template_name,
+			0,
+			wxEXPAND
 		);
+		
 		$wxvbox->Add(
-			$wxhbox_template_name
-		);
+			$wxboxsizer_horizontal_state,
+			0,
+			wxEXPAND);
+		
 		$wxvbox->Add(
-			$wxhbox_okcancel_buttons
+			$wxhbox_okcancel_buttons,
+			0,
+			wxEXPAND
 		);
         // Distribute / layout the controls in the mainframe.
         $wxpanel->SetSizer( $wxvbox );
@@ -443,9 +505,45 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		// And now show the dialog to the user.
 		while( $wxdialog->ShowModal() == wxID_OK )
 		{
+			/* If no name was entered, show an error dialog and make the user
+			enter one. */
+			if ($wxtextctrl_page_name->GetValue() == "")
+			{
+				$wxdialog_error = new wxMessageDialog(
+					$wxdialog,
+					"Please enter a valid name.",
+					"Error",
+					wxOK |
+					wxCENTRE |
+					wxICON_ERROR);
+				$wxdialog_error->ShowModal();
+					
+				continue;				
+			}
+			
+			/* If no template was chosen, show an error dialog and make
+			sure the users chooses one. */
+			if ($wxlistbox_template_name->GetSelection() == wxNOT_FOUND)
+			{
+				$wxdialog_error = new wxMessageDialog(
+					$wxdialog,
+					"Please choose a template.",
+					"Error",
+					wxOK |
+					wxCENTRE |
+					wxICON_ERROR);
+				$wxdialog_error->ShowModal();
+					
+				continue;
+			}
+					
 			/* The name of the page which the user might have selected is stored
 			in here. */
 			$user_input = $wxtextctrl_page_name->GetValue();
+			
+			// Get the state of the page to create.
+			$state = $wxcombobox_state->GetStringSelection();
+			
 			$wxtreeitemdata = $this->wxtreectrl_website_structure->GetItemData(
 				$user_selection
 			);
@@ -503,19 +601,22 @@ class wxManageWebsiteStructureDialog extends wxDialog
 							"name",
 							"content",
 							"sort_id",
-							"template_id"
+							"template_id",
+							"state"
 						),
 						array(
 							$user_input,
 							"",
 							$sort_id,
-							$template_id
+							$template_id,
+							$state
 						),
 						array(
 							SQLITE3_TEXT,
 							SQLITE3_TEXT,
 							SQLITE3_INTEGER,
-							SQLITE3_INTEGER
+							SQLITE3_INTEGER,
+							SQLITE3_TEXT
 						)
 					);
 					
@@ -523,6 +624,23 @@ class wxManageWebsiteStructureDialog extends wxDialog
 					show the changes to the user by refreshing the existing
 					website structure. */
 					$this->refresh_related_controls();
+				}
+				else
+				{
+					/* Error: A page with the same name in the current branch
+					already exists. */
+					$wxdialog_error = new wxMessageDialog(
+						$wxdialog,
+						"A page with the same name in the current branch already
+						exists.
+						Please choose another name.",
+						"Error",
+						wxOK |
+						wxCENTRE |
+						wxICON_ERROR);
+					$wxdialog_error->ShowModal();
+						
+					continue;					
 				}
 			}
 			else
@@ -579,27 +697,47 @@ class wxManageWebsiteStructureDialog extends wxDialog
 							"content",
 							"sort_id",
 							"template_id",
-							"parent_id"
+							"parent_id",
+							"state"
 						),
 						array(
 							$user_input,
 							"",
 							$sort_id,
 							$template_id,
-							$wxclientdata->element_id
+							$wxclientdata->element_id,
+							$state
 						),
 						array(
 							SQLITE3_TEXT,
 							SQLITE3_TEXT,
 							SQLITE3_INTEGER,
 							SQLITE3_INTEGER,
-							SQLITE3_INTEGER
+							SQLITE3_INTEGER,
+							SQLITE3_TEXT
 						)
 					);
 					
 					/* The last task is to refresh the website structure in the
 					dialog, so that the user can see the effects immediately. */
 					$this->refresh_related_controls();
+				}
+				else
+				{
+					/* Error: A page with the same name in the current branch
+					already exists. */
+					$wxdialog_error = new wxMessageDialog(
+						$wxdialog,
+						"A page with the same name in the current branch already
+						exists.
+						Please choose another name.",
+						"Error",
+						wxOK |
+						wxCENTRE |
+						wxICON_ERROR);
+					$wxdialog_error->ShowModal();
+						
+					continue;						
 				}
 			}
 			break;
@@ -626,6 +764,8 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			$wxtreeitemdata->element_parent_id = $value["self"]["parent_id"];
 			$wxtreeitemdata->element_sort_id = $value["self"]["sort_id"];
 			$wxtreeitemdata->element_name = $value["self"]["name"];
+			$wxtreeitemdata->element_state = $value["self"]["state"];
+			$wxtreeitemdata->element_template_id = $value["self"]["template_id"];
 			
 			// Will only be called in the lowest "level" (no recursion).
 			if( $is_root )
@@ -650,6 +790,33 @@ class wxManageWebsiteStructureDialog extends wxDialog
 					$wxtreeitemdata
 				);
 			}
+			
+			if ($wxtreeitemdata->element_state == DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW)
+			{
+				$item_colour = new wxColour(
+					255,
+					125,
+					0);
+			}
+			else if ($wxtreeitemdata->element_state == DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_DISABLED)
+			{
+				$item_colour = new wxColour(
+					255,
+					50,
+					0);					
+			}
+			else
+			{
+				$item_colour = new wxColour(
+					0,
+					0,
+					0);
+			}
+			
+			$this->wxtreectrl_website_structure->SetItemTextColour(
+				$wxtreeitemid,
+				$item_colour);
+					
 			// Go deeper in the tree structure if necessary.
 			$this->update_website_structure( $value["children"], $wxtreeitemid, FALSE, $branch_to_ignore_id );
 			$this->wxtreectrl_website_structure->Expand( $wxtreeitemid );
@@ -715,6 +882,16 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			);			
 		}
 		
+		// Remove the element chosen from the siblings list.
+		foreach($siblings as $key => $value)
+		{
+			if ($value["id"] == $selected_item_id)
+			{
+				unset($siblings[$key]);
+				break;
+			}
+		}
+		
 		// Now we need to create a dialog.
 		$wxdialog = new wxDialog(
 			$this,
@@ -747,6 +924,52 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			$this->website_project->get_template_names(),
 			wxLB_SINGLE
 		);
+		
+		// Set template already chosen.
+		$already_set_template = $this->website_project->db_select(
+			"template",
+			array(
+				"name"
+			),
+			array(
+				"id",
+				"=",
+				$selected_item_data->element_template_id,
+				SQLITE3_TEXT
+			)
+		);
+		
+		$wxlistbox_template_name->SetStringSelection($already_set_template[0]["name"]);
+		
+		// Dropdown for selecting a page status.  Default is 'Enabled'.
+		// This controls whether a page is generated, uploaded or left alone
+		// during page generation.
+		$wxcombobox_state = new wxComboBox(
+			$wxpanel,
+			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE,
+			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_ENABLED,
+			wxDefaultPosition,
+			wxDefaultSize,
+			array(
+				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_ENABLED,
+				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW,
+				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_DISABLED
+			),
+			wxCB_DROPDOWN | wxCB_READONLY);
+			
+		$wxcombobox_state->SetStringSelection($selected_item_data->element_state);
+	
+		
+		// Add some space.
+		$wxboxsizer_horizontal_state = new wxBoxSizer(wxHORIZONTAL);		
+		$wxboxsizer_horizontal_state->AddSpacer(2);
+		
+		// And combobox to the box sizer.
+		$wxboxsizer_horizontal_state->Add(
+			$wxcombobox_state,
+			0,
+			wxEXPAND);
+		
 		$wxbutton_canceldialog = new wxButton(
 			$wxpanel,
 			wxID_CANCEL,
@@ -757,45 +980,64 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			wxID_OK,
 			"Ok"
 		);
-		$wxvbox = new wxBoxSizer(
-			wxVERTICAL
-		);
-		$wxhbox_page_name = new wxBoxSizer(
-			wxHORIZONTAL
-		);
-		$wxhbox_template_name = new wxBoxSizer(
-			wxHORIZONTAL
-		);
-		$wxhbox_cancelok_buttons = new wxBoxSizer(
-			wxHORIZONTAL
-		);
+		
+		
+		// Add widgets to sizers.
+		$wxvbox = new wxBoxSizer(wxVERTICAL);		
+		$wxhbox_page_name = new wxBoxSizer(wxHORIZONTAL);		
+		$wxhbox_template_name = new wxBoxSizer(wxHORIZONTAL);
+		$wxhbox_cancelok_buttons = new wxBoxSizer(wxHORIZONTAL);
+		
 		$wxhbox_page_name->Add(
-			$wxstatictext_page_name
-		);
+			$wxstatictext_page_name,
+			1,
+			wxEXPAND);
+			
 		$wxhbox_page_name->Add(
-			$wxtextctrl_page_name
-		);
+			$wxtextctrl_page_name,
+			2,
+			wxEXPAND);
+			
 		$wxhbox_template_name->Add(
-			$wxstatictext_template_name
-		);
+			$wxstatictext_template_name,
+			1,
+			wxEXPAND);
+			
 		$wxhbox_template_name->Add(
-			$wxlistbox_template_name
-		);
+			$wxlistbox_template_name,
+			2,
+			wxEXPAND);
+		
 		$wxhbox_cancelok_buttons->Add(
-			$wxbutton_canceldialog
-		);
+			$wxbutton_okdialog,
+			0,
+			wxEXPAND);
+		
 		$wxhbox_cancelok_buttons->Add(
-			$wxbutton_okdialog
-		);
+			$wxbutton_canceldialog,
+			0,
+			wxEXPAND);
+
 		$wxvbox->Add(
-			$wxhbox_page_name
-		);
+			$wxhbox_page_name,
+			0,
+			wxEXPAND);
+			
 		$wxvbox->Add(
-			$wxhbox_template_name
-		);
+			$wxhbox_template_name,
+			0,
+			wxEXPAND);
+		
 		$wxvbox->Add(
-			$wxhbox_cancelok_buttons		
-		);
+			$wxboxsizer_horizontal_state,
+			0,
+			wxEXPAND);		
+		
+		$wxvbox->Add(
+			$wxhbox_cancelok_buttons,
+			0,
+			wxEXPAND);
+		
         /* Distribute / layout the controls in the mainframe so its' all nicely
         alligned. */
         $wxpanel->SetSizer( $wxvbox );
@@ -809,19 +1051,43 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			$user_input_pagename = $wxtextctrl_page_name->GetValue();
 			if( strlen( trim( $user_input_pagename ) ) == 0 )
 			{
-				break;
+				$wxdialog_error = new wxMessageDialog(
+					$wxdialog,
+					"Please enter a valid name.",
+					"Error",
+					wxOK |
+					wxCENTRE |
+					wxICON_ERROR);
+				$wxdialog_error->ShowModal();
+					
+				continue;				
 			}
-						
-			if( $wxlistbox_template_name->GetSelection() != wxNOT_FOUND )
+			
+			/* If no template was chosen, show an error dialog and make
+			sure the users chooses one. */
+			if ($wxlistbox_template_name->GetSelection() == wxNOT_FOUND)
 			{
-				$user_input_template = $wxlistbox_template_name->GetString(
-					$wxlistbox_template_name->GetSelection()
-				);
+				$wxdialog_error = new wxMessageDialog(
+					$wxdialog,
+					"Please choose a template.",
+					"Error",
+					wxOK |
+					wxCENTRE |
+					wxICON_ERROR);
+				$wxdialog_error->ShowModal();
+					
+				continue;
 			}
+			
+			// Get the state of the page to create.
+			$state = $wxcombobox_state->GetStringSelection();
+			
+			// Fetch template.
+			$user_input_template = $wxlistbox_template_name->GetString(
+					$wxlistbox_template_name->GetSelection());
 
 			// A page with the same name must not yet exist in the current branch.
-			if( $this->pagename_exists( $siblings, $user_input_pagename ) &&
-				!isset( $user_input_template ) )
+			if( $this->pagename_exists( $siblings, $user_input_pagename ))
 			{
 				/* Display a wxDialog to the user which states that a page
 				with the chosen name already exists in the current page.  It
@@ -833,8 +1099,11 @@ class wxManageWebsiteStructureDialog extends wxDialog
 						"branch.  Please choose another name.",
 						$user_input_pagename
 					),
-					DILL2_TEXT_DIALOG_ERROR_CAPTION
-				);
+					DILL2_TEXT_DIALOG_ERROR_CAPTION,
+					wxOK |
+					wxCENTRE |
+					wxICON_ERROR);
+					
 				$wxdialog_error->ShowModal();
 				continue;
 			}
@@ -859,15 +1128,18 @@ class wxManageWebsiteStructureDialog extends wxDialog
 					"page",
 					array(
 						"name",
-						"template_id"
+						"template_id",
+						"state"
 					),
 					array(
 						$user_input_pagename,
-						$tmp_template[0]["id"]
+						$tmp_template[0]["id"],
+						$state
 					),
 					array(
 						SQLITE3_TEXT,
-						SQLITE3_INTEGER
+						SQLITE3_INTEGER,
+						SQLITE3_TEXT
 					),
 					array(
 						"id",
@@ -886,12 +1158,15 @@ class wxManageWebsiteStructureDialog extends wxDialog
 				$this->website_project->db_update(
 					"page",
 					array(
-						"name"
+						"name",
+						"state"
 					),
 					array(
-						$user_input_pagename
+						$user_input_pagename,
+						$state
 					),
 					array(
+						SQLITE3_TEXT,
 						SQLITE3_TEXT
 					),
 					array(
@@ -976,6 +1251,7 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		inside the wxWidget has been selected.
 		
 		*/
+		
 		// The ID of the element that has been selected.
 		$selected_element_id = NULL;
 		$selected_element_client_data = NULL;		
@@ -1017,7 +1293,7 @@ class wxManageWebsiteStructureDialog extends wxDialog
 	
 	
 	public function on_left_click_wxtreectrl_managewebsitestructuredialog( $wxtreeevent )
-	{
+	{	
 		// The user is about to move a selected element into another element.
 		if( $this->mode_move_element_tree )
 		{
@@ -1113,7 +1389,7 @@ class wxManageWebsiteStructureDialog extends wxDialog
 				{
 					$this->wxbutton_moveelementup->Enable( FALSE );
 				}
-			}
+			}			
 		}
 	}
 	
@@ -1322,6 +1598,12 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		
 		*/
 		
+		// Bugfix: Prevent child elements from having no parent id.
+		if ($this->mode_move_element_tree == FALSE)
+		{
+			return;
+		}
+		
 		$db_selected_item_array = $this->website_project->db_select(
 			"page",
 			array(
@@ -1344,6 +1626,74 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		// Where to move the selected branch into?
 		if( $wxtreeitemdata->element_id == -1 )
 		{
+			/* Now we need to find out whether the user has selected a parent element
+			or not.  This is required to check for any naming collisions before
+			trying to insert. */
+			$previously_chosen_element = $this->website_project->db_select(
+				"page",
+				"*",
+				array(
+					"id",
+					"=",
+					$this->wxtreectrl_selected_element_id,
+					SQLITE3_INTEGER
+				)
+			);
+
+			// A parent-page-element has been chosen. Fetch all siblings.
+			$siblings = $this->website_project->db_select(
+				"page",
+				"*",
+				array(
+					"parent_id",
+					"IS",
+					NULL,
+					SQLITE3_INTEGER
+				)
+			);
+			
+			// Remove the element chosen from the siblings list.
+			foreach($siblings as $key => $value)
+			{
+				if ($value["id"] == $previously_chosen_element[0]["id"])
+				{
+					unset($siblings[$key]);
+					break;
+				}
+			}			
+			
+			// Now check for name collisions.
+			// A page with the same name must not yet exist in the current branch.
+			if( $this->pagename_exists( $siblings, $previously_chosen_element[0]["name"]))
+			{							
+				$this->mode_move_element_tree = FALSE;	
+				$this->refresh_related_controls();				
+				$this->wxbutton_addelement->Enable( TRUE );
+				$this->wxbutton_renameelement->Enable( FALSE );
+				$this->wxbutton_deleteelement->Enable( FALSE );
+				$this->wxbutton_moveelementup->Enable( FALSE );
+				$this->wxbutton_moveelementdown->Enable( FALSE );
+				$this->wxbutton_moveelementtree->Enable( FALSE );	
+			
+				/* Display a wxDialog to the user which states that a page
+				with the chosen name already exists in the current page.  It
+				should urge the user to choose another name. */
+				$wxdialog_error = new wxMessageDialog(
+					$this->wxpanel,
+					sprintf(
+						"A page with the name '%s' already exists in the current " .
+						"branch.  Aborting the process.",
+						$previously_chosen_element[0]["name"]
+					),
+					DILL2_TEXT_DIALOG_ERROR_CAPTION,
+					wxOK |
+					wxCENTRE |
+					wxICON_ERROR);
+					
+				$wxdialog_error->ShowModal();
+				return;
+			}			
+			
 			// Append it to the end of the root-branch and give it a new sort-id.
 			// By using the root item, we can determine the new sort-id.
 			$root_item = $this->wxtreectrl_website_structure->GetRootItem();
@@ -1389,6 +1739,74 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		}
 		else
 		{
+			/* Now we need to find out whether the user has selected a parent element
+			or not.  This is required to check for any naming collisions before
+			trying to insert. */
+			$previously_chosen_element = $this->website_project->db_select(
+				"page",
+				"*",
+				array(
+					"id",
+					"=",
+					$this->wxtreectrl_selected_element_id,
+					SQLITE3_INTEGER
+				)
+			);						
+
+			// A parent-page-element has been chosen. Fetch all siblings.
+			$siblings = $this->website_project->db_select(
+				"page",
+				"*",
+				array(
+					"parent_id",
+					"=",
+					$wxtreeitemdata->element_id,
+					SQLITE3_INTEGER
+				)
+			);
+			
+			// Remove the element chosen from the siblings list.
+			foreach($siblings as $key => $value)
+			{
+				if ($value["id"] == $previously_chosen_element[0]["id"])
+				{
+					unset($siblings[$key]);
+					break;
+				}
+			}			
+			
+			// Now check for name collisions.
+			// A page with the same name must not yet exist in the current branch.
+			if( $this->pagename_exists( $siblings, $previously_chosen_element[0]["name"]))
+			{							
+				$this->mode_move_element_tree = FALSE;	
+				$this->refresh_related_controls();				
+				$this->wxbutton_addelement->Enable( TRUE );
+				$this->wxbutton_renameelement->Enable( FALSE );
+				$this->wxbutton_deleteelement->Enable( FALSE );
+				$this->wxbutton_moveelementup->Enable( FALSE );
+				$this->wxbutton_moveelementdown->Enable( FALSE );
+				$this->wxbutton_moveelementtree->Enable( FALSE );	
+			 
+				/* Display a wxDialog to the user which states that a page
+				with the chosen name already exists in the current page.  It
+				should urge the user to choose another name. */
+				$wxdialog_error = new wxMessageDialog(
+					$this->wxpanel,
+					sprintf(
+						"A page with the name '%s' already exists in the current " .
+						"branch.  Aborting the process.",
+						$previously_chosen_element[0]["name"]
+					),
+					DILL2_TEXT_DIALOG_ERROR_CAPTION,
+					wxOK |
+					wxCENTRE |
+					wxICON_ERROR);
+					
+				$wxdialog_error->ShowModal();
+				return;
+			}
+			
 			// Append it to an existing child branch and give it a new sort-id.
 			/* Count how many items there are in the branch where the new item
 			should be appended to. */			
