@@ -44,6 +44,17 @@ define( "DILL2_CORE_CONSTANT_WEBSITE_PROJECTS_PATH",
 define( "DILL2_CORE_WEBSITE_PROJECT_WEBSITE_PATH",
 	"website"
 );
+
+// This is the directory where the live-site is generated.
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_WEBSITE_PATH_LIVE",
+	"live");
+
+// This is the directory where the preview-site is generated.
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_WEBSITE_PATH_PREVIEW",
+	"preview");
+
 // This is where CSS files are stored.
 define( "DILL2_CORE_WEBSITE_PROJECT_CSS_PATH",
 	DILL2_CORE_WEBSITE_PROJECT_WEBSITE_PATH . DIRECTORY_SEPARATOR .
@@ -177,7 +188,10 @@ define(
 		ftps_webserver_ip_address TEXT,
 		ftps_username TEXT,
 		ftps_password TEXT,
-		ftps_use_ftp INTEGER
+		ftps_use_ftp INTEGER,
+		generate_live INTEGER,
+		generate_preview INTEGER,
+		upload_live_preview TEXT
 	);
 	"
 );
@@ -266,10 +280,38 @@ define(
 
 define(
 	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_FTPS_USE_FTP",
-	"ALTER TABLE 'website_project_settings' ADD COLUMN ftps_use_ftp INTEGER;");	
+	"ALTER TABLE 'website_project_settings' ADD COLUMN ftps_use_ftp INTEGER;");
+	
 
 
+// Generation of website and which branch to publish.
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_GENERATE_LIVE",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN generate_live INTEGER;");
 
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_GENERATE_PREVIEW",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN generate_preview INTEGER;");
+
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_PUBLISH_LIVE_PREVIEW",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN publish_live_preview TEXT;");
+	
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_WEBSITE_PROJECT_TABLE_COL_GENERATE_LIVE",
+	"UPDATE 'website_project_settings'
+		SET generate_live = 1;");
+
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_WEBSITE_PROJECT_TABLE_COL_GENERATE_PREVIEW",
+	"UPDATE 'website_project_settings'
+		SET generate_preview = 1;");
+
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_WEBSITE_PROJECT_TABLE_COL_PUBLISH_LIVE_PREVIEW",
+	"UPDATE 'website_project_settings'
+		SET publish_live_preview = 'Live';");
+	
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -311,20 +353,16 @@ define(
 	"");
 
 define(
-	"DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_ENABLED",
-	"Enabled");
+	"DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_LIVE",
+	"Live");
 	
 define(
 	"DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW",
 	"Preview");
 
 define(
-	"DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_DISABLED",
-	"Disabled");
-	
-define(
 	"DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_TABLE_PAGE_COL_STATE",
 	"UPDATE 'page'
-		SET state = 'Enabled';");
+		SET state = 'Live';");
 
 ?>

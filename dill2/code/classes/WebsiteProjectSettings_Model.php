@@ -31,6 +31,10 @@ class WebsiteProjectSettings_Model extends ModelBase
 	protected $ftps_password = "";
 	protected $ftps_use_ftp = FALSE;
 	
+	protected $generate_live = NULL;
+	protected $generate_preview = NULL;
+	protected $upload_live_preview = NULL;
+	
 	/// Fetches data from database table 'website_project_settings'.
 	/// If no row is returned, create a row with default values and
 	/// fetch data again.

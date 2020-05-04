@@ -221,6 +221,20 @@ class Dill2WebsiteProject
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_PUBLICKEY);
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_PRIVATEKEY_PASSPRHASE);
 		}
+		
+		$res = $db->query( "SELECT * FROM 'website_project_settings';");		
+		if (($res->numColumns() == 23))
+		{
+			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_GENERATE_LIVE);
+			$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_WEBSITE_PROJECT_TABLE_COL_GENERATE_LIVE);
+			
+			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_GENERATE_PREVIEW);
+			$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_WEBSITE_PROJECT_TABLE_COL_GENERATE_PREVIEW);
+			
+			
+			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_PUBLISH_LIVE_PREVIEW);
+			$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_WEBSITE_PROJECT_TABLE_COL_PUBLISH_LIVE_PREVIEW);
+		}
 
 		// Close the connection.
 		$db->close();
@@ -245,7 +259,7 @@ class Dill2WebsiteProject
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTERTABLE_PAGE_ADD_COL_STATE);
 			
 			// Set field 'state' to:
-			// DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_ENABLED
+			// DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_LIVE
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_TABLE_PAGE_COL_STATE);			
 		}
 		
@@ -1297,11 +1311,6 @@ class Dill2WebsiteProject
 		$cur_dir_static = $cur_dir;
 		foreach( $nodes as $node )
 		{
-			if ($node["state"] == DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_DISABLED)
-			{
-				continue; // Do not generate disabled pages.
-			}
-			
 			$cur_dir = $cur_dir_static . DIRECTORY_SEPARATOR . $node["name"];
 			mkdir( $this->abspath_websiteproject_website_pages . $cur_dir );
 			
@@ -1746,6 +1755,46 @@ class Dill2WebsiteProject
 	public function close_observer_generate_website_view()
 	{
 		$this->observer_generate_website_view->Show(0);
+	}
+	
+	
+	public function change_children_page_state_recursively(
+		$_parent_id,
+		$_state)
+	{
+		$nodes = $this->db_select(
+			"page",
+			"*",
+			array(
+				"parent_id",
+				"=",
+				$_parent_id,
+				SQLITE3_INTEGER
+			),
+			array(
+				"sort_id",
+				"ASC"
+			)
+		);
+		
+		foreach( $nodes as $node )
+		{
+			$this->db_update(
+				"page",
+				array("state"),
+				array($_state),
+				array(SQLITE3_TEXT),
+				array(
+					"id",
+					"=",
+					$node["id"],
+					SQLITE3_INTEGER));
+				
+			// Go deeper.
+			$this->change_children_page_state_recursively(
+				$node["id"],
+				$_state);
+		}
 	}
 }
 ?>

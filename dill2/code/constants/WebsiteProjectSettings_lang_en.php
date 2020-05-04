@@ -59,7 +59,21 @@ define(
 	"FTPS password:");
 define(
 	"DILL2_LABEL_WXSTATICTEXT_FTPS_USE_FTP",
-	"Use FTP instead:");	
+	"Use FTP instead:");
+
+
+// Generate and publish/upload settings
+define(
+		"DILL2_LABEL_WXCHECKBOX_GENERATE_LIVE",
+		"Generate live website");
+
+define(
+	"DILL2_LABEL_WXCHECKBOX_GENERATE_PREVIEW",
+	"Generate preview website");
+
+define(
+	"DILL2_LABEL_WXCOMBOBOX_PUBLISH_LIVE_PREVIEW",
+	"Select the version to publish / upload");
 	
 	
 // Ok, cancel buttons.

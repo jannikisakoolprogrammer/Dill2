@@ -1555,13 +1555,6 @@ class wxDill2Frame extends wxFrame
 					125,
 					0);
 			}
-			else if ($wxtreeitemdata->element_state == DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_DISABLED)
-			{
-				$item_colour = new wxColour(
-					255,
-					50,
-					0);					
-			}
 			else
 			{
 				$item_colour = new wxColour(

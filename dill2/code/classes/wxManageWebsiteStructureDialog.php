@@ -416,13 +416,12 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		$wxcombobox_state = new wxComboBox(
 			$wxpanel,
 			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE,
-			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_ENABLED,
+			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_LIVE,
 			wxDefaultPosition,
 			wxDefaultSize,
 			array(
-				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_ENABLED,
-				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW,
-				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_DISABLED
+				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_LIVE,
+				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW
 			),
 			wxCB_DROPDOWN | wxCB_READONLY);
 		
@@ -798,13 +797,6 @@ class wxManageWebsiteStructureDialog extends wxDialog
 					125,
 					0);
 			}
-			else if ($wxtreeitemdata->element_state == DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_DISABLED)
-			{
-				$item_colour = new wxColour(
-					255,
-					50,
-					0);					
-			}
 			else
 			{
 				$item_colour = new wxColour(
@@ -839,6 +831,12 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			$this->wxtreectrl_website_structure->GetSelection()
 		);
 		$selected_item_id = $selected_item_data->element_id;
+		
+		/* Save the original state.  If the original state remains the same, do
+		not alter the children recursively.
+		If the state is different, then apply the new state too all children re-
+		cursively, no matter what. */
+		$original_page_state = $selected_item_data->element_state;
 		
 		/* Now we need to find out whether the user has selected a parent element
 		or not.  This is required to check for any naming collisions before
@@ -947,13 +945,12 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		$wxcombobox_state = new wxComboBox(
 			$wxpanel,
 			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE,
-			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_ENABLED,
+			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_LIVE,
 			wxDefaultPosition,
 			wxDefaultSize,
 			array(
-				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_ENABLED,
-				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW,
-				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_DISABLED
+				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_LIVE,
+				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW
 			),
 			wxCB_DROPDOWN | wxCB_READONLY);
 			
@@ -1124,6 +1121,16 @@ class wxManageWebsiteStructureDialog extends wxDialog
 						SQLITE3_TEXT
 					)
 				);
+				
+				/* Does the state differ?  If so, update state of all children
+				// recursievely. */
+				if ($original_page_state != $state)
+				{
+					$this->website_project->change_children_page_state_recursively(
+						$selected_item_id,
+						$state);
+				}
+				
 				$this->website_project->db_update(
 					"page",
 					array(
@@ -1155,6 +1162,15 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			}
 			else
 			{
+				/* Does the state differ?  If so, update state of all children
+				// recursievely. */
+				if ($original_page_state != $state)
+				{
+					$this->website_project->change_children_page_state_recursively(
+						$selected_item_id,
+						$state);					
+				}
+				
 				$this->website_project->db_update(
 					"page",
 					array(
