@@ -1215,7 +1215,25 @@ class Dill2WebsiteProject
 		// And lastly, let's create a PHP file to redirect the user to the first root page (usually the HOME page).
 		if( count( $all_pages_array ) > 0 )
 		{
-			$php_content = "<?php\nheader('Location: /HOME');\n?>";
+			// Select the page with the lowest ID, right after the ROOT.
+			$home_page_node = $this->db_select(
+				"page",
+				"*",
+				array(
+					"parent_id",
+					"IS",
+					NULL,
+					SQLITE3_INTEGER
+				),
+				array(
+					"sort_id",
+					"ASC"
+				));
+				
+			$php_content = sprintf(
+				"<?php\nheader('Location: /%s');\n?>",
+				$home_page_node[0]["name"]);
+				
 			file_put_contents(
 				$this->abspath_websiteproject_website_pages . "index.php",
 				$php_content
