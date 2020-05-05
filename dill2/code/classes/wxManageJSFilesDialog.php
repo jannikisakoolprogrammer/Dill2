@@ -50,7 +50,10 @@ class wxManageJSFilesDialog extends wxDialog
 		parent::__construct(
 			$parent,
 			$id,
-			$title
+			$title,
+			wxDefaultPosition,
+			wxDefaultSize,
+			wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER			
 		);
 		
 		$this->parent = $parent;
@@ -80,7 +83,7 @@ class wxManageJSFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_horizontal_parent->Add(
 			$this->wxboxsizer_vertical_child_right,
-			1,
+			0,
 			wxEXPAND | wxRIGHT | wxBOTTOM | wxTOP,
 			10
 		);
@@ -108,7 +111,7 @@ class wxManageJSFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_addjsfile,
-			1,
+			0,
 			wxEXPAND
 		);
 		
@@ -119,7 +122,7 @@ class wxManageJSFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_renamejsfile,
-			1,
+			0,
 			wxEXPAND
 		);
 		
@@ -130,7 +133,7 @@ class wxManageJSFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_deletejsfile,
-			1,
+			0,
 			wxEXPAND
 		);
 		
