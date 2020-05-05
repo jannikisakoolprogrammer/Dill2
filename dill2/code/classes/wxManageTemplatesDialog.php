@@ -56,7 +56,10 @@ class wxManageTemplatesDialog extends wxDialog
 		parent::__construct(
 			$parent,
 			$id,
-			$title
+			$title,
+			wxDefaultPosition,
+			wxDefaultSize,
+			wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER
 		);
 		
 		$this->parent = $parent;
@@ -89,7 +92,7 @@ class wxManageTemplatesDialog extends wxDialog
 		);
 		$this->wxboxsizer_horizontal_parent->Add(
 			$this->wxboxsizer_vertical_child_right,
-			1,
+			0,
 			wxEXPAND | wxRIGHT | wxBOTTOM | wxTOP,
 			10
 		);
@@ -118,7 +121,7 @@ class wxManageTemplatesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_addtemplate,
-			1,
+			0,
 			wxEXPAND
 		);
 		$this->wxbutton_renametemplate = new wxButton(
@@ -128,7 +131,7 @@ class wxManageTemplatesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_renametemplate,
-			1,
+			0,
 			wxEXPAND
 		);		
 		$this->wxbutton_deletetemplate = new wxButton(
@@ -138,7 +141,7 @@ class wxManageTemplatesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_deletetemplate,
-			1,
+			0,
 			wxEXPAND
 		);
 		

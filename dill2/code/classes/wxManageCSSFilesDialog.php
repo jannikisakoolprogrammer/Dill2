@@ -50,7 +50,10 @@ class wxManageCSSFilesDialog extends wxDialog
 		parent::__construct(
 			$parent,
 			$id,
-			$title
+			$title,
+			wxDefaultPosition,
+			wxDefaultSize,
+			wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER			
 		);
 		
 		$this->parent = $parent;
@@ -80,7 +83,7 @@ class wxManageCSSFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_horizontal_parent->Add(
 			$this->wxboxsizer_vertical_child_right,
-			1,
+			0,
 			wxEXPAND | wxRIGHT | wxBOTTOM | wxTOP,
 			10
 		);
@@ -108,7 +111,7 @@ class wxManageCSSFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_addcssfile,
-			1,
+			0,
 			wxEXPAND
 		);
 		
@@ -119,7 +122,7 @@ class wxManageCSSFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_renamecssfile,
-			1,
+			0,
 			wxEXPAND
 		);
 		
@@ -130,7 +133,7 @@ class wxManageCSSFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_deletecssfile,
-			1,
+			0,
 			wxEXPAND
 		);
 		

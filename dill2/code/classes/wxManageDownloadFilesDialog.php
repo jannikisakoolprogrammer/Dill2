@@ -50,7 +50,10 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 		parent::__construct(
 			$parent,
 			$id,
-			$title
+			$title,
+			wxDefaultPosition,
+			wxDefaultSize,
+			wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER			
 		);
 		$this->parent = $parent;
 		$this->website_project = $website_project;
@@ -79,7 +82,7 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_horizontal_parent->Add(
 			$this->wxboxsizer_vertical_child_right,
-			1,
+			0,
 			wxEXPAND | wxRIGHT | wxBOTTOM | wxTOP,
 			10
 		);
@@ -107,7 +110,7 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_adddownloadfile,
-			1,
+			0,
 			wxEXPAND
 		);
 		
@@ -118,7 +121,7 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_renamedownloadfile,
-			1,
+			0,
 			wxEXPAND
 		);
 		
@@ -129,7 +132,7 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_deletedownloadfile,
-			1,
+			0,
 			wxEXPAND
 		);
 		

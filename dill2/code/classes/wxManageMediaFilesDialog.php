@@ -50,7 +50,10 @@ class wxManageMediaFilesDialog extends wxDialog
 		parent::__construct(
 			$parent,
 			$id,
-			$title
+			$title,
+			wxDefaultPosition,
+			wxDefaultSize,
+			wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER			
 		);
 		
 		$this->parent = $parent;
@@ -80,7 +83,7 @@ class wxManageMediaFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_horizontal_parent->Add(
 			$this->wxboxsizer_vertical_child_right,
-			1,
+			0,
 			wxEXPAND | wxRIGHT | wxBOTTOM | wxTOP,
 			10
 		);
@@ -108,7 +111,7 @@ class wxManageMediaFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_addmediafile,
-			1,
+			0,
 			wxEXPAND
 		);
 		
@@ -119,7 +122,7 @@ class wxManageMediaFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_renamemediafile,
-			1,
+			0,
 			wxEXPAND
 		);
 		
@@ -130,7 +133,7 @@ class wxManageMediaFilesDialog extends wxDialog
 		);
 		$this->wxboxsizer_vertical_child_right->Add(
 			$this->wxbutton_deletemediafile,
-			1,
+			0,
 			wxEXPAND
 		);
 		
