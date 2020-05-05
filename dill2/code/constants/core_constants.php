@@ -106,19 +106,11 @@ define(
 		content TEXT,
 		sort_id INTEGER,
 		parent_id INTEGER,
-		template_id INTEGER,
-		state TEXT,
+		template_id INTEGER
 		FOREIGN KEY(parent_id) REFERENCES page(id) ON DELETE CASCADE
 	);
 	"
 );
-
-/* Add a new column "state" to the table "page".  This column defines the state
- of the page (Enabled, Preview, Disabled).  These control, if a page is created
- and/or uploaded. */
- define(
-	"DILL2_CORE_WEBSITE_PROJECT_ALTERTABLE_PAGE_ADD_COL_STATE",
-	"ALTER TABLE 'page' ADD COLUMN state TEXT;");
 
 
 // CSS files are stored in this table.
@@ -281,37 +273,6 @@ define(
 define(
 	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_FTPS_USE_FTP",
 	"ALTER TABLE 'website_project_settings' ADD COLUMN ftps_use_ftp INTEGER;");
-	
-
-
-// Generation of website and which branch to publish.
-define(
-	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_GENERATE_LIVE",
-	"ALTER TABLE 'website_project_settings' ADD COLUMN generate_live INTEGER;");
-
-define(
-	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_GENERATE_PREVIEW",
-	"ALTER TABLE 'website_project_settings' ADD COLUMN generate_preview INTEGER;");
-
-define(
-	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_PUBLISH_LIVE_PREVIEW",
-	"ALTER TABLE 'website_project_settings' ADD COLUMN publish_live_preview TEXT;");
-	
-define(
-	"DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_WEBSITE_PROJECT_TABLE_COL_GENERATE_LIVE",
-	"UPDATE 'website_project_settings'
-		SET generate_live = 1;");
-
-define(
-	"DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_WEBSITE_PROJECT_TABLE_COL_GENERATE_PREVIEW",
-	"UPDATE 'website_project_settings'
-		SET generate_preview = 1;");
-
-define(
-	"DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_WEBSITE_PROJECT_TABLE_COL_PUBLISH_LIVE_PREVIEW",
-	"UPDATE 'website_project_settings'
-		SET publish_live_preview = 'Live';");
-	
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -347,22 +308,5 @@ define(
 	"DILL2_CORE_CONSTANT_PREVIEW_IMAGE_HEIGHT",
 	120
 );
-
-define(
-	"DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_EMPTY",
-	"");
-
-define(
-	"DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_LIVE",
-	"Live");
-	
-define(
-	"DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW",
-	"Preview");
-
-define(
-	"DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_TABLE_PAGE_COL_STATE",
-	"UPDATE 'page'
-		SET state = 'Live';");
 
 ?>

@@ -74,9 +74,6 @@ class Dill2WebsiteProject
 			done. */
 			$this->update_website_project_database( $_name );
 			// <-- Dill2 v2.0.0 - 02.07.2017, Jannik Haberbosch (JANHAB)
-			
-			// Update database table 'page' if necessary.
-			$this->update_database_table_page($_name);
 
 			// Set project variables.
 			$this->project_name = $_name;
@@ -222,49 +219,10 @@ class Dill2WebsiteProject
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_PRIVATEKEY_PASSPRHASE);
 		}
 		
-		$res = $db->query( "SELECT * FROM 'website_project_settings';");		
-		if (($res->numColumns() == 23))
-		{
-			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_GENERATE_LIVE);
-			$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_WEBSITE_PROJECT_TABLE_COL_GENERATE_LIVE);
-			
-			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_GENERATE_PREVIEW);
-			$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_WEBSITE_PROJECT_TABLE_COL_GENERATE_PREVIEW);
-			
-			
-			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_PUBLISH_LIVE_PREVIEW);
-			$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_WEBSITE_PROJECT_TABLE_COL_PUBLISH_LIVE_PREVIEW);
-		}
+		$res = $db->query( "SELECT * FROM 'website_project_settings';");
 
 		// Close the connection.
 		$db->close();
-	}
-	
-	
-	private function update_database_table_page($_name)
-	{
-		// Connect to the existing db.
-		$db_path = ".." . DIRECTORY_SEPARATOR .
-			DILL2_CORE_CONSTANT_WEBSITE_PROJECTS_PATH . DIRECTORY_SEPARATOR .
-			$_name . DIRECTORY_SEPARATOR .
-			DILL2_CORE_WEBSITE_PROJECT_DATABASE_PATH;
-			
-		$db = new SQLite3( $db_path );
-		
-		$res = $db->query( "SELECT * FROM 'page';");
-		
-		if (($res->numColumns() == 6)) // Add field 'state'.
-		{
-			// Add new field 'state'.
-			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTERTABLE_PAGE_ADD_COL_STATE);
-			
-			// Set field 'state' to:
-			// DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_LIVE
-			$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_UPDATE_TABLE_PAGE_COL_STATE);			
-		}
-		
-		// Close the connection.
-		$db->close();		
 	}
 	
 	
@@ -1755,46 +1713,6 @@ class Dill2WebsiteProject
 	public function close_observer_generate_website_view()
 	{
 		$this->observer_generate_website_view->Show(0);
-	}
-	
-	
-	public function change_children_page_state_recursively(
-		$_parent_id,
-		$_state)
-	{
-		$nodes = $this->db_select(
-			"page",
-			"*",
-			array(
-				"parent_id",
-				"=",
-				$_parent_id,
-				SQLITE3_INTEGER
-			),
-			array(
-				"sort_id",
-				"ASC"
-			)
-		);
-		
-		foreach( $nodes as $node )
-		{
-			$this->db_update(
-				"page",
-				array("state"),
-				array($_state),
-				array(SQLITE3_TEXT),
-				array(
-					"id",
-					"=",
-					$node["id"],
-					SQLITE3_INTEGER));
-				
-			// Go deeper.
-			$this->change_children_page_state_recursively(
-				$node["id"],
-				$_state);
-		}
 	}
 }
 ?>

@@ -69,8 +69,6 @@ class wxManageWebsiteStructureDialog extends wxDialog
 	
 	*/
 	
-	protected $wxcombobox_state = NULL;
-	
 	
 	function __construct(
 		$website_project,
@@ -381,8 +379,6 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			wxHORIZONTAL
 		);
 		
-		$wxboxsizer_horizontal_state = new wxBoxSizer(wxHORIZONTAL);
-		
 		$wxhbox_okcancel_buttons = new wxBoxSizer(
 			wxHORIZONTAL
 		);
@@ -409,31 +405,6 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			$this->website_project->get_template_names(),
 			wxLB_SINGLE
 		);
-		
-		// Dropdown for selecting a page status.  Default is 'Enabled'.
-		// This controls whether a page is generated, uploaded or left alone
-		// during page generation.
-		$wxcombobox_state = new wxComboBox(
-			$wxpanel,
-			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE,
-			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_LIVE,
-			wxDefaultPosition,
-			wxDefaultSize,
-			array(
-				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_LIVE,
-				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW
-			),
-			wxCB_DROPDOWN | wxCB_READONLY);
-		
-		// Add some space.
-		$wxboxsizer_horizontal_state->AddSpacer(2);
-		
-		// And combobox to the box sizer.
-		$wxboxsizer_horizontal_state->Add(
-			$wxcombobox_state,
-			0,
-			wxEXPAND);		
-		
 		
 		$wxbutton_canceldialog = new wxButton(
 			$wxpanel,
@@ -488,11 +459,6 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		);
 		
 		$wxvbox->Add(
-			$wxboxsizer_horizontal_state,
-			0,
-			wxEXPAND);
-		
-		$wxvbox->Add(
 			$wxhbox_okcancel_buttons,
 			0,
 			wxEXPAND
@@ -539,9 +505,6 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			/* The name of the page which the user might have selected is stored
 			in here. */
 			$user_input = $wxtextctrl_page_name->GetValue();
-			
-			// Get the state of the page to create.
-			$state = $wxcombobox_state->GetStringSelection();
 			
 			$wxtreeitemdata = $this->wxtreectrl_website_structure->GetItemData(
 				$user_selection
@@ -600,22 +563,19 @@ class wxManageWebsiteStructureDialog extends wxDialog
 							"name",
 							"content",
 							"sort_id",
-							"template_id",
-							"state"
+							"template_id"
 						),
 						array(
 							$user_input,
 							"",
 							$sort_id,
-							$template_id,
-							$state
+							$template_id
 						),
 						array(
 							SQLITE3_TEXT,
 							SQLITE3_TEXT,
 							SQLITE3_INTEGER,
-							SQLITE3_INTEGER,
-							SQLITE3_TEXT
+							SQLITE3_INTEGER
 						)
 					);
 					
@@ -696,16 +656,14 @@ class wxManageWebsiteStructureDialog extends wxDialog
 							"content",
 							"sort_id",
 							"template_id",
-							"parent_id",
-							"state"
+							"parent_id"
 						),
 						array(
 							$user_input,
 							"",
 							$sort_id,
 							$template_id,
-							$wxclientdata->element_id,
-							$state
+							$wxclientdata->element_id
 						),
 						array(
 							SQLITE3_TEXT,
@@ -763,7 +721,6 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			$wxtreeitemdata->element_parent_id = $value["self"]["parent_id"];
 			$wxtreeitemdata->element_sort_id = $value["self"]["sort_id"];
 			$wxtreeitemdata->element_name = $value["self"]["name"];
-			$wxtreeitemdata->element_state = $value["self"]["state"];
 			$wxtreeitemdata->element_template_id = $value["self"]["template_id"];
 			
 			// Will only be called in the lowest "level" (no recursion).
@@ -789,25 +746,6 @@ class wxManageWebsiteStructureDialog extends wxDialog
 					$wxtreeitemdata
 				);
 			}
-			
-			if ($wxtreeitemdata->element_state == DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW)
-			{
-				$item_colour = new wxColour(
-					255,
-					125,
-					0);
-			}
-			else
-			{
-				$item_colour = new wxColour(
-					0,
-					0,
-					0);
-			}
-			
-			$this->wxtreectrl_website_structure->SetItemTextColour(
-				$wxtreeitemid,
-				$item_colour);
 					
 			// Go deeper in the tree structure if necessary.
 			$this->update_website_structure( $value["children"], $wxtreeitemid, FALSE, $branch_to_ignore_id );
@@ -831,12 +769,6 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			$this->wxtreectrl_website_structure->GetSelection()
 		);
 		$selected_item_id = $selected_item_data->element_id;
-		
-		/* Save the original state.  If the original state remains the same, do
-		not alter the children recursively.
-		If the state is different, then apply the new state too all children re-
-		cursively, no matter what. */
-		$original_page_state = $selected_item_data->element_state;
 		
 		/* Now we need to find out whether the user has selected a parent element
 		or not.  This is required to check for any naming collisions before
@@ -939,34 +871,6 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		
 		$wxlistbox_template_name->SetStringSelection($already_set_template[0]["name"]);
 		
-		// Dropdown for selecting a page status.  Default is 'Enabled'.
-		// This controls whether a page is generated, uploaded or left alone
-		// during page generation.
-		$wxcombobox_state = new wxComboBox(
-			$wxpanel,
-			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE,
-			DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_LIVE,
-			wxDefaultPosition,
-			wxDefaultSize,
-			array(
-				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_LIVE,
-				DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW
-			),
-			wxCB_DROPDOWN | wxCB_READONLY);
-			
-		$wxcombobox_state->SetStringSelection($selected_item_data->element_state);
-	
-		
-		// Add some space.
-		$wxboxsizer_horizontal_state = new wxBoxSizer(wxHORIZONTAL);		
-		$wxboxsizer_horizontal_state->AddSpacer(2);
-		
-		// And combobox to the box sizer.
-		$wxboxsizer_horizontal_state->Add(
-			$wxcombobox_state,
-			0,
-			wxEXPAND);
-		
 		$wxbutton_canceldialog = new wxButton(
 			$wxpanel,
 			wxID_CANCEL,
@@ -1026,11 +930,6 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			wxEXPAND);
 		
 		$wxvbox->Add(
-			$wxboxsizer_horizontal_state,
-			0,
-			wxEXPAND);		
-		
-		$wxvbox->Add(
 			$wxhbox_cancelok_buttons,
 			0,
 			wxEXPAND);
@@ -1076,9 +975,6 @@ class wxManageWebsiteStructureDialog extends wxDialog
 				continue;
 			}
 			
-			// Get the state of the page to create.
-			$state = $wxcombobox_state->GetStringSelection();
-			
 			// Fetch template.
 			$user_input_template = $wxlistbox_template_name->GetString(
 					$wxlistbox_template_name->GetSelection());
@@ -1122,31 +1018,19 @@ class wxManageWebsiteStructureDialog extends wxDialog
 					)
 				);
 				
-				/* Does the state differ?  If so, update state of all children
-				// recursievely. */
-				if ($original_page_state != $state)
-				{
-					$this->website_project->change_children_page_state_recursively(
-						$selected_item_id,
-						$state);
-				}
-				
 				$this->website_project->db_update(
 					"page",
 					array(
 						"name",
-						"template_id",
-						"state"
+						"template_id"
 					),
 					array(
 						$user_input_pagename,
-						$tmp_template[0]["id"],
-						$state
+						$tmp_template[0]["id"]
 					),
 					array(
 						SQLITE3_TEXT,
-						SQLITE3_INTEGER,
-						SQLITE3_TEXT
+						SQLITE3_INTEGER
 					),
 					array(
 						"id",
@@ -1162,27 +1046,15 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			}
 			else
 			{
-				/* Does the state differ?  If so, update state of all children
-				// recursievely. */
-				if ($original_page_state != $state)
-				{
-					$this->website_project->change_children_page_state_recursively(
-						$selected_item_id,
-						$state);					
-				}
-				
 				$this->website_project->db_update(
 					"page",
 					array(
-						"name",
-						"state"
+						"name"
 					),
 					array(
-						$user_input_pagename,
-						$state
+						$user_input_pagename
 					),
 					array(
-						SQLITE3_TEXT,
 						SQLITE3_TEXT
 					),
 					array(

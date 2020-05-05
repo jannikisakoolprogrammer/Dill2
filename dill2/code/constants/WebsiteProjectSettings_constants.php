@@ -14,12 +14,4 @@ define(
 define(
 	"DILL2_FTPS_AUTHENTICATION_METHOD_FTP",
 	"FTP");
-
-define(
-	"DILL2_PUBLISH_LIVE_PREVIEW_LIVE",
-	"Live");
-
-define(
-	"DILL2_PUBLISH_LIVE_PREVIEW_PREVIEW",
-	"Preview");
 ?>

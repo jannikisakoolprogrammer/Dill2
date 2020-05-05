@@ -1548,26 +1548,6 @@ class wxDill2Frame extends wxFrame
 				);
 			}
 			
-			if ($wxtreeitemdata->element_state == DILL2_WXID_MANAGEWEBSITESTRUCTUREDIALOG_WXCOMBOBOX_STATE_PREVIEW)
-			{
-				$item_colour = new wxColour(
-					255,
-					125,
-					0);
-			}
-			else
-			{
-				$item_colour = new wxColour(
-					0,
-					0,
-					0);
-			}
-			
-			$this->wxdataviewtreectrl_mainframe_vertical_left_website_structure->SetItemTextColour(
-				$wxtreeitemid,
-				$item_colour);			
-			
-			
 			// Go deeper in the tree structure if necessary.
 			$this->update_website_structure( $value["children"], $wxtreeitemid, FALSE, $branch_to_ignore_id );
 			$this->wxdataviewtreectrl_mainframe_vertical_left_website_structure->Expand( $wxtreeitemid );
