@@ -59,7 +59,7 @@ define(
 	"FTPS password:");
 define(
 	"DILL2_LABEL_WXSTATICTEXT_FTPS_USE_FTP",
-	"Use FTP instead:");	
+	"Use FTP instead:");
 	
 	
 // Ok, cancel buttons.

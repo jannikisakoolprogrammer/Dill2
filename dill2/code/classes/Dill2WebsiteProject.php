@@ -170,8 +170,7 @@ class Dill2WebsiteProject
 	}
 	
 	
-	/*  This function updates the 'website_project_settings' database table.
-	It adds three new fields (username, password and auto_upload) to the table.
+	/*  This function updates the several database tables.
 	*/
 	private function update_website_project_database( $_name )
 	{
@@ -219,6 +218,8 @@ class Dill2WebsiteProject
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_PUBLICKEY);
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_PRIVATEKEY_PASSPRHASE);
 		}
+		
+		$res = $db->query( "SELECT * FROM 'website_project_settings';");
 
 		// Close the connection.
 		$db->close();

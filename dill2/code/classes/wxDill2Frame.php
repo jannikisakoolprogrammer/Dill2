@@ -1522,6 +1522,7 @@ class wxDill2Frame extends wxFrame
 			$wxtreeitemdata->element_parent_id = $value["self"]["parent_id"];
 			$wxtreeitemdata->element_sort_id = $value["self"]["sort_id"];
 			$wxtreeitemdata->element_name = $value["self"]["name"];
+			$wxtreeitemdata->element_state = $value["self"]["state"];
 			
 			// Will only be called in the lowest "level" (no recursion).
 			if( $is_root )
@@ -1546,6 +1547,7 @@ class wxDill2Frame extends wxFrame
 					$wxtreeitemdata
 				);
 			}
+			
 			// Go deeper in the tree structure if necessary.
 			$this->update_website_structure( $value["children"], $wxtreeitemid, FALSE, $branch_to_ignore_id );
 			$this->wxdataviewtreectrl_mainframe_vertical_left_website_structure->Expand( $wxtreeitemid );

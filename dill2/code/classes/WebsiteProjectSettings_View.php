@@ -182,6 +182,21 @@ class WebsiteProjectSettings_View extends wxFrame
 		);
 		
 		
+		//
+		// Option "Generate live"
+		//
+		
+		
+		//
+		// Option "Generate preview"
+		//
+		
+		
+		//
+		// Option "Publish live/preview"
+		//
+		
+		
 		// Now it is time to layout the controls.
 		
 		//
