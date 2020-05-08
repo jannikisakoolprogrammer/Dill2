@@ -65,6 +65,16 @@ define( "DILL2_CORE_WEBSITE_PROJECT_JS_PATH",
 	DILL2_CORE_WEBSITE_PROJECT_WEBSITE_PATH . DIRECTORY_SEPARATOR .
 	"js"
 );
+
+// This is where PHP files are stored.
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_PHP_PATH",
+	DILL2_CORE_WEBSITE_PROJECT_WEBSITE_PATH .
+	DIRECTORY_SEPARATOR .
+	"php");
+
+
+
 // This is where media files are stored.
 define( "DILL2_CORE_WEBSITE_PROJECT_MEDIA_PATH",
 	DILL2_CORE_WEBSITE_PROJECT_WEBSITE_PATH . DIRECTORY_SEPARATOR .
@@ -106,7 +116,8 @@ define(
 		content TEXT,
 		sort_id INTEGER,
 		parent_id INTEGER,
-		template_id INTEGER
+		template_id INTEGER,
+		type TEXT,
 		FOREIGN KEY(parent_id) REFERENCES page(id) ON DELETE CASCADE
 	);
 	"
@@ -220,6 +231,12 @@ define(
 );
 // <-- Dill2 v2.0.0 - 02.07.2017, Jannik Haberbosch (JANHAB)
 
+// Alter table 'page' if it already exists.
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTERTABLE_PAGE_ADD_COL_type",
+	"ALTER TABLE 'page' ADD COLUMN type TEXT;"
+);
+
 // SFTP
 define(
 	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_WEBSERVER_PATH",
@@ -308,5 +325,25 @@ define(
 	"DILL2_CORE_CONSTANT_PREVIEW_IMAGE_HEIGHT",
 	120
 );
+
+
+// Constants for page type
+define(
+	"DILL2_CORE_CONSTANT_PAGE_TYPE_HTML",
+	"HTML");
+
+define(
+	"DILL2_CORE_CONSTANT_PAGE_TYPE_PHP",
+	"PHP");
+
+define(
+	"DILL2_CORE_CONSTANT_PAGE_TYPE_DEFAULT",
+	"HTML");
+	
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_TABLE_PAGE_SET_TYPE_TO_HTML",
+	"UPDATE 'page' SET
+		type = 'html';");
+	
 
 ?>

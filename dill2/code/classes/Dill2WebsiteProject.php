@@ -20,6 +20,7 @@ class Dill2WebsiteProject
 	
 	public $css_files_path;
 	public $js_files_path;
+	public $php_files_path;
 	public $media_files_path;
 	public $download_files_path;
 	public $db_path;
@@ -69,6 +70,9 @@ class Dill2WebsiteProject
 			// Open an existing website project.
 			////////////////////////////////////
 			
+			// Create missing directories.
+			$this->initialise_website_project_directory( $_name );
+			
 			// --> Dill2 v2.0.0 - 02.07.2017, Jannik Haberbosch (JANHAB)
 			/* Update the sqlite3 table 'website_project_settings' if not yet
 			done. */
@@ -115,6 +119,7 @@ class Dill2WebsiteProject
 			DILL2_CORE_WEBSITE_PROJECT_WEBSITE_PATH,
 			DILL2_CORE_WEBSITE_PROJECT_CSS_PATH,
 			DILL2_CORE_WEBSITE_PROJECT_JS_PATH,
+			DILL2_CORE_WEBSITE_PROJECT_PHP_PATH,
 			DILL2_CORE_WEBSITE_PROJECT_MEDIA_PATH,
 			DILL2_CORE_WEBSITE_PROJECT_DOWNLOAD_PATH,
 		);
@@ -219,7 +224,17 @@ class Dill2WebsiteProject
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_SFTP_PRIVATEKEY_PASSPRHASE);
 		}
 		
-		$res = $db->query( "SELECT * FROM 'website_project_settings';");
+		
+		$res = $db->query( "SELECT * FROM 'page';");		
+		
+		if (($res->numColumns() == 6))
+		{
+			// Add column "type" to table "page".  Stores either "HTML" or "PHP".
+			$db->exec(DILL2_CORE_WEBSITE_PROJECT_ALTERTABLE_PAGE_ADD_COL_type);
+			
+			// All existing pages are by default of type "HTML".
+			$db->exec(DILL2_CORE_WEBSITE_PROJECT_TABLE_PAGE_SET_TYPE_TO_HTML);		
+		}
 
 		// Close the connection.
 		$db->close();
@@ -269,6 +284,9 @@ class Dill2WebsiteProject
 		$this->js_files_path = $this->relpath_websiteproject .
 								DILL2_CORE_WEBSITE_PROJECT_JS_PATH;
 		
+		$this->php_files_path = $this->relpath_websiteproject .
+								DILL2_CORE_WEBSITE_PROJECT_PHP_PATH;
+		
 		$this->media_files_path = $this->relpath_websiteproject .
 									DILL2_CORE_WEBSITE_PROJECT_MEDIA_PATH;
 		
@@ -297,6 +315,11 @@ class Dill2WebsiteProject
 			case "js":
 			{
 				$filepath = $this->js_files_path;
+				break;
+			}
+			case "php":
+			{
+				$filepath = $this->php_files_path;
 				break;
 			}
 			case "media":
@@ -1005,6 +1028,12 @@ class Dill2WebsiteProject
 			{
 				return $this->js_files_path . DIRECTORY_SEPARATOR . $filename;
 			}
+			case "PHP":
+			{
+				return $this->php_files_path .
+						DIRECTORY_SEPARATOR .
+						$filename;
+			}
 			case "MEDIA":
 			{
 				return $this->media_files_path . DIRECTORY_SEPARATOR . $filename;
@@ -1069,6 +1098,7 @@ class Dill2WebsiteProject
 			}
 			case "CSS":
 			case "JS":
+			case "PHP":
 			{
 				return file_get_contents(
 					$this->get_correct_file_path(
@@ -1146,6 +1176,7 @@ class Dill2WebsiteProject
 			}
 			case "CSS":
 			case "JS":
+			case "PHP":
 			{
 				file_put_contents(
 					$this->get_correct_file_path(
@@ -1168,7 +1199,13 @@ class Dill2WebsiteProject
 	{
 		foreach( scandir( $path ) as $item )
 		{
-			if( $item == "." || $item == ".." || $item == "css" || $item == "js" || $item == "media" || $item == "download" ) continue;
+			if( $item == "." 
+			 || $item == ".." 
+			 || $item == "css" 
+			 || $item == "js" 
+			 || $item == "php" 
+			 || $item == "media" 
+			 || $item == "download" ) continue;
 			
 			if( is_dir( $path . DIRECTORY_SEPARATOR . $item ) )
 			{
@@ -1189,7 +1226,7 @@ class Dill2WebsiteProject
 	public function generate_website()
 	{
 		// First of all, delete the entire directory.
-		// EXCEPT the css, js, media and download directories.
+		// EXCEPT the css, js, php, media and download directories.
 		if( file_exists( $this->abspath_websiteproject_website_pages ) )
 		{
 			$this->rrmdir( $this->abspath_websiteproject_website_pages );
@@ -1350,8 +1387,20 @@ class Dill2WebsiteProject
 			);
 			
 			// Write the content to an "index.html" file.
+			if ($node["type"] == "HTML")
+			{
+				$index_file = "index.html";
+			}
+			else if ($node["type"] == "PHP")
+			{
+				$index_file = "index.php";
+			}
+			else
+			{
+				$index_file = "index.html"; // Should actually never go here, but let's just do this fallback.
+			}
 			file_put_contents(
-				$this->abspath_websiteproject_website_pages . DIRECTORY_SEPARATOR . $cur_dir . DIRECTORY_SEPARATOR . "index.html",
+				$this->abspath_websiteproject_website_pages . DIRECTORY_SEPARATOR . $cur_dir . DIRECTORY_SEPARATOR . $index_file,
 				$page_content
 			);
 			
