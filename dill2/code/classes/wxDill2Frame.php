@@ -242,6 +242,9 @@ class wxDill2Frame extends wxFrame
         $wxboxsizer_mainframe_vertical_middle = new wxBoxSizer(
         	wxVERTICAL
         );
+		$wxboxsizer_mainframe_horizontal_middle = new wxBoxSizer(
+			wxHORIZONTAL);		
+			
         $wxboxsizer_mainframe_vertical_right = new wxBoxSizer(
         	wxVERTICAL
         );
@@ -486,7 +489,7 @@ class wxDill2Frame extends wxFrame
 		$this->wxstyledtextctrl_mainframe_editor->StyleSetFont(
 			wxSTC_STYLE_DEFAULT,
 			new wxFont(
-				10,
+				DEFAULT_FONT_SIZE, // 12 is the standard size.
 				wxFONTFAMILY_TELETYPE,
 				wxFONTSTYLE_NORMAL,
 				wxFONTWEIGHT_NORMAL
@@ -497,6 +500,13 @@ class wxDill2Frame extends wxFrame
         	1,
         	wxEXPAND
         );
+		
+		// Add horizontal box sizer first.  Put save, font size controls in there.
+		$wxboxsizer_mainframe_vertical_middle->Add(
+			$wxboxsizer_mainframe_horizontal_middle,
+			0,
+			wxEXPAND | wxALL,
+			5);			
         
         // Save button.
         $this->wxbutton_mainframe_editorsave = new wxButton(
@@ -510,12 +520,54 @@ class wxDill2Frame extends wxFrame
         		$this->wxbutton_mainframe_editorsave->GetLabel()
         	)
         );
-        $wxboxsizer_mainframe_vertical_middle->Add(
+        $wxboxsizer_mainframe_horizontal_middle->Add(
         	$this->wxbutton_mainframe_editorsave,
         	0,
         	wxTOP,
         	10
         );
+		
+		// Change font size - statictext
+		$this->wxstatictext_mainframe_editor_font_size = new wxStaticText(
+			$wxpanel_mainframe,
+			DILL2_WXID_MAINFRAME_WXSTATICTEXT_FONT_SIZE,
+			DILL2_TEXT_MAINFRAME_WXSTATICTEXT_FONT_SIZE);
+			
+		// Change font size - combobox
+		$this->wxcombobox_mainframe_editor_font_size = new wxComboBox(
+			$wxpanel_mainframe,
+			DILL2_WXID_MAINFRAME_WXCOMBOBOX_FONT_SIZE,
+			strval(DEFAULT_FONT_SIZE),
+			wxDefaultPosition,
+			wxDefaultSize,
+			array(
+				"8",
+				"10",
+				"12",
+				"14",
+				"16",
+				"18",
+				"20",
+				"22",
+				"24",
+				"26",
+				"28",
+				"30"),
+			wxCB_DROPDOWN | wxCB_READONLY);
+		
+		$wxboxsizer_mainframe_horizontal_middle->Add(
+			$this->wxstatictext_mainframe_editor_font_size,
+			0,
+			wxCENTRE | wxTOP | wxLEFT,
+			10);
+		
+		$wxboxsizer_mainframe_horizontal_middle->Add(
+			$this->wxcombobox_mainframe_editor_font_size,
+			0,
+			wxCENTRE | wxTOP | wxLEFT,
+			10);
+			
+			
 
 		// Enable wrapping long lines.
         $this->wxstyledtextctrl_mainframe_editor->SetWrapMode( TRUE );
@@ -1125,6 +1177,12 @@ class wxDill2Frame extends wxFrame
 			)
 		);	
 		
+		// Font size was changed event.
+		$this->wxcombobox_mainframe_editor_font_size->Connect(
+			wxEVT_TEXT,
+			array(
+				$this,
+				"on_wxcombobox_mainframe_editor_font_size_wxevt_text"));
         
         
         // Dstribute / layout the controls in the mainframe.
@@ -1229,6 +1287,7 @@ class wxDill2Frame extends wxFrame
 		$this->wxlistbox_mainframe_phpfiles->Enable(FALSE);
 		$this->wxstyledtextctrl_mainframe_editor->Enable( FALSE );
 		$this->wxbutton_mainframe_editorsave->Enable( FALSE );
+		$this->wxcombobox_mainframe_editor_font_size->Enable(FALSE);
 		$this->wxlistbox_mainframe_media->Enable( FALSE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_WEBSITE_STRUCTURE, FALSE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_TEMPLATES, FALSE );
@@ -1285,6 +1344,7 @@ class wxDill2Frame extends wxFrame
 		$this->wxlistbox_mainframe_cssfiles->Enable( TRUE );
 		$this->wxlistbox_mainframe_javascriptfiles->Enable( TRUE );
 		$this->wxlistbox_mainframe_phpfiles->Enable(TRUE);
+		$this->wxcombobox_mainframe_editor_font_size->Enable(TRUE);
 		//$this->wxstyledtextctrl_mainframe_editor->Enable( TRUE );
 		//$this->wxbutton_mainframe_editorsave->Enable( TRUE );
 		$this->wxlistbox_mainframe_media->Enable( TRUE );
@@ -3123,6 +3183,127 @@ class wxDill2Frame extends wxFrame
 	public function on_dill2_wxid_mainframe_windowsize_changed()
 	{
 		echo "Window size has changed";
+	}
+	
+	public function on_wxcombobox_mainframe_editor_font_size_wxevt_text()
+	{		
+		$s = $this->wxcombobox_mainframe_editor_font_size->GetStringSelection();
+		
+		
+		$this->wxstyledtextctrl_mainframe_editor->StyleSetFont(
+			wxSTC_STYLE_DEFAULT,
+			new wxFont(
+				intval($s),
+				wxFONTFAMILY_TELETYPE,
+				wxFONTSTYLE_NORMAL,
+				wxFONTWEIGHT_NORMAL
+			)
+		);
+		
+		if ($this->website_project->file_to_edit["type"] != NULL)
+		{
+			$this->set_editor_style($this->website_project->file_to_edit["type"]);
+		}		
+	}
+	
+	public function set_editor_style($_type)
+	{
+		$this->wxstyledtextctrl_mainframe_editor->StyleClearAll();
+		
+		switch ($_type)
+		{
+			case "JS":
+			{
+				$this->wxstyledtextctrl_mainframe_editor->SetLexer( wxSTC_LEX_ESCRIPT );
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_BRACE, new wxColour( 255, 20, 147 ) ); // DeepPink
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_COMMENT, new wxColour( 220, 20, 60 ) ); // Crimson
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_DEFAULT, new wxColour( 0, 0, 0 ) ); // Black
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_COMMENTLINE, new wxColour( 139, 0, 0 ) ); // DarkRed
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_COMMENTDOC, new wxColour( 255, 69, 0 ) ); // OrangeRed
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_IDENTIFIER, new wxColour( 255, 99, 71 ) ); // Tomato
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_NUMBER, new wxColour( 255, 215, 0 ) ); // Gold
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_OPERATOR, new wxColour( 189, 183, 107 ) ); // DarkKhaki
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_STRING, new wxColour( 188, 14, 143 ) ); // RosyBrown
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_WORD, new wxColour( 184, 134, 11 ) ); // DarkGoldenrod
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_WORD2, new wxColour( 139, 69, 19 ) ); // SaddleBrown
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_WORD3, new wxColour( 85, 107, 47 ) ); // DarkOliveGreen	
+				break;
+			}
+			case "PHP":
+			{
+				$this->wxstyledtextctrl_mainframe_editor->SetLexer( wxSTC_LEX_ESCRIPT );
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_BRACE, new wxColour( 255, 20, 147 ) ); // DeepPink
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_COMMENT, new wxColour( 220, 20, 60 ) ); // Crimson
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_DEFAULT, new wxColour( 0, 0, 0 ) ); // Black
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_COMMENTLINE, new wxColour( 139, 0, 0 ) ); // DarkRed
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_COMMENTDOC, new wxColour( 255, 69, 0 ) ); // OrangeRed
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_IDENTIFIER, new wxColour( 255, 99, 71 ) ); // Tomato
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_NUMBER, new wxColour( 255, 215, 0 ) ); // Gold
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_OPERATOR, new wxColour( 189, 183, 107 ) ); // DarkKhaki
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_STRING, new wxColour( 188, 14, 143 ) ); // RosyBrown
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_WORD, new wxColour( 184, 134, 11 ) ); // DarkGoldenrod
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_WORD2, new wxColour( 139, 69, 19 ) ); // SaddleBrown
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_WORD3, new wxColour( 85, 107, 47 ) ); // DarkOliveGreen
+				break;
+			}
+			case "CSS":
+			{
+				// Set the syntax highlighting of the editor to "CSS":
+				$this->wxstyledtextctrl_mainframe_editor->SetLexer( wxSTC_LEX_CSS );
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_ATTRIBUTE, new wxColour( 255, 20, 147 ) ); // DeepPink
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_COMMENT, new wxColour( 220, 20, 60 ) ); // Crimson
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_DEFAULT, new wxColour( 0, 0, 0 ) ); // Black
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_DIRECTIVE, new wxColour( 139, 0, 0 ) ); // DarkRed
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_DOUBLESTRING, new wxColour( 255, 69, 0 ) ); // OrangeRed
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_EXTENDED_IDENTIFIER, new wxColour( 255, 99, 71 ) ); // Tomato
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_EXTENDED_PSEUDOCLASS, new wxColour( 255, 215, 0 ) ); // Gold
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_EXTENDED_PSEUDOELEMENT, new wxColour( 189, 183, 107 ) ); // DarkKhaki
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_ID, new wxColour( 188, 14, 143 ) ); // RosyBrown
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_IDENTIFIER, new wxColour( 184, 134, 11 ) ); // DarkGoldenrod
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_IDENTIFIER2, new wxColour( 139, 69, 19 ) ); // SaddleBrown
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_IDENTIFIER3, new wxColour( 85, 107, 47 ) ); // DarkOliveGreen
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_IMPORTANT, new wxColour( 50, 205, 50 ) ); // LimeGreen
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_MEDIA, new wxColour( 0, 255, 127 ) ); // SpringGreen
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_OPERATOR, new wxColour( 143, 188, 143 ) ); // DarkSeaGreen
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_PSEUDOCLASS, new wxColour( 34, 139, 34 ) ); // ForestGreen
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_PSEUDOELEMENT, new wxColour( 0, 128, 128 ) ); // Teal
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_SINGLESTRING, new wxColour( 0, 0, 255 ) ); // Blue
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_TAG, new wxColour( 25, 25, 112 ) ); // MidnightBlue
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_UNKNOWN_IDENTIFIER, new wxColour( 128, 0, 128 ) ); // Purple
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_UNKNOWN_PSEUDOCLASS, new wxColour( 47, 79, 79 ) ); // DarkSlateGray
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_VALUE, new wxColour( 105, 105, 105 ) ); // DimGray
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_CSS_VARIABLE, new wxColour( 238, 130, 238 ) ); // Violet
+				break;
+			}
+			case "PAGE":
+			{
+				$this->wxstyledtextctrl_mainframe_editor->SetLexer( wxSTC_LEX_HTML );
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_DOUBLESTRING, new wxColour( 255, 20, 147 ) ); // DeepPink
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_SINGLESTRING, new wxColour( 220, 20, 60 ) ); // Crimson
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_DEFAULT, new wxColour( 0, 0, 0 ) ); // Black
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_ENTITY, new wxColour( 139, 0, 0 ) ); // DarkRed
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_TAG, new wxColour( 255, 69, 0 ) ); // OrangeRed
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_TAGUNKNOWN, new wxColour( 255, 99, 71 ) ); // Tomato
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_ATTRIBUTE, new wxColour( 255, 215, 0 ) ); // Gold
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_ATTRIBUTEUNKNOWN, new wxColour( 189, 183, 107 ) ); // DarkKhaki
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_COMMENT, new wxColour( 188, 14, 143 ) ); // RosyBrown
+				break;
+			}
+			case "TEMPLATE":
+			{
+				$this->wxstyledtextctrl_mainframe_editor->SetLexer( wxSTC_LEX_HTML );
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_DOUBLESTRING, new wxColour( 255, 20, 147 ) ); // DeepPink
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_SINGLESTRING, new wxColour( 220, 20, 60 ) ); // Crimson
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_DEFAULT, new wxColour( 0, 0, 0 ) ); // Black
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_ENTITY, new wxColour( 139, 0, 0 ) ); // DarkRed
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_TAG, new wxColour( 255, 69, 0 ) ); // OrangeRed
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_TAGUNKNOWN, new wxColour( 255, 99, 71 ) ); // Tomato
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_ATTRIBUTE, new wxColour( 255, 215, 0 ) ); // Gold
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_ATTRIBUTEUNKNOWN, new wxColour( 189, 183, 107 ) ); // DarkKhaki
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_H_COMMENT, new wxColour( 188, 14, 143 ) ); // RosyBrown				
+				break;
+			}
+		}
 	}
 }
 ?>
