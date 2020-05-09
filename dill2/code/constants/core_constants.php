@@ -344,6 +344,8 @@ define(
 	"DILL2_CORE_WEBSITE_PROJECT_TABLE_PAGE_SET_TYPE_TO_HTML",
 	"UPDATE 'page' SET
 		type = 'html';");
-	
 
+define(
+	"DEFAULT_FONT_SIZE",
+	12);
 ?>
