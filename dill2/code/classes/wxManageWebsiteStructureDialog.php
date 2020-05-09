@@ -379,6 +379,9 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			wxHORIZONTAL
 		);
 		
+		$wxhbox_page_type = new wxBoxSizer(
+			wxHORIZONTAL);
+		
 		$wxhbox_okcancel_buttons = new wxBoxSizer(
 			wxHORIZONTAL
 		);
@@ -406,6 +409,23 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			wxLB_SINGLE
 		);
 		
+		// Page type.
+		$wxstatictext_page_type = new wxStaticText(
+			$wxpanel,
+			wxID_ANY,
+			DILL2_TEXT_MANAGEWEBSITESTRUCTUREDIALOG_WXBUTTON_ADDELEMENT_WXDIALOG_LABEL_PAGE_TYPE);
+			
+		$wxcombobox_page_type = new wxComboBox(
+			$wxpanel,
+			wxID_ANY,
+			DILL2_CORE_CONSTANT_PAGE_TYPE_DEFAULT,
+			wxDefaultPosition,
+			wxDefaultSize,
+			array(
+				DILL2_CORE_CONSTANT_PAGE_TYPE_HTML,
+				DILL2_CORE_CONSTANT_PAGE_TYPE_PHP),
+			wxCB_READONLY);
+			
 		$wxbutton_canceldialog = new wxButton(
 			$wxpanel,
 			wxID_CANCEL,
@@ -437,6 +457,15 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			wxEXPAND
 		);
 		
+		$wxhbox_page_type->Add(
+			$wxstatictext_page_type,
+			1,
+			wxEXPAND);
+		$wxhbox_page_type->Add(
+			$wxcombobox_page_type,
+			2,
+			wxEXPAND);
+		
 		$wxhbox_okcancel_buttons->Add(
 			$wxbutton_okdialog,
 			0,
@@ -457,6 +486,11 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			0,
 			wxEXPAND
 		);
+		
+		$wxvbox->Add(
+			$wxhbox_page_type,
+			0,
+			wxEXPAND);
 		
 		$wxvbox->Add(
 			$wxhbox_okcancel_buttons,
@@ -556,6 +590,9 @@ class wxManageWebsiteStructureDialog extends wxDialog
 					should be appended to the very end of the parent branch. */
 					$sort_id = count( $results ) + 1;
 					
+					// Page type.
+					$page_type = $wxcombobox_page_type->GetStringSelection();
+					
 					// And now create the new page element finally.
 					$this->website_project->db_insert(
 						"page",
@@ -563,19 +600,22 @@ class wxManageWebsiteStructureDialog extends wxDialog
 							"name",
 							"content",
 							"sort_id",
-							"template_id"
+							"template_id",
+							"type"
 						),
 						array(
 							$user_input,
 							"",
 							$sort_id,
-							$template_id
+							$template_id,
+							$page_type
 						),
 						array(
 							SQLITE3_TEXT,
 							SQLITE3_TEXT,
 							SQLITE3_INTEGER,
-							SQLITE3_INTEGER
+							SQLITE3_INTEGER,
+							SQLITE3_TEXT
 						)
 					);
 					
@@ -644,6 +684,10 @@ class wxManageWebsiteStructureDialog extends wxDialog
 						)
 					);
 					$template_id = $chosen_template[0]["id"];
+					
+					// Page type.
+					$page_type = $wxcombobox_page_type->GetStringSelection();
+					
 									
 					/* Again, the new page element will be appended to the very
 					end of the child-branch. */
@@ -656,14 +700,16 @@ class wxManageWebsiteStructureDialog extends wxDialog
 							"content",
 							"sort_id",
 							"template_id",
-							"parent_id"
+							"parent_id",
+							"type",
 						),
 						array(
 							$user_input,
 							"",
 							$sort_id,
 							$template_id,
-							$wxclientdata->element_id
+							$wxclientdata->element_id,
+							$page_type
 						),
 						array(
 							SQLITE3_TEXT,
@@ -722,6 +768,7 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			$wxtreeitemdata->element_sort_id = $value["self"]["sort_id"];
 			$wxtreeitemdata->element_name = $value["self"]["name"];
 			$wxtreeitemdata->element_template_id = $value["self"]["template_id"];
+			$wxtreeitemdata->element_type = $value["self"]["type"];
 			
 			// Will only be called in the lowest "level" (no recursion).
 			if( $is_root )
@@ -746,6 +793,32 @@ class wxManageWebsiteStructureDialog extends wxDialog
 					$wxtreeitemdata
 				);
 			}
+			
+			// HTML pages are shown in black.
+			// PHP pages are shown in purple.
+			$element_colour = wxBLACK;
+			
+			switch($wxtreeitemdata->element_type)
+			{
+				case "HTML":
+				{
+					$element_colour = wxBLACK;
+					break;
+				}
+				case "PHP":
+				{
+					$element_colour = new wxColour(
+						140,
+						0,
+						140); // PURPLE
+					break;
+				}
+			}
+			
+			// Set colour.
+			$this->wxtreectrl_website_structure->SetItemTextColour(
+				$wxtreeitemid,
+				$element_colour);
 					
 			// Go deeper in the tree structure if necessary.
 			$this->update_website_structure( $value["children"], $wxtreeitemid, FALSE, $branch_to_ignore_id );
@@ -783,6 +856,11 @@ class wxManageWebsiteStructureDialog extends wxDialog
 				SQLITE3_INTEGER
 			)
 		);
+		
+		// Get the page type of the selected element.
+		$selected_page_page_type = $selected_page_element[0]["type"];
+		
+		
 		if( !$selected_page_element[0]["parent_id"] )
 		{
 			// A parent-page-element has been chosen.
@@ -871,6 +949,27 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		
 		$wxlistbox_template_name->SetStringSelection($already_set_template[0]["name"]);
 		
+		
+		// Page type.
+		$wxstatictext_page_type = new wxStaticText(
+			$wxpanel,
+			wxID_ANY,
+			DILL2_TEXT_MANAGEWEBSITESTRUCTUREDIALOG_WXBUTTON_ADDELEMENT_WXDIALOG_LABEL_PAGE_TYPE);
+			
+		$wxcombobox_page_type = new wxComboBox(
+			$wxpanel,
+			wxID_ANY,
+			DILL2_CORE_CONSTANT_PAGE_TYPE_DEFAULT,
+			wxDefaultPosition,
+			wxDefaultSize,
+			array(
+				DILL2_CORE_CONSTANT_PAGE_TYPE_HTML,
+				DILL2_CORE_CONSTANT_PAGE_TYPE_PHP),
+			wxCB_READONLY);
+		// Set page type already set before.
+		$wxcombobox_page_type->SetStringSelection($selected_page_page_type);			
+			
+		
 		$wxbutton_canceldialog = new wxButton(
 			$wxpanel,
 			wxID_CANCEL,
@@ -887,6 +986,7 @@ class wxManageWebsiteStructureDialog extends wxDialog
 		$wxvbox = new wxBoxSizer(wxVERTICAL);		
 		$wxhbox_page_name = new wxBoxSizer(wxHORIZONTAL);		
 		$wxhbox_template_name = new wxBoxSizer(wxHORIZONTAL);
+		$wxhbox_page_type = new wxBoxSizer(wxHORIZONTAL);
 		$wxhbox_cancelok_buttons = new wxBoxSizer(wxHORIZONTAL);
 		
 		$wxhbox_page_name->Add(
@@ -909,6 +1009,15 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			2,
 			wxEXPAND);
 		
+		$wxhbox_page_type->Add(
+			$wxstatictext_page_type,
+			1,
+			wxEXPAND);
+		$wxhbox_page_type->Add(
+			$wxcombobox_page_type,
+			2,
+			wxEXPAND);
+		
 		$wxhbox_cancelok_buttons->Add(
 			$wxbutton_okdialog,
 			0,
@@ -926,6 +1035,11 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			
 		$wxvbox->Add(
 			$wxhbox_template_name,
+			0,
+			wxEXPAND);
+		
+		$wxvbox->Add(
+			$wxhbox_page_type,
 			0,
 			wxEXPAND);
 		
@@ -978,6 +1092,9 @@ class wxManageWebsiteStructureDialog extends wxDialog
 			// Fetch template.
 			$user_input_template = $wxlistbox_template_name->GetString(
 					$wxlistbox_template_name->GetSelection());
+					
+			// Page type.
+			$page_type = $wxcombobox_page_type->GetStringSelection();					
 
 			// A page with the same name must not yet exist in the current branch.
 			if( $this->pagename_exists( $siblings, $user_input_pagename ))
@@ -1022,15 +1139,18 @@ class wxManageWebsiteStructureDialog extends wxDialog
 					"page",
 					array(
 						"name",
-						"template_id"
+						"template_id",
+						"type"
 					),
 					array(
 						$user_input_pagename,
-						$tmp_template[0]["id"]
+						$tmp_template[0]["id"],
+						$page_type
 					),
 					array(
 						SQLITE3_TEXT,
-						SQLITE3_INTEGER
+						SQLITE3_INTEGER,
+						SQLITE3_TEXT
 					),
 					array(
 						"id",
@@ -1049,12 +1169,15 @@ class wxManageWebsiteStructureDialog extends wxDialog
 				$this->website_project->db_update(
 					"page",
 					array(
-						"name"
+						"name",
+						"type"
 					),
 					array(
-						$user_input_pagename
+						$user_input_pagename,
+						$page_type
 					),
 					array(
+						SQLITE3_TEXT,
 						SQLITE3_TEXT
 					),
 					array(

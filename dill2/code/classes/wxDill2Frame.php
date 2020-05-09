@@ -83,6 +83,9 @@ require_once(
 	"wxManageJSFilesDialog.php"
 );
 require_once(
+	"wxManagePHPFilesDialog.php"
+);
+require_once(
 	"wxManageMediaFilesDialog.php"
 );
 require_once(
@@ -156,6 +159,8 @@ class wxDill2Frame extends wxFrame
 	public $wxlistbox_mainframe_cssfiles;
 	// A wxListBox representing all JavaScript files of a website project.
 	public $wxlistbox_mainframe_javascriptfiles;
+	// A wxListBox representing all PHP files of a website project.
+	public $wxlistbox_mainframe_phpfiles;
 	// A wxStyledTextCtrl which represents the editor.
 	public $wxstyledtextctrl_mainframe_editor;
 	// A wxButton which represents a button through which the user can save the
@@ -404,6 +409,42 @@ class wxDill2Frame extends wxFrame
         	1,
         	wxEXPAND
         );
+		
+		
+        // PHP files.
+        // Label.
+        $wxstatictext_mainframe_phpfiles = new wxStaticText(
+        	$wxpanel_mainframe,
+        	DILL2_WXID_MAINFRAME_WXSTATICTEXT_PHPFILES,
+        	DILL2_TEXT_MAINFRAME_WXSTATICTEXT_PHPFILES
+        );
+        $wxstatictext_mainframe_phpfiles->SetLabelMarkup(
+        	sprintf(
+        		"<u>%s</u>",
+        		$wxstatictext_mainframe_phpfiles->GetLabel()
+        	)
+        );
+        $wxboxsizer_mainframe_vertical_left->Add(
+        	$wxstatictext_mainframe_phpfiles,
+        	0,
+        	wxEXPAND | wxTOP,
+        	10
+        );
+        
+        // 'wxListBox'.
+        $this->wxlistbox_mainframe_phpfiles = new wxListBox(
+        	$wxpanel_mainframe,
+        	DILL2_WXID_MAINFRAME_WXLISTBOX_PHPFILES,
+        	new wxPoint(),
+        	wxDefaultSize,
+        	[],
+        	wxLB_HSCROLL        	
+        );
+        $wxboxsizer_mainframe_vertical_left->Add(
+        	$this->wxlistbox_mainframe_phpfiles,
+        	1,
+        	wxEXPAND
+        );		
         
         
         
@@ -652,6 +693,12 @@ class wxDill2Frame extends wxFrame
         	DILL2_TEXT_MAINFRAME_WXMENU_PROJECT_MANAGE_JSFILES,
         	DILL2_HELPTEXT_MAINFRAME_WXMENU_PROJECT_MANAGE_JSFILES
         );
+		// Manage PHP files menu item.
+		$this->wxmenu_mainframe_project->Append(
+			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_PHPFILES,
+			DILL2_TEXT_MAINFRAME_WXMENU_PROJECT_MANAGE_PHPFILES,
+			DILL2_HELPTEXT_MAINFRAME_WXMENU_PROJECT_MANAGE_PHPFILES);
+		
         // Manage media files menu item.
         $this->wxmenu_mainframe_project->Append(
         	DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_MEDIAFILES,
@@ -877,6 +924,13 @@ class wxDill2Frame extends wxFrame
         		"on_dill2_mainframe_wxmenu_project_manage_cssfiles_clicked"
         	)
         );
+		$this->Connect(
+			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_PHPFILES,
+			wxEVT_COMMAND_MENU_SELECTED,
+			array(
+				$this,
+				"on_dill2_mainframe_wxmenu_project_manage_phpfiles_clicked"));
+				
         $this->connect(
         	DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_JSFILES,
         	wxEVT_COMMAND_MENU_SELECTED,
@@ -1004,6 +1058,13 @@ class wxDill2Frame extends wxFrame
 				"set_new_item_to_edit"
 			)
 		);
+		
+		$this->Connect(
+			DILL2_WXID_MAINFRAME_WXLISTBOX_PHPFILES,
+			wxEVT_LISTBOX,
+			array(
+				$this,
+				"set_new_item_to_edit"));
 		
         $this->Connect(
         	DILL2_WXID_MAINFRAME_WXDATAVIEWTREECTRL_WEBSITE_STRUCTURE,
@@ -1165,6 +1226,7 @@ class wxDill2Frame extends wxFrame
     	$this->wxlistbox_mainframe_templates->Enable( FALSE );
 		$this->wxlistbox_mainframe_cssfiles->Enable( FALSE );
 		$this->wxlistbox_mainframe_javascriptfiles->Enable( FALSE );
+		$this->wxlistbox_mainframe_phpfiles->Enable(FALSE);
 		$this->wxstyledtextctrl_mainframe_editor->Enable( FALSE );
 		$this->wxbutton_mainframe_editorsave->Enable( FALSE );
 		$this->wxlistbox_mainframe_media->Enable( FALSE );
@@ -1172,6 +1234,9 @@ class wxDill2Frame extends wxFrame
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_TEMPLATES, FALSE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_CSSFILES, FALSE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_JSFILES, FALSE );
+		$this->wxmenubar_mainframe_mainmenu->Enable(
+			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_PHPFILES,
+			FALSE);
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_MEDIAFILES, FALSE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_DOWNLOADFILES, FALSE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_GENERATE_WEBSITE, FALSE );
@@ -1219,6 +1284,7 @@ class wxDill2Frame extends wxFrame
     	$this->wxlistbox_mainframe_templates->Enable( TRUE );
 		$this->wxlistbox_mainframe_cssfiles->Enable( TRUE );
 		$this->wxlistbox_mainframe_javascriptfiles->Enable( TRUE );
+		$this->wxlistbox_mainframe_phpfiles->Enable(TRUE);
 		//$this->wxstyledtextctrl_mainframe_editor->Enable( TRUE );
 		//$this->wxbutton_mainframe_editorsave->Enable( TRUE );
 		$this->wxlistbox_mainframe_media->Enable( TRUE );
@@ -1226,6 +1292,11 @@ class wxDill2Frame extends wxFrame
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_TEMPLATES, TRUE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_CSSFILES, TRUE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_JSFILES, TRUE );
+		
+		$this->wxmenubar_mainframe_mainmenu->Enable(
+			DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_PHPFILES,
+			TRUE);
+		
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_MEDIAFILES, TRUE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_DOWNLOADFILES, TRUE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_GENERATE_WEBSITE, TRUE );
@@ -1262,6 +1333,7 @@ class wxDill2Frame extends wxFrame
     	);
     	$this->wxlistbox_mainframe_cssfiles_reload();
     	$this->wxlistbox_mainframe_javascript_files_reload();
+		$this->wxlistbox_mainframe_php_files_reload();
     	$this->wxlistbox_mainframe_media_files_reload();
 		$this->wxlistbox_mainframe_download_files_reload();
     }
@@ -1308,6 +1380,15 @@ class wxDill2Frame extends wxFrame
     		$this->website_project->get_file_names( "js" )
     	);
     }
+	
+	
+	public function wxlistbox_mainframe_php_files_reload()
+	{
+		// Reloads PHP files.
+		$this->wxlistbox_mainframe_phpfiles->Clear();
+		$this->wxlistbox_mainframe_phpfiles->Set(
+			$this->website_project->get_file_names("php"));
+	}
     
     
     public function wxlistbox_mainframe_media_files_reload()
@@ -1413,6 +1494,19 @@ class wxDill2Frame extends wxFrame
        	
        	$this->set_unset_state_main_window();
     }
+	
+	
+	public function on_dill2_mainframe_wxmenu_project_manage_phpfiles_clicked()
+	{
+		$dialog = new wxManagePHPFilesDialog(
+			$this->website_project,
+			$this,
+			DILL2_WXID_WXMANAGEPHPFILESDIALOG,
+			DILL2_TEXT_WXMANAGEPHPFILESDIALOG_TITLE);
+		$dialog->run();
+		
+		$this->set_unset_state_main_window();
+	}
     
     
     public function on_dill2_mainframe_wxmenu_project_manage_mediafiles_clicked()
@@ -1523,6 +1617,7 @@ class wxDill2Frame extends wxFrame
 			$wxtreeitemdata->element_sort_id = $value["self"]["sort_id"];
 			$wxtreeitemdata->element_name = $value["self"]["name"];
 			$wxtreeitemdata->element_state = $value["self"]["state"];
+			$wxtreeitemdata->element_type = $value["self"]["type"];
 			
 			// Will only be called in the lowest "level" (no recursion).
 			if( $is_root )
@@ -1547,6 +1642,32 @@ class wxDill2Frame extends wxFrame
 					$wxtreeitemdata
 				);
 			}
+			
+			// HTML pages are shown in black.
+			// PHP pages are shown in purple.
+			$element_colour = wxBLACK;
+			
+			switch($wxtreeitemdata->element_type)
+			{
+				case "HTML":
+				{
+					$element_colour = wxBLACK;
+					break;
+				}
+				case "PHP":
+				{
+					$element_colour = new wxColour(
+						140,
+						0,
+						140); // PURPLE
+					break;
+				}
+			}
+			
+			// Set colour.
+			$this->wxdataviewtreectrl_mainframe_vertical_left_website_structure->SetItemTextColour(
+				$wxtreeitemid,
+				$element_colour);			
 			
 			// Go deeper in the tree structure if necessary.
 			$this->update_website_structure( $value["children"], $wxtreeitemid, FALSE, $branch_to_ignore_id );
@@ -1678,6 +1799,7 @@ class wxDill2Frame extends wxFrame
 				$this->wxdataviewtreectrl_mainframe_vertical_left_website_structure->UnselectAll();
 				$this->wxlistbox_mainframe_templates->SetSelection( wxNOT_FOUND );
 				$this->wxlistbox_mainframe_javascriptfiles->SetSelection( wxNOT_FOUND );
+				$this->wxlistbox_mainframe_phpfiles->SetSelection(wxNOT_FOUND);
 				$this->wxlistbox_mainframe_downloads->SetSelection( wxNOT_FOUND );
 				$this->wxlistbox_mainframe_media->SetSelection( wxNOT_FOUND );
 				$this->wxbutton_mainframe_editorsave->Enable( TRUE );
@@ -1730,6 +1852,7 @@ class wxDill2Frame extends wxFrame
 
 				$this->wxdataviewtreectrl_mainframe_vertical_left_website_structure->UnselectAll();
 				$this->wxlistbox_mainframe_cssfiles->SetSelection( wxNOT_FOUND );
+				$this->wxlistbox_mainframe_phpfiles->SetSelection(wxNOT_FOUND);
 				$this->wxlistbox_mainframe_templates->SetSelection( wxNOT_FOUND );
 				$this->wxlistbox_mainframe_downloads->SetSelection( wxNOT_FOUND );	
 				$this->wxlistbox_mainframe_media->SetSelection( wxNOT_FOUND );
@@ -1739,6 +1862,60 @@ class wxDill2Frame extends wxFrame
 				$this->website_project->file_to_edit_original = $new_content;
 				break;
 			}
+			case DILL2_WXID_MAINFRAME_WXLISTBOX_PHPFILES:
+			{
+				// Set the syntax highlighting of the editor to "PHP":
+				$this->wxstyledtextctrl_mainframe_editor->StyleClearAll();
+				$this->wxstyledtextctrl_mainframe_editor->SetLexer( wxSTC_LEX_ESCRIPT );
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_BRACE, new wxColour( 255, 20, 147 ) ); // DeepPink
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_COMMENT, new wxColour( 220, 20, 60 ) ); // Crimson
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_DEFAULT, new wxColour( 0, 0, 0 ) ); // Black
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_COMMENTLINE, new wxColour( 139, 0, 0 ) ); // DarkRed
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_COMMENTDOC, new wxColour( 255, 69, 0 ) ); // OrangeRed
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_IDENTIFIER, new wxColour( 255, 99, 71 ) ); // Tomato
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_NUMBER, new wxColour( 255, 215, 0 ) ); // Gold
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_OPERATOR, new wxColour( 189, 183, 107 ) ); // DarkKhaki
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_STRING, new wxColour( 188, 14, 143 ) ); // RosyBrown
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_WORD, new wxColour( 184, 134, 11 ) ); // DarkGoldenrod
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_WORD2, new wxColour( 139, 69, 19 ) ); // SaddleBrown
+				$this->wxstyledtextctrl_mainframe_editor->StyleSetForeground( wxSTC_ESCRIPT_WORD3, new wxColour( 85, 107, 47 ) ); // DarkOliveGreen
+				
+							
+				$this->website_project->file_to_edit["type"] = "PHP";
+				$this->website_project->file_to_edit["name"] = $selection_string;
+
+				/* TODO:  Here we have to read from the files-buffer to the editor!!! */
+				/* TODO:  OR! Here we have to read from the harddisk to the files-buffer!!! */
+				if( !$this->website_project->exists_files_buffer(
+					$this->website_project->file_to_edit["name"],
+					$this->website_project->file_to_edit["type"] ) )
+				{
+					// Read from the harddisk to the files-buffer for the first and only time!
+					$this->website_project->read_files_buffer_content_from_harddisk();
+				}
+				
+				// Read from the files-buffer.
+				$new_content = $this->website_project->read_file_contents_from_files_buffer(
+						$this->website_project->file_to_edit["name"],
+						$this->website_project->file_to_edit["type"]
+				);
+				$this->wxstyledtextctrl_mainframe_editor->SetText(
+					$new_content
+					// $this->website_project->read_content()
+				);				
+
+				$this->wxdataviewtreectrl_mainframe_vertical_left_website_structure->UnselectAll();
+				$this->wxlistbox_mainframe_cssfiles->SetSelection( wxNOT_FOUND );
+				$this->wxlistbox_mainframe_javascriptfiles->SetSelection( wxNOT_FOUND );
+				$this->wxlistbox_mainframe_templates->SetSelection( wxNOT_FOUND );
+				$this->wxlistbox_mainframe_downloads->SetSelection( wxNOT_FOUND );	
+				$this->wxlistbox_mainframe_media->SetSelection( wxNOT_FOUND );
+				$this->wxbutton_mainframe_editorsave->Enable( TRUE );
+				$this->wxstyledtextctrl_mainframe_editor->Enable( TRUE );
+				
+				$this->website_project->file_to_edit_original = $new_content;
+				break;
+			}			
 			case DILL2_WXID_MAINFRAME_WXDATAVIEWTREECTRL_WEBSITE_STRUCTURE:
 			{
 				// Set the syntax highlighting of the editor to "HTML":
@@ -1777,6 +1954,7 @@ class wxDill2Frame extends wxFrame
 					$this->wxlistbox_mainframe_cssfiles->SetSelection( wxNOT_FOUND );
 					$this->wxlistbox_mainframe_templates->SetSelection( wxNOT_FOUND );
 					$this->wxlistbox_mainframe_javascriptfiles->SetSelection( wxNOT_FOUND );
+					$this->wxlistbox_mainframe_phpfiles->SetSelection(wxNOT_FOUND);
 					$this->wxlistbox_mainframe_downloads->SetSelection( wxNOT_FOUND );
 					$this->wxlistbox_mainframe_media->SetSelection( wxNOT_FOUND );					
 					
@@ -1814,6 +1992,7 @@ class wxDill2Frame extends wxFrame
 				$this->wxlistbox_mainframe_cssfiles->SetSelection( wxNOT_FOUND );
 				$this->wxlistbox_mainframe_templates->SetSelection( wxNOT_FOUND );
 				$this->wxlistbox_mainframe_javascriptfiles->SetSelection( wxNOT_FOUND );
+				$this->wxlistbox_mainframe_phpfiles->SetSelection(wxNOT_FOUND);
 				$this->wxlistbox_mainframe_downloads->SetSelection( wxNOT_FOUND );
 				$this->wxlistbox_mainframe_media->SetSelection( wxNOT_FOUND );
 				$this->wxbutton_mainframe_editorsave->Enable( TRUE );
@@ -1866,6 +2045,7 @@ class wxDill2Frame extends wxFrame
 				$this->wxdataviewtreectrl_mainframe_vertical_left_website_structure->UnselectAll();
 				$this->wxlistbox_mainframe_cssfiles->SetSelection( wxNOT_FOUND );
 				$this->wxlistbox_mainframe_javascriptfiles->SetSelection( wxNOT_FOUND );
+				$this->wxlistbox_mainframe_phpfiles->SetSelection(wxNOT_FOUND);
 				$this->wxlistbox_mainframe_downloads->SetSelection( wxNOT_FOUND );
 				$this->wxlistbox_mainframe_media->SetSelection( wxNOT_FOUND );
 				$this->wxbutton_mainframe_editorsave->Enable( TRUE );
@@ -1880,6 +2060,7 @@ class wxDill2Frame extends wxFrame
 				$this->wxdataviewtreectrl_mainframe_vertical_left_website_structure->UnselectAll();
 				$this->wxlistbox_mainframe_cssfiles->SetSelection( wxNOT_FOUND );
 				$this->wxlistbox_mainframe_javascriptfiles->SetSelection( wxNOT_FOUND );
+				$this->wxlistbox_mainframe_phpfiles->SetSelection(wxNOT_FOUND);
 				$this->wxlistbox_mainframe_templates->SetSelection( wxNOT_FOUND );
 
 				/* TODO:  Here we have to write from the editor to the files-buffer!!! */
@@ -1907,6 +2088,7 @@ class wxDill2Frame extends wxFrame
 				$this->wxdataviewtreectrl_mainframe_vertical_left_website_structure->UnselectAll();
 				$this->wxlistbox_mainframe_cssfiles->SetSelection( wxNOT_FOUND );
 				$this->wxlistbox_mainframe_javascriptfiles->SetSelection( wxNOT_FOUND );
+				$this->wxlistbox_mainframe_phpfiles->SetSelection(wxNOT_FOUND);
 				$this->wxlistbox_mainframe_templates->SetSelection( wxNOT_FOUND );
 
 				/* TODO:  Here we have to write from the editor to the files-buffer!!! */
@@ -2424,6 +2606,26 @@ class wxDill2Frame extends wxFrame
 				);
 			}
 		}
+		
+		// $this->wxlistbox_mainframe_phpfiles
+		$page_element = $this->wxlistbox_mainframe_phpfiles;
+		$wxlistbox_selection = $page_element->GetSelection();
+		
+		if( $wxlistbox_selection != wxNOT_FOUND )
+		{
+			$element_id = $page_element->GetString(
+				$wxlistbox_selection
+			);
+
+			if( !$this->item_already_edited_check( $element_id, "PHP" ) )
+			{
+				$this->item_already_edited_add( "*" . $element_id, "PHP" );
+				$page_element->SetString(
+					$wxlistbox_selection,
+					"*" . $element_id
+				);
+			}
+		}		
 
 
 		$this->activate_deactive_wp_menu_item();			
@@ -2573,6 +2775,26 @@ class wxDill2Frame extends wxFrame
 				);
 			}
 		}
+		
+		// $this->wxlistbox_mainframe_phpfiles
+		$page_element = $this->wxlistbox_mainframe_phpfiles;
+		$wxlistbox_selection = $page_element->GetSelection();
+		
+		if( $wxlistbox_selection != wxNOT_FOUND )
+		{
+			$element_id = $page_element->GetString(
+				$wxlistbox_selection
+			);
+
+			if( $this->item_already_edited_check( $element_id, "PHP" ) )
+			{
+				$this->item_already_edited_remove( $element_id, "PHP" );			
+				$page_element->SetString(
+					$wxlistbox_selection,
+					substr( $element_id, 1 )
+				);
+			}
+		}		
 
 
 		$this->activate_deactive_wp_menu_item();
@@ -2581,7 +2803,7 @@ class wxDill2Frame extends wxFrame
 
 	public function activate_deactive_wp_menu_item()
 	{
-		$n_css_files = $n_js_files = $n_ws_items = $n_template_files = 0;
+		$n_css_files = $n_js_files = $n_php_files = $n_ws_items = $n_template_files = 0;
 		
 		for( $x = 0; $x < count( $this->website_project->item_already_edited ); $x++ )
 		{
@@ -2593,6 +2815,10 @@ class wxDill2Frame extends wxFrame
 
 				case "JS":
 					$n_js_files += 1;
+					break;
+				
+				case "PHP":
+					$n_php_files += 1;
 					break;
 
 				case "TEMPLATE":
@@ -2623,6 +2849,21 @@ class wxDill2Frame extends wxFrame
 		{
 			$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_JSFILES, TRUE );		
 		}
+		
+		
+		if( $n_php_files > 0 )
+		{
+			$this->wxmenubar_mainframe_mainmenu->Enable(
+				DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_PHPFILES,
+				FALSE );		
+		}
+		else
+		{
+			$this->wxmenubar_mainframe_mainmenu->Enable(
+				DILL2_WXID_MAINFRAME_WXMENU_PROJECT_MANAGE_PHPFILES,
+				TRUE);
+		}
+		
 
 		if( $n_template_files > 0 )
 		{
