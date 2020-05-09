@@ -221,6 +221,20 @@ class wxManageMediaFilesDialog extends wxDialog
 				dialog. */
 				$this->website_project->copy_file( "MEDIA", $filename, $filepath );
 				
+				// For FTPS
+				$this->website_project->sync_table_add_file(
+					"sync_ftps",
+					"MEDIA" .
+					DIRECTORY_SEPARATOR .
+					$filename);
+				
+				// For SFTP
+				$this->website_project->sync_table_add_file(
+					"sync_sftp",
+					"MEDIA" .
+					DIRECTORY_SEPARATOR .
+					$filename);					
+				
 				/* Refresh the wxListBox that shows the media files and quit
 				this function. */
 				$this->refresh_related_controls( "MEDIA" );
@@ -290,6 +304,27 @@ class wxManageMediaFilesDialog extends wxDialog
 						$user_listbox_choice,
 						$user_input
 					);
+					
+				// For FTPS
+				$this->website_project->sync_table_update_file(
+					"sync_ftps",
+					"MEDIA" .
+					DIRECTORY_SEPARATOR .
+					$user_listbox_choice,
+					"MEDIA" .
+					DIRECTORY_SEPARATOR .
+					$user_input);
+				
+				// For SFTP
+				$this->website_project->sync_table_update_file(
+					"sync_sftp",
+					"MEDIA" .
+					DIRECTORY_SEPARATOR .
+					$user_listbox_choice,
+					"MEDIA" .
+					DIRECTORY_SEPARATOR .
+					$user_input);							
+					
 					// Refresh related controls that display the MEDIA files.
 					$this->refresh_related_controls( "MEDIA" );
 					break;
@@ -309,6 +344,21 @@ class wxManageMediaFilesDialog extends wxDialog
 		);
 		
 		$this->website_project->delete_file( "MEDIA", $file_to_delete );
+		
+		// For FTPS		
+		$this->website_project->sync_table_delete_file(
+			"sync_ftps",
+			"MEDIA" .
+			DIRECTORY_SEPARATOR .
+			$file_to_delete);
+			
+		// For SFTP			
+		$this->website_project->sync_table_delete_file(
+			"sync_sftp",
+			"MEDIA" .
+			DIRECTORY_SEPARATOR .
+			$file_to_delete);			
+		
 		$this->refresh_related_controls( "MEDIA" );
 	}
 	

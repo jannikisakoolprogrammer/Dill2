@@ -169,6 +169,8 @@ class Dill2WebsiteProject
 		$db->exec( DILL2_CORE_WEBSITE_PROJECT_CREATETABLE_TEMPLATES_CSS );
 		$db->exec( DILL2_CORE_WEBSITE_PROJECT_CREATETABLE_TEMPLATES_JS );
 		$db->exec( DILL2_CORE_WEBSITE_PROJECT_CREATETABLE_WEBSITE_PROJECT_SETTINGS );
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP);
 		
 		// Close the connection.
 		$db->close();
@@ -235,6 +237,9 @@ class Dill2WebsiteProject
 			// All existing pages are by default of type "HTML".
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_TABLE_PAGE_SET_TYPE_TO_HTML);		
 		}
+		
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP);		
 
 		// Close the connection.
 		$db->close();
@@ -1780,6 +1785,69 @@ class Dill2WebsiteProject
 	public function close_observer_generate_website_view()
 	{
 		$this->observer_generate_website_view->Show(0);
+	}
+	
+	
+	public function sync_table_add_file(
+		$_table,
+		$_filepath)
+	{
+		date_default_timezone_set("Europe/Berlin");
+		$datetime_modified = date("d.m.Y-H:i:s");
+		
+		// Create record.
+		$this->db_insert(
+			$_table,
+			array(
+				"filepath",
+				"modified_date"),
+			array(
+				$_filepath,
+				$datetime_modified),
+			array(
+				SQLITE3_TEXT,
+				SQLITE3_TEXT));
+	}
+	
+	
+	public function sync_table_update_file(
+		$_table,
+		$_filepath_old,
+		$_filepath)
+	{
+		date_default_timezone_set("Europe/Berlin");
+		$datetime_modified = date("d.m.Y-H:i:s");		
+
+		$this->db_update(
+			$_table,
+			array(
+				"filepath",
+				"modified_date"),
+			array(
+				$_filepath,
+				$datetime_modified),
+			array(
+				SQLITE3_TEXT,
+				SQLITE3_TEXT),					
+			array(
+				"filepath",
+				"=",
+				$_filepath_old,
+				SQLITE3_TEXT));		
+	}			
+	
+	
+	public function sync_table_delete_file(
+		$_table,
+		$_filepath)
+	{
+		$this->db_delete(
+			$_table,
+			array(
+				"filepath",
+				"=",
+				$_filepath,
+				SQLITE3_TEXT));
 	}
 }
 ?>

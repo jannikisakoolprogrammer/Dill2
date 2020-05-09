@@ -123,6 +123,25 @@ define(
 	"
 );
 
+// Sync information for FTPS is stored in this table.
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS",
+	"CREATE TABLE IF NOT EXISTS 'sync_ftps'
+	(
+		filepath TEXT,
+		modified_date TEXT,
+		uploaded_date TEXT
+	);");
+	
+// Sync information for SFTP is stored in this table.
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP",
+	"CREATE TABLE IF NOT EXISTS 'sync_sftp'
+	(
+		filepath TEXT,
+		modified_date TEXT,
+		uploaded_date TEXT
+	);");
 
 // CSS files are stored in this table.
 define(
