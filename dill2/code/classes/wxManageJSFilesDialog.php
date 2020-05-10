@@ -236,6 +236,15 @@ class wxManageJSFilesDialog extends wxDialog
 					dialog. */
 					$this->website_project->create_file( "JS", $user_input );
 					
+					foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+					{
+						$this->website_project->sync_table_add_file(
+							$tmp_table,
+							"JS" .
+							DIRECTORY_SEPARATOR .
+							$user_input);					
+					}	
+					
 					/* Refresh the wxListBox that shows the JS files and quit
 					this function. */
 					$this->refresh_related_controls( "JS" );
@@ -308,6 +317,19 @@ class wxManageJSFilesDialog extends wxDialog
 						$user_listbox_choice,
 						$user_input
 					);
+					
+					foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+					{
+						$this->website_project->sync_table_update_file(
+							$tmp_table,
+							"JS" .
+							DIRECTORY_SEPARATOR .
+							$user_listbox_choice,
+							"JS" .
+							DIRECTORY_SEPARATOR .
+							$user_input);
+					}						
+					
 					// Refresh related controls that display the JS files.
 					$this->refresh_related_controls( "JS" );
 					break;
@@ -327,6 +349,16 @@ class wxManageJSFilesDialog extends wxDialog
 		);
 		
 		$this->website_project->delete_file( "JS", $file_to_delete );
+		
+		foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+		{
+			$this->website_project->sync_table_delete_file(
+				$tmp_table,
+				"JS" .
+				DIRECTORY_SEPARATOR .
+				$file_to_delete);
+		}			
+		
 		$this->refresh_related_controls( "JS" );
 	}
 	

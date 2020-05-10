@@ -87,6 +87,15 @@ class Dill2WebsiteProject
 			$this->sqlite3_conn = new SQLite3( $this->db_path );
 			$this->sqlite3_conn->exec( "PRAGMA foreign_keys = ON;" );
 			// $this->sqlite3_conn->exec( DILL2_CORE_WEBSITE_PROJECT_CREATETABLE_WEBSITE_PROJECT_SETTINGS );
+			
+			// Add already existing pictures and downloads to the sync_* tables.
+			// But only if they have not been added before.
+			$this->update_sync_file_tables(
+				"MEDIA", 
+				$this->get_file_names("media"));
+			$this->update_sync_file_tables(
+				"DOWNLOAD",
+				$this->get_file_names("download"));
 		}
 		
 		
@@ -169,8 +178,10 @@ class Dill2WebsiteProject
 		$db->exec( DILL2_CORE_WEBSITE_PROJECT_CREATETABLE_TEMPLATES_CSS );
 		$db->exec( DILL2_CORE_WEBSITE_PROJECT_CREATETABLE_TEMPLATES_JS );
 		$db->exec( DILL2_CORE_WEBSITE_PROJECT_CREATETABLE_WEBSITE_PROJECT_SETTINGS );
-		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS);
-		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS_FILE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP_FILE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS_PAGE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP_PAGE);
 		
 		// Close the connection.
 		$db->close();
@@ -238,8 +249,10 @@ class Dill2WebsiteProject
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_TABLE_PAGE_SET_TYPE_TO_HTML);		
 		}
 		
-		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS);
-		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP);		
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS_FILE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP_FILE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS_PAGE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP_PAGE);	
 
 		// Close the connection.
 		$db->close();
@@ -1190,6 +1203,20 @@ class Dill2WebsiteProject
 					),
 					$text
 				);
+				
+				$rel_f_path = $type .
+					DIRECTORY_SEPARATOR .
+					$name;
+				
+				// Update sync tables.
+				foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+				{
+					$this->sync_table_update_file(
+						$tmp_table,
+						$rel_f_path,
+						$rel_f_path);
+				}
+				
 				break;				
 			}
 			default:
@@ -1330,6 +1357,9 @@ class Dill2WebsiteProject
 		foreach( $nodes as $node )
 		{
 			$cur_dir = $cur_dir_static . DIRECTORY_SEPARATOR . $node["name"];
+			
+			// TODO:  Before creating the dir, check if it exists in sync-tables.
+			
 			mkdir( $this->abspath_websiteproject_website_pages . $cur_dir );
 			
 			// Now let's prepare the file we are going to create in the current directory.
@@ -1404,6 +1434,11 @@ class Dill2WebsiteProject
 			{
 				$index_file = "index.html"; // Should actually never go here, but let's just do this fallback.
 			}
+			
+			// TODO:  Before I put the content, check if the content has changed.
+			// If the content hasn't changed, there is no need to update the file.
+			// Update the sync_tables, too!!
+			
 			file_put_contents(
 				$this->abspath_websiteproject_website_pages . DIRECTORY_SEPARATOR . $cur_dir . DIRECTORY_SEPARATOR . $index_file,
 				$page_content
@@ -1816,24 +1851,45 @@ class Dill2WebsiteProject
 		$_filepath)
 	{
 		date_default_timezone_set("Europe/Berlin");
-		$datetime_modified = date("d.m.Y-H:i:s");		
-
-		$this->db_update(
+		$datetime_modified = date("d.m.Y-H:i:s");
+		
+		// Make sure the record exists.
+		// If it doesn't, it means that the website project is older than when
+		// this feature was programmed.  Add a record in this case.
+		$result = $this->db_select(
 			$_table,
-			array(
-				"filepath",
-				"modified_date"),
-			array(
-				$_filepath,
-				$datetime_modified),
-			array(
-				SQLITE3_TEXT,
-				SQLITE3_TEXT),					
+			"*",		
 			array(
 				"filepath",
 				"=",
 				$_filepath_old,
-				SQLITE3_TEXT));		
+				SQLITE3_TEXT));
+		
+		if ($result == NULL)
+		{
+			$this->sync_table_add_file(
+				$_table,
+				$_filepath_old);
+		}
+		else
+		{
+			$this->db_update(
+				$_table,
+				array(
+					"filepath",
+					"modified_date"),
+				array(
+					$_filepath,
+					$datetime_modified),
+				array(
+					SQLITE3_TEXT,
+					SQLITE3_TEXT),					
+				array(
+					"filepath",
+					"=",
+					$_filepath_old,
+					SQLITE3_TEXT));			
+		}
 	}			
 	
 	
@@ -1848,6 +1904,27 @@ class Dill2WebsiteProject
 				"=",
 				$_filepath,
 				SQLITE3_TEXT));
+	}
+	
+	
+	public function update_sync_file_tables(
+		$_type,
+		$_array)
+	{
+		foreach(array("sync_sftp_file", "sync_ftps_file") as $tbl)
+		{
+			foreach($_array as $element)
+			{
+				$this->sync_table_update_file(
+					$tbl,
+					$_type . 
+					DIRECTORY_SEPARATOR .
+					$element,
+					$_type .
+					DIRECTORY_SEPARATOR .
+					$element);
+			}
+		}
 	}
 }
 ?>

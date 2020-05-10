@@ -236,6 +236,15 @@ class wxManageCSSFilesDialog extends wxDialog
 					dialog. */
 					$this->website_project->create_file( "CSS", $user_input );
 					
+					foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+					{
+						$this->website_project->sync_table_add_file(
+							$tmp_table,
+							"CSS" .
+							DIRECTORY_SEPARATOR .
+							$user_input);					
+					}					
+					
 					/* Refresh the wxListBox that shows the CSS files and quit
 					this function. */
 					$this->refresh_related_controls( "CSS" );
@@ -309,9 +318,17 @@ class wxManageCSSFilesDialog extends wxDialog
 						$user_input
 					);
 
-					// If the same file was edited, make sure it is still marked as being edited.
-					// $this->parent->item_already_edited_rename( "*" . $user_listbox_choice, "CSS", "*" . $user_input );
-					// $this->website_project->rename_file_in_files_buffer( $user_listbox_choice, "CSS", $user_input );
+					foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+					{
+						$this->website_project->sync_table_update_file(
+							$tmp_table,
+							"CSS" .
+							DIRECTORY_SEPARATOR .
+							$user_listbox_choice,
+							"CSS" .
+							DIRECTORY_SEPARATOR .
+							$user_input);
+					}	
 					
 					// Refresh related controls that display the CSS files.
 					$this->refresh_related_controls( "CSS" );
@@ -332,6 +349,16 @@ class wxManageCSSFilesDialog extends wxDialog
 		);
 		
 		$this->website_project->delete_file( "CSS", $file_to_delete );
+		
+		foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+		{
+			$this->website_project->sync_table_delete_file(
+				$tmp_table,
+				"CSS" .
+				DIRECTORY_SEPARATOR .
+				$file_to_delete);
+		}			
+		
 		$this->refresh_related_controls( "CSS" );
 	}
 	

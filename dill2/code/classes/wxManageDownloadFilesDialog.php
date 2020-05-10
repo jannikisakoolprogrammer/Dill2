@@ -219,6 +219,15 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 				dialog. */
 				$this->website_project->copy_file( "DOWNLOAD", $filename, $filepath );
 				
+				foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+				{
+					$this->website_project->sync_table_add_file(
+						$tmp_table,
+						"DOWNLOAD" .
+						DIRECTORY_SEPARATOR .
+						$filename);					
+				}					
+				
 				/* Refresh the wxListBox that shows the download files and quit
 				this function. */
 				$this->refresh_related_controls( "DOWNLOAD" );
@@ -288,6 +297,19 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 						$user_listbox_choice,
 						$user_input
 					);
+					
+					foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+					{
+						$this->website_project->sync_table_update_file(
+							$tmp_table,
+							"DOWNLOAD" .
+							DIRECTORY_SEPARATOR .
+							$user_listbox_choice,
+							"DOWNLOAD" .
+							DIRECTORY_SEPARATOR .
+							$user_input);
+					}						
+					
 					// Refresh related controls that display the download files.
 					$this->refresh_related_controls( "DOWNLOAD" );
 					break;
@@ -307,6 +329,16 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 		);
 		
 		$this->website_project->delete_file( "DOWNLOAD", $file_to_delete );
+		
+		foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+		{
+			$this->website_project->sync_table_delete_file(
+				$tmp_table,
+				"DOWNLOAD" .
+				DIRECTORY_SEPARATOR .
+				$file_to_delete);
+		}			
+		
 		$this->refresh_related_controls( "DOWNLOAD" );
 	}
 	

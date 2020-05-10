@@ -123,25 +123,53 @@ define(
 	"
 );
 
-// Sync information for FTPS is stored in this table.
+// Sync information for FTPS is stored in this table. For files!
 define(
-	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS",
-	"CREATE TABLE IF NOT EXISTS 'sync_ftps'
+	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS_FILE",
+	"CREATE TABLE IF NOT EXISTS 'sync_ftps_file'
 	(
 		filepath TEXT,
 		modified_date TEXT,
 		uploaded_date TEXT
 	);");
 	
-// Sync information for SFTP is stored in this table.
+// Sync information for SFTP is stored in this table. For files!
 define(
-	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP",
-	"CREATE TABLE IF NOT EXISTS 'sync_sftp'
+	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP_FILE",
+	"CREATE TABLE IF NOT EXISTS 'sync_sftp_file'
 	(
 		filepath TEXT,
 		modified_date TEXT,
 		uploaded_date TEXT
 	);");
+
+
+// Sync information for FTPS is stored in this table. For pages!
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS_PAGE",
+	"CREATE TABLE IF NOT EXISTS 'sync_ftps_page'
+	(
+		id INTEGER,
+		generated_content TEXT,		
+		filepath TEXT,
+		generated INTEGER,
+		modified_date TEXT,
+		uploaded_date TEXT
+	);");
+	
+// Sync information for SFTP is stored in this table. For pages!
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP_PAGE",
+	"CREATE TABLE IF NOT EXISTS 'sync_sftp_page'
+	(
+		id INTEGER,
+		generated_content TEXT,		
+		filepath TEXT,
+		generated INTEGER,
+		modified_date TEXT,
+		uploaded_date TEXT
+	);");
+
 
 // CSS files are stored in this table.
 define(
