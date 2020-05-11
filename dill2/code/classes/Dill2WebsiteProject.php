@@ -798,6 +798,22 @@ class Dill2WebsiteProject
 		}
 	}
 	
+	// Empties a table.
+	public function db_empty($_table)
+	{
+		$stmt = sprintf(
+			"DELETE FROM %s",
+			$_table);
+			
+		$this->sqlite3_conn->exec($stmt);
+	}
+	
+	
+	// Copies all records from sync_ftps_page to sync_sftp_page.
+	public function db_bulk_copy_sync_tables_page()
+	{	
+	}
+	
 	
 	private function sqlite3_bind_values( $sqlite3_stmt, $columns, $values, $valuetypes )
 	{
@@ -1237,11 +1253,7 @@ class Dill2WebsiteProject
 			 || $item == "js" 
 			 || $item == "php" 
 			 || $item == "media" 
-			 || $item == "download" ) continue;
-			 
-				echo $path .
-					DIRECTORY_SEPARATOR .
-					$item . PHP_EOL;			 
+			 || $item == "download" ) continue;		 
 			
 			if( is_dir( $path . DIRECTORY_SEPARATOR . $item ) )
 			{				
