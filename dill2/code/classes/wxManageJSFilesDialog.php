@@ -236,7 +236,7 @@ class wxManageJSFilesDialog extends wxDialog
 					dialog. */
 					$this->website_project->create_file( "JS", $user_input );
 					
-					foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+					foreach(array("sync_file_generate") as $tmp_table)
 					{
 						$this->website_project->sync_table_add_file(
 							$tmp_table,
@@ -318,7 +318,7 @@ class wxManageJSFilesDialog extends wxDialog
 						$user_input
 					);
 					
-					foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+					foreach(array("sync_file_generate") as $tmp_table)
 					{
 						$this->website_project->sync_table_update_file(
 							$tmp_table,
@@ -350,7 +350,7 @@ class wxManageJSFilesDialog extends wxDialog
 		
 		$this->website_project->delete_file( "JS", $file_to_delete );
 		
-		foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+		foreach(array("sync_file_generate") as $tmp_table)
 		{
 			$this->website_project->sync_table_delete_file(
 				$tmp_table,

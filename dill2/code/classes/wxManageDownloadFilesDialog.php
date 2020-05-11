@@ -219,7 +219,7 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 				dialog. */
 				$this->website_project->copy_file( "DOWNLOAD", $filename, $filepath );
 				
-				foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+				foreach(array("sync_file_generate") as $tmp_table)
 				{
 					$this->website_project->sync_table_add_file(
 						$tmp_table,
@@ -298,7 +298,7 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 						$user_input
 					);
 					
-					foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+					foreach(array("sync_file_generate") as $tmp_table)
 					{
 						$this->website_project->sync_table_update_file(
 							$tmp_table,
@@ -330,7 +330,7 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 		
 		$this->website_project->delete_file( "DOWNLOAD", $file_to_delete );
 		
-		foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+		foreach(array("sync_file_generate") as $tmp_table)
 		{
 			$this->website_project->sync_table_delete_file(
 				$tmp_table,

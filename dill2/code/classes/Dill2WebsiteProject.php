@@ -90,12 +90,21 @@ class Dill2WebsiteProject
 			
 			// Add already existing pictures and downloads to the sync_* tables.
 			// But only if they have not been added before.
-			$this->update_sync_file_tables(
+			$this->init_sync_file_tables(
 				"MEDIA", 
 				$this->get_file_names("media"));
-			$this->update_sync_file_tables(
+			$this->init_sync_file_tables(
 				"DOWNLOAD",
-				$this->get_file_names("download"));
+				$this->get_file_names("download"));				
+			$this->init_sync_file_tables(
+				"CSS", 
+				$this->get_file_names("css"));
+			$this->init_sync_file_tables(
+				"JS",
+				$this->get_file_names("js"));
+			$this->init_sync_file_tables(
+				"PHP", 
+				$this->get_file_names("php"));				
 		}
 		
 		
@@ -178,10 +187,16 @@ class Dill2WebsiteProject
 		$db->exec( DILL2_CORE_WEBSITE_PROJECT_CREATETABLE_TEMPLATES_CSS );
 		$db->exec( DILL2_CORE_WEBSITE_PROJECT_CREATETABLE_TEMPLATES_JS );
 		$db->exec( DILL2_CORE_WEBSITE_PROJECT_CREATETABLE_WEBSITE_PROJECT_SETTINGS );
-		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS_FILE);
-		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP_FILE);
-		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS_PAGE);
-		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP_PAGE);
+		
+		// Sync tables for files.
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_GENERATE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_UPLOAD_SFTP);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_UPLOAD_FTPS);
+		
+		// Sync tables for pages.
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_GENERATE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_UPLOAD_SFTP);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_UPLOAD_FTPS);
 		
 		// Close the connection.
 		$db->close();
@@ -249,10 +264,13 @@ class Dill2WebsiteProject
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_TABLE_PAGE_SET_TYPE_TO_HTML);		
 		}
 		
-		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS_FILE);
-		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP_FILE);
-		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FTPS_PAGE);
-		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_SFTP_PAGE);	
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_GENERATE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_UPLOAD_SFTP);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_UPLOAD_FTPS);
+		
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_GENERATE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_UPLOAD_SFTP);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_UPLOAD_FTPS);
 
 		// Close the connection.
 		$db->close();
@@ -809,12 +827,6 @@ class Dill2WebsiteProject
 	}
 	
 	
-	// Copies all records from sync_ftps_page to sync_sftp_page.
-	public function db_bulk_copy_sync_tables_page()
-	{	
-	}
-	
-	
 	private function sqlite3_bind_values( $sqlite3_stmt, $columns, $values, $valuetypes )
 	{
 		/* Binds many values to a prepared sqlite3 statement in one flush.
@@ -1225,7 +1237,7 @@ class Dill2WebsiteProject
 					$name;
 				
 				// Update sync tables.
-				foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+				foreach(array("sync_file_generate") as $tmp_table)
 				{
 					$this->sync_table_update_file(
 						$tmp_table,
@@ -1265,7 +1277,7 @@ class Dill2WebsiteProject
 				{
 					// Check if it can be deleted.
 					if (empty($this->sync_table_select_page(
-						"sync_ftps_page",
+						"sync_page_generate",
 						$path .
 						DIRECTORY_SEPARATOR .
 						$item)))
@@ -1282,7 +1294,7 @@ class Dill2WebsiteProject
 			{
 				// Check if it can be deleted.
 				if (empty($this->sync_table_select_page(
-					"sync_ftps_page",
+					"sync_page_generate",
 					$path)))
 				{				
 					rmdir($path);
@@ -1300,9 +1312,9 @@ class Dill2WebsiteProject
 			mkdir( $this->abspath_websiteproject_website_pages );
 		}
 		
-		// Firstly, mark all records in "sync_ftps_page" to generated = 0.
+		// Firstly, mark all records in "sync_page_generate" to generated = 0.
 		$this->db_update(
-			"sync_ftps_page",
+			"sync_page_generate",
 			array("generated"),
 			array(0),
 			array(SQLITE3_INTEGER),			
@@ -1350,7 +1362,7 @@ class Dill2WebsiteProject
 				$php_content
 			);
 			
-			foreach(array("sync_ftps_page") as $tmp_table)
+			foreach(array("sync_page_generate") as $tmp_table)
 			{
 				$compare_page_to = $this->sync_table_select_page(
 					$tmp_table,
@@ -1367,7 +1379,6 @@ class Dill2WebsiteProject
 						
 					$this->sync_table_add_page(
 						$tmp_table,
-						0,
 						$php_content,
 						$this->abspath_websiteproject_website_pages .
 						DIRECTORY_SEPARATOR .
@@ -1386,7 +1397,6 @@ class Dill2WebsiteProject
 						
 						$this->sync_table_update_page(
 							$tmp_table,
-							0,
 							$php_content,
 							$this->abspath_websiteproject_website_pages .
 							DIRECTORY_SEPARATOR .
@@ -1396,9 +1406,8 @@ class Dill2WebsiteProject
 					else
 					{
 						// Only update "generated" (Set to 1).
-						$this->sync_table_update_page_generated(
+						$this->sync_table_update_page_already_generated(
 							$tmp_table,
-							0,
 							$this->abspath_websiteproject_website_pages .
 							DIRECTORY_SEPARATOR .
 							"index.php",
@@ -1408,7 +1417,7 @@ class Dill2WebsiteProject
 			}
 		}
 		
-		foreach(array("sync_ftps_page") as $tmp_table)
+		foreach(array("sync_page_generate") as $tmp_table)
 		{			
 			// Then delete the records of files that don't exist anymore.
 			$this->sync_table_delete_page($tmp_table);
@@ -1421,12 +1430,7 @@ class Dill2WebsiteProject
 		{
 			$this->rrmdir($this->abspath_websiteproject_website_pages);
 		}
-		
-		
-		// Do bulk copy from "sync_ftps_page" to "sync_sftp_page".
-		// Delete everything in "sync_sftp_page" before.
-		// TODO!!
-		
+
 		// Always close progress dialog window.
 		$this->close_observer_generate_website_view();		
 	}
@@ -1476,8 +1480,8 @@ class Dill2WebsiteProject
 		{
 			$cur_dir = $cur_dir_static . DIRECTORY_SEPARATOR . $node["name"];
 			
-			// TODO:  Before creating the dir, check if it exists in sync-tables.
-			foreach(array("sync_ftps_page") as $tmp_table)
+			// Before creating the dir, check if it exists in sync-tables.
+			foreach(array("sync_page_generate") as $tmp_table)
 			{
 				$compare_dir_to = $this->sync_table_select_page(
 					$tmp_table,
@@ -1495,7 +1499,6 @@ class Dill2WebsiteProject
 						
 					$this->sync_table_add_page(
 						$tmp_table,
-						0,
 						"",
 						$this->abspath_websiteproject_website_pages .
 						$cur_dir,
@@ -1503,9 +1506,8 @@ class Dill2WebsiteProject
 				}
 				else
 				{
-					$this->sync_table_update_page_generated(
+					$this->sync_table_update_page_already_generated(
 						$tmp_table,
-						0,
 						$this->abspath_websiteproject_website_pages .
 						$cur_dir,
 						1);						
@@ -1590,7 +1592,7 @@ class Dill2WebsiteProject
 			// Update the sync_tables, too!!
 			
 
-			foreach(array("sync_ftps_page") as $tmp_table)
+			foreach(array("sync_page_generate") as $tmp_table)
 			{
 				$testtest = $this->abspath_websiteproject_website_pages .
 					$cur_dir .
@@ -1616,7 +1618,6 @@ class Dill2WebsiteProject
 						
 					$this->sync_table_add_page(
 						$tmp_table,
-						$node["id"],
 						$page_content,
 						$this->abspath_websiteproject_website_pages .
 						$cur_dir .
@@ -1639,7 +1640,6 @@ class Dill2WebsiteProject
 						
 						$this->sync_table_update_page(
 							$tmp_table,
-							$node["id"],
 							$page_content,
 							$this->abspath_websiteproject_website_pages .
 							$cur_dir .
@@ -1650,9 +1650,8 @@ class Dill2WebsiteProject
 					else
 					{
 						// Only update "generated" (Set to 1).
-						$this->sync_table_update_page_generated(
+						$this->sync_table_update_page_already_generated(
 							$tmp_table,
-							$node["id"],
 							$this->abspath_websiteproject_website_pages .
 							$cur_dir .
 							DIRECTORY_SEPARATOR .
@@ -2048,18 +2047,30 @@ class Dill2WebsiteProject
 		date_default_timezone_set("Europe/Berlin");
 		$datetime_modified = date("d.m.Y-H:i:s");
 		
-		// Create record.
-		$this->db_insert(
+		$result = $this->db_select(
 			$_table,
+			"*",		
 			array(
 				"filepath",
-				"modified_date"),
-			array(
+				"=",
 				$_filepath,
-				$datetime_modified),
-			array(
-				SQLITE3_TEXT,
 				SQLITE3_TEXT));
+
+		if(empty($result))
+		{
+			// Create record.
+			$this->db_insert(
+				$_table,
+				array(
+					"filepath",
+					"modified_date"),
+				array(
+					$_filepath,
+					$datetime_modified),
+				array(
+					SQLITE3_TEXT,
+					SQLITE3_TEXT));			
+		}
 	}
 	
 	
@@ -2125,30 +2136,26 @@ class Dill2WebsiteProject
 	}
 	
 	
-	public function update_sync_file_tables(
+	public function init_sync_file_tables(
 		$_type,
 		$_array)
 	{
-		foreach(array("sync_sftp_file", "sync_ftps_file") as $tbl)
+		foreach($_array as $element)
 		{
-			foreach($_array as $element)
-			{
-				$this->sync_table_update_file(
-					$tbl,
-					$_type . 
-					DIRECTORY_SEPARATOR .
-					$element,
-					$_type .
-					DIRECTORY_SEPARATOR .
-					$element);
-			}
+			$this->sync_table_update_file(
+				"sync_file_generate",
+				$_type . 
+				DIRECTORY_SEPARATOR .
+				$element,
+				$_type .
+				DIRECTORY_SEPARATOR .
+				$element);
 		}
 	}
 	
 	
 	public function sync_table_add_page(
 		$_table,
-		$_id,
 		$_generated_content,
 		$_filepath,
 		$_generated)
@@ -2160,19 +2167,16 @@ class Dill2WebsiteProject
 		$this->db_insert(
 			$_table,
 			array(
-				"id",
 				"generated_content",
 				"filepath",
 				"generated",
 				"modified_date"),
 			array(
-				$_id,
 				$_generated_content,
 				$_filepath,
 				$_generated,
 				$datetime_modified),
 			array(
-				SQLITE3_INTEGER,
 				SQLITE3_TEXT,
 				SQLITE3_TEXT,
 				SQLITE3_INTEGER,
@@ -2197,7 +2201,6 @@ class Dill2WebsiteProject
 	
 	public function sync_table_update_page(
 		$_table,
-		$_id,
 		$_generated_content,
 		$_filepath,
 		$_generated)
@@ -2208,19 +2211,16 @@ class Dill2WebsiteProject
 		$this->db_update(
 			$_table,
 			array(
-				"id",
 				"generated_content",
 				"filepath",
 				"generated",
 				"modified_date"),
 			array(
-				$_id,
 				$_generated_content,
 				$_filepath,
 				$_generated,
 				$datetime_modified),
 			array(
-				SQLITE3_INTEGER,
 				SQLITE3_TEXT,
 				SQLITE3_TEXT,
 				SQLITE3_INTEGER,
@@ -2233,24 +2233,20 @@ class Dill2WebsiteProject
 	}
 
 
-	public function sync_table_update_page_generated(
+	public function sync_table_update_page_already_generated(
 		$_table,
-		$_id,
 		$_filepath,
 		$_generated)
 	{	
 		$this->db_update(
 			$_table,
 			array(
-				"id",
 				"filepath",
 				"generated"),
 			array(
-				$_id,
 				$_filepath,
 				$_generated),
 			array(
-				SQLITE3_INTEGER,
 				SQLITE3_TEXT,
 				SQLITE3_INTEGER),
 			array(

@@ -221,7 +221,7 @@ class wxManageMediaFilesDialog extends wxDialog
 				dialog. */
 				$this->website_project->copy_file( "MEDIA", $filename, $filepath );
 				
-				foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+				foreach(array("sync_file_generate") as $tmp_table)
 				{
 					$this->website_project->sync_table_add_file(
 						$tmp_table,
@@ -300,7 +300,7 @@ class wxManageMediaFilesDialog extends wxDialog
 						$user_input
 					);
 					
-					foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+					foreach(array("sync_file_generate") as $tmp_table)
 					{
 						$this->website_project->sync_table_update_file(
 							$tmp_table,
@@ -332,7 +332,7 @@ class wxManageMediaFilesDialog extends wxDialog
 		
 		$this->website_project->delete_file( "MEDIA", $file_to_delete );
 		
-		foreach(array("sync_ftps_file", "sync_sftp_file") as $tmp_table)
+		foreach(array("sync_file_generate") as $tmp_table)
 		{
 			$this->website_project->sync_table_delete_file(
 				$tmp_table,
