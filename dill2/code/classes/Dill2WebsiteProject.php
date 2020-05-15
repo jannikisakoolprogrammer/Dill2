@@ -2267,5 +2267,109 @@ class Dill2WebsiteProject
 				1,
 				SQLITE3_INTEGER));
 	}	
+	
+	
+	public function sync_file_upload_exists(
+		$_table,
+		$_path)
+	{
+		$result = $this->db_select(
+			$_table,
+			"*",
+			array(
+				"filepath",
+				"=",
+				$_path,
+				SQLITE3_TEXT));
+				
+		if (empty($result) == TRUE)
+		{
+			return FALSE;
+		}
+		else
+		{
+			return TRUE;
+		}
+	}
+	
+	public function sync_file_upload_create(
+		$_table,
+		$_path)
+	{
+		date_default_timezone_set("Europe/Berlin");
+		$datetime_modified = date("d.m.Y-H:i:s");
+		
+		$this->db_insert(
+			$_table,
+			array(
+				"filepath",
+				"checked",
+				"uploaded_date"),
+			array(
+				$_path,
+				1,
+				$datetime_modified),
+			array(
+				SQLITE3_TEXT,
+				SQLITE3_INTEGER,
+				SQLITE3_TEXT));
+				
+	}
+	
+	public function sync_file_upload_update(
+		$_table,
+		$_path)
+	{
+		date_default_timezone_set("Europe/Berlin");
+		$datetime_modified = date("d.m.Y-H:i:s");
+		
+		$this->db_update(
+			$_table,
+			array(
+				"uploaded_date",
+				"checked"),
+			array(
+				$datetime_modified,
+				1),
+			array(
+				SQLITE3_TEXT,
+				SQLITE3_INTEGER),
+			array(
+				"filepath",
+				"=",
+				$_path,
+				SQLITE3_TEXT));
+	}
+	
+	
+	public function sync_file_upload_update_checked(
+		$_table,
+		$_path)
+	{
+		$this->db_update(
+			$_table,
+			array("checked"),
+			array(1),
+			array(SQLITE3_INTEGER),
+			array(
+				"filepath",
+				"=",
+				$_path,
+				SQLITE3_TEXT));
+	}
+	
+	
+	public function sync_file_upload_delete(
+		$_table
+	)
+	{
+		$this->db_delete(
+			$_table,
+			array(
+				"checked",
+				"=",
+				0,
+				SQLITE3_INTEGER));
+	}
 }
 ?>

@@ -137,6 +137,7 @@ define(
 	"CREATE TABLE IF NOT EXISTS 'sync_file_upload_sftp'
 	(
 		filepath TEXT,
+		checked INTEGER,
 		uploaded_date TEXT
 	);");
 	
@@ -145,6 +146,7 @@ define(
 	"CREATE TABLE IF NOT EXISTS 'sync_file_upload_ftps'
 	(
 		filepath TEXT,
+		checked INTEGER,
 		uploaded_date TEXT
 	);");
 	
@@ -166,6 +168,7 @@ define(
 	"CREATE TABLE IF NOT EXISTS 'sync_page_upload_sftp'
 	(
 		filepath TEXT,
+		checked INTEGER,
 		uploaded_date TEXT
 	);");
 	
@@ -174,6 +177,7 @@ define(
 	"CREATE TABLE IF NOT EXISTS 'sync_page_upload_ftps'
 	(
 		filepath TEXT,
+		checked INTEGER,
 		uploaded_date TEXT
 	);");	
 
