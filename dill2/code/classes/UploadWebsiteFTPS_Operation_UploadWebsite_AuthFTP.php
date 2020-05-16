@@ -68,7 +68,8 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 				$this->upload_sync_delete(
 					$ftps_conn,
 					".",
-					$this->webserver_path);
+					$this->webserver_path,
+					$root_dir);
 				/*
 				$this->upload_sync(
 					$ftps_conn,
@@ -256,343 +257,107 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 	
 	public function upload_sync_add_update(
 		$_ftps_conn,
-		$_src,
-		$_dst)	
+		$_local_file_path,
+		$_remote_file_path)	
 	{
 		// Add, update files in that exist in "sync_file_upload_ftps" and "sync_page_upload_ftps".
 		// We iterate through local dir.
-		$dirit = new DirectoryIterator( $_src );
-		foreach( $dirit as $fileinfo )
+		$dirit = new DirectoryIterator($_local_file_path);
+		foreach($dirit as $fileinfo)
 		{
+			$local_file_path = $_local_file_path . DIRECTORY_SEPARATOR . $fileinfo->getFilename();
+			$remote_file_path = $_remote_file_path . DIRECTORY_SEPARATOR . $fileinfo->getFilename();
+			
 			if( $fileinfo->isDot())
 			{
 				continue;
 			}
-			
-			$new_src_path = $_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename();
-			$new_dst_path = $_dst . DIRECTORY_SEPARATOR . $fileinfo->getFilename();				
-			
-			if( $fileinfo->isDir())
+			else if($fileinfo->isDir())
 			{
-				if ($_dst == $this->webserver_path)
-				{
-					// This is only for root dirs "css", "js", "media", "php" and "download".
-					// Does the directory exist on the remote server?						
-					if (ftp_nlist(
-						$_ftps_conn,
-						$fileinfo->getFilename()) === FALSE)
-					{
-						// Dir does not exist; create it.
-						echo sprintf(
-							"Creating directory %s\n",
-							$new_dst_path) . PHP_EOL;
-
-						ftp_mkdir(
-							$_ftps_conn,
-							$fileinfo->getFilename());
-						
-						// Create record in "sync_file_upload_ftps" if required.
-						if ($this->website_project->sync_file_upload_exists(
-							"sync_file_upload_ftps",
-							$new_dst_path) == FALSE)
-						{
-							// Create record in table.
-							$this->website_project->sync_file_upload_create(
-								"sync_file_upload_ftps",
-								$new_dst_path);	
-						}						
-					}
-					else
-					{
-						// The directory exists remotely.
-						// Check if a record exists in sync_file_upload_ftps.
-						if ($this->website_project->sync_file_upload_exists(
-							"sync_file_upload_ftps",
-							$new_dst_path) == FALSE)
-						{
-							// Create record in table.
-							$this->website_project->sync_file_upload_create(
-								"sync_file_upload_ftps",
-								$new_dst_path);								
-						}
-						else
-						{
-							// Otherwise just set checked marker to 1.
-							$this->website_project->sync_file_upload_update_checked(
-								"sync_file_upload_ftps",
-								$new_dst_path);
-						}
-					}
 				
-				}
-				else
+				$listing = ftp_nlist(
+					$_ftps_conn,
+					$fileinfo->getFilename());				
+				
+				if (count($listing) >= 2)
 				{
-					$listing = ftp_nlist(
+					// Directory already exists but without any files.
+					// Go into that directory locally. (Recursion).					
+					ftp_chdir(
 						$_ftps_conn,
 						$fileinfo->getFilename());
 						
-					print_r($listing);
-						
-					if (empty($listing))
-					{
-						// Dir does not exist; create it.
-						echo sprintf(
-							"Creating directory %s\n",
-							$new_dst_path) . PHP_EOL;
-
-						ftp_mkdir(
-							$_ftps_conn,
-							$fileinfo->getFilename());
-						
-						// Create record in "sync_page_upload_ftps" if required.
-						if ($this->website_project->sync_file_upload_exists(
-							"sync_page_upload_ftps",
-							$new_dst_path) == FALSE)
-						{
-							// Create record in table.
-							$this->website_project->sync_file_upload_create(
-								"sync_page_upload_ftps",
-								$new_dst_path);	
-						}						
-					}
-					else
-					{
-						// The directory exists remotely.
-						// Check if a record exists in sync_page_upload_ftps.
-						if ($this->website_project->sync_file_upload_exists(
-							"sync_page_upload_ftps",
-							$new_dst_path) == FALSE)
-						{
-							// Create record in table.
-							$this->website_project->sync_page_upload_create(
-								"sync_page_upload_ftps",
-								$new_dst_path);								
-						}
-						else
-						{
-							// Otherwise just set checked marker to 1.
-							$this->website_project->sync_file_upload_update_checked(
-								"sync_page_upload_ftps",
-								$new_dst_path);
-						}
-					}							
-				}
-				
-				ftp_chdir(
-					$_ftps_conn,
-					$fileinfo->getFilename());						
-
-				$this->upload_sync_add_update(	
-					$_ftps_conn,
-					$new_src_path,
-					$fileinfo->getFilename());					
-				
-				ftp_cdup($_ftps_conn);
-			}
-			else if( $fileinfo->isFile())
-			{
-				if ($_dst == $this->webserver_path)
-				{
-					// This is only for files in root dirs "css", "js", "media", "php" and "download".
-					// Does the file exist on the remote server?
-					$listing = ftp_nlist(
+					$this->upload_sync_add_update(
 						$_ftps_conn,
-						$new_dst_path);
+						$local_file_path,
+						$remote_file_path);
 						
-					if (empty($listing))
+					ftp_cdup($_ftps_conn);						
+				}
+				else
+				{
+					// Create directory remotely.
+					ftp_mkdir(
+						$_ftps_conn,
+						$fileinfo->getFilename());
+						
+					echo sprintf(
+						"Created directory '%s'." . PHP_EOL,
+						$remote_file_path);	
+
+					// Go into that directory locally. (Recursion).					
+					ftp_chdir(
+						$_ftps_conn,
+						$fileinfo->getFilename());
+						
+					$this->upload_sync_add_update(
+						$_ftps_conn,
+						$local_file_path,
+						$remote_file_path);
+						
+					ftp_cdup($_ftps_conn);	
+				}
+			}				
+			else if($fileinfo->isFile())
+			{
+				// Check if the file already exists.
+				// If the file already exists, compare creation dates.
+				$listing = ftp_nlist(
+					$_ftps_conn,
+					$fileinfo->getFilename());
+				
+				if (count($listing) == 1)
+				{
+					// The file exists already.  Check creation dates.
+					$remote_mod_date = ftp_mdtm($_ftps_conn, $fileinfo->getFilename());
+					$local_mod_date = filemtime($local_file_path);
+					
+					if ($local_mod_date > $remote_mod_date)
 					{
-						// File does not exist; create it.
-						echo sprintf(
-							"Uploading file %s\n",
-							$_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename()) . PHP_EOL;
-							
+						// Update file.
 						ftp_put(
 							$_ftps_conn,
 							$fileinfo->getFilename(),					
-							$_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename(),
-							FTP_BINARY);
-						
-						// Create record in "sync_page_upload_ftps" if required.
-						if ($this->website_project->sync_file_upload_exists(
-							"sync_file_upload_ftps",
-							$new_dst_path) == FALSE)
-						{
-							// Create record in table.
-							$this->website_project->sync_file_upload_create(
-								"sync_file_upload_ftps",
-								$new_dst_path);	
-						}
-						else
-						{
-							// Update checked.
-							$this->website_project->sync_file_upload_update_checked(
-								"sync_file_upload_ftps",
-								$new_dst_path);								
-						}
-					}
-					else
-					{
-						// The file exists remotely.
-						// Check if a record exists in sync_file_upload_ftps.
-						if ($this->website_project->sync_file_upload_exists(
-							"sync_file_upload_ftps",
-							$new_dst_path) == FALSE)
-						{
-							// Create record in table.
-							$this->website_project->sync_file_upload_create(
-								"sync_file_upload_ftps",
-								$new_dst_path);						
-						}
-						
-						// Now compare dates of "sync_file_generate" and "sync_file_upload_ftps".
-						// Fetch date1 from sync_file_generate.
-						$rec1 = $this->website_project->sync_table_select_page(
-							"sync_file_generate",
-							$new_dst_path);
-							
-						$date_sync_file_generate = DateTime::createFromFormat(
-							"d.m.Y-H:i:s",
-							$rec1[0]["modified_date"]);
-							
-							
-						// Fetch date2 from sync_file_upload_ftps
-						$rec2 = $this->website_project->sync_table_select_page(
-							"sync_file_upload_ftps",
-							$new_dst_path);
-							
-						$date_sync_file_upload_ftps = DateTime::createFromFormat(
-							"d.m.Y-H:i:s",
-							$rec1[0]["uploaded_date"]);
-						
-						// Compare dates.
-						if ($date_sync_file_generate > $date_sync_file_upload_ftps)
-						{
-							// File has changed.  Replace it.
-							echo sprintf(
-								"Uploading file %s\n",
-								$_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename()) . PHP_EOL;
-								
-							ftp_put(
-								$_ftps_conn,
-								$fileinfo->getFilename(),					
-								$_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename(),
-								FTP_BINARY);							
-							
-							// Set uploaded_date; set checked.
-							$this->website_project->sync_file_upload_update(
-								"sync_file_upload_ftps",
-								$new_dst_path);							
-						}
-						else
-						{
-							// File has not changed.
-							// Set checked.
-							$this->website_project->sync_file_upload_update_checked(
-								"sync_file_upload_ftps",
-								$new_dst_path);
-						}
+							$local_file_path,
+							FTP_BINARY);			
+
+						echo sprintf(
+							"Updated file '%s'." . PHP_EOL,
+							$remote_file_path);
 					}
 				}
 				else
 				{
-					// Does the file exist on the remote server?
-					$listing = ftp_nlist(
+					// Upload file.
+					ftp_put(
 						$_ftps_conn,
-						$new_dst_path);
+						$fileinfo->getFilename(),					
+						$local_file_path,
+						FTP_BINARY);
 						
-					if (empty($listing))
-					{
-						// File does not exist; create it.
-						echo sprintf(
-							"Uploading file %s\n",
-							$_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename()) . PHP_EOL;
-							
-						ftp_put(
-							$_ftps_conn,
-							$fileinfo->getFilename(),					
-							$_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename(),
-							FTP_BINARY);
-						
-						// Create record in "sync_page_upload_ftps" if required.
-						if ($this->website_project->sync_file_upload_exists(
-							"sync_page_upload_ftps",
-							$new_dst_path) == FALSE)
-						{
-							// Create record in table.
-							$this->website_project->sync_file_upload_create(
-								"sync_page_upload_ftps",
-								$new_dst_path);	
-						}
-						else
-						{
-							// Set checked.
-							$this->website_project->sync_file_upload_update_checked(
-								"sync_page_upload_ftps",
-								$new_dst_path);							
-						}
-					}
-					else
-					{
-						// The file exists remotely.
-						// Check if a record exists in sync_page_upload_ftps.
-						if ($this->website_project->sync_file_upload_exists(
-							"sync_page_upload_ftps",
-							$new_dst_path) == FALSE)
-						{
-							// Create record in table.
-							$this->website_project->sync_file_upload_create(
-								"sync_page_upload_ftps",
-								$new_dst_path);						
-						}
-						
-						// Now compare dates of "sync_file_generate" and "sync_page_upload_ftps".
-						// Fetch date1 from sync_file_generate.
-						$rec1 = $this->website_project->sync_table_select_page(
-							"sync_file_generate",
-							$new_dst_path);
-							
-						$date_sync_file_generate = DateTime::createFromFormat(
-							"d.m.Y-H:i:s",
-							$rec1[0]["modified_date"]);
-							
-							
-						// Fetch date2 from sync_page_upload_ftps
-						$rec2 = $this->website_project->sync_table_select_page(
-							"sync_page_upload_ftps",
-							$new_dst_path);
-							
-						$date_sync_file_upload_ftps = DateTime::createFromFormat(
-							"d.m.Y-H:i:s",
-							$rec1[0]["uploaded_date"]);
-						
-						// Compare dates.
-						if ($date_sync_file_generate > $date_sync_file_upload_ftps)
-						{
-							// File has changed.  Replace it.
-							echo sprintf(
-								"Uploading file %s\n",
-								$_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename()) . PHP_EOL;
-								
-							ftp_put(
-								$_ftps_conn,
-								$fileinfo->getFilename(),					
-								$_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename(),
-								FTP_BINARY);							
-							
-							// Set uploaded_date; set checked.
-							$this->website_project->sync_file_upload_update(
-								"sync_page_upload_ftps",
-								$new_dst_path);							
-						}
-						else
-						{
-							// File has not changed.
-							// Set checked.
-							$this->website_project->sync_file_upload_update_checked(
-								"sync_page_upload_ftps",
-								$new_dst_path);
-						}
-					}
+					echo sprintf(
+						"Created file '%s'." . PHP_EOL,
+						$remote_file_path);
 				}
 			}
 			
@@ -605,19 +370,17 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 	public function upload_sync_delete(
 		$_ftps_conn,
 		$_dst,
-		$_relative_path)	
-	{
-		// Delete files that do not have the "checked" field marked.
-		
-		// Delete files in that do not exist in "sync_file_upload_ftps" and "sync_page_upload_ftps".
-		// We iterate through remote dir.			
+		$_cur_remote_path,
+		$_cur_local_path)	
+	{			
 		$dirs_files = ftp_nlist(
 			$_ftps_conn,
 			".");
 			
 		foreach ($dirs_files as $x)
 		{
-			$cur_rel_path = $_relative_path . DIRECTORY_SEPARATOR . $x;
+			$cur_remote_path = $_cur_remote_path . DIRECTORY_SEPARATOR . $x;
+			$cur_local_path = $_cur_local_path . DIRECTORY_SEPARATOR . $x;
 			
 			if ($this->ends_with(
 				$x,
@@ -633,69 +396,63 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 			}
 			else
 			{
-				if ($_relative_path == $this->webserver_path)
-				{
+				// If the path is a dir, change into it.
+				$listing = ftp_nlist(
+					$_ftps_conn,
+					$x);
 					
-					// Can the filepath be found in "sync_file_upload_ftps"?
-					if ($this->website_project->sync_file_upload_exists(
-						"sync_file_upload_ftps",
-						$cur_rel_path) == FALSE)
+				if (count($listing) == 2)
+				{
+					// It is a directory.
+					// Check if the directory exists locally.  If not, delete it remotely.
+
+					if (file_exists($cur_local_path) == FALSE)
 					{
-						// Not found; remove it.
-						// Assume it is a file and try to delete it.				
-						if (ftp_delete(
+						ftp_rmdir(
 							$_ftps_conn,
-							$x) == FALSE)
-						{
-							// If it is not a file, then it is a directory.  Go into that directory.
-							ftp_chdir(
-								$_ftps_conn,
-								$x);
-								
-							$this->upload_sync_delete(
-								$_ftps_conn,
-								$x,
-								$cur_rel_path);
-								
-							ftp_cdup($_ftps_conn);
-							
-							// Delete the directory now.
-							ftp_rmdir(
-								$_ftps_conn,
-								$x);
-						}						
+							$x);
+						echo sprintf(
+							"Deleted directory '%s'." . PHP_EOL,
+							$cur_remote_path);
 					}
 				}
-				else
+				else if (count($listing) > 2)
 				{
-					// Can the filepath be found in "sync_page_upload_ftps"?
-					if ($this->website_project->sync_file_upload_exists(
-						"sync_page_upload_ftps",
-						$cur_rel_path) == FALSE)
-					{						
-						// Not found; remove it.
-						// Assume it is a file and try to delete it.				
-						if (ftp_delete(
+					// It is a directory with files in it.  Change into it.
+					ftp_chdir(
+						$_ftps_conn,
+						$x);
+								
+					$this->upload_sync_delete(
+						$_ftps_conn,
+						$_dst,
+						$cur_remote_path,
+						$cur_local_path);						
+														
+					ftp_cdup($_ftps_conn);
+					
+					// Check if dir exists locally.  If not, deleted it remotely.
+					if (file_exists($cur_local_path) == FALSE)
+					{
+						ftp_rmdir(
 							$_ftps_conn,
-							$x) == FALSE)
-						{
-							// If it is not a file, then it is a directory.  Go into that directory.
-							ftp_chdir(
-								$_ftps_conn,
-								$x);
-								
-							$this->upload_sync_delete(
-								$_ftps_conn,
-								$x,
-								$cur_rel_path);
-								
-							ftp_cdup($_ftps_conn);								
-							
-							// Delete the directory now.
-							ftp_rmdir(
-								$_ftps_conn,
-								$x);
-						}
+							$x);
+						echo sprintf(
+							"Deleted directory '%s'." . PHP_EOL,
+							$cur_remote_path);
+					}					
+				}
+				else if (count($listing) == 1)
+				{
+					// It is a file.
+					if (file_exists($cur_local_path) == FALSE)
+					{
+						ftp_delete(
+							$_ftps_conn,
+							$x);
+						echo sprintf(
+							"Deleted file '%s'." . PHP_EOL,
+							$cur_remote_path);							
 					}
 				}
 			}
