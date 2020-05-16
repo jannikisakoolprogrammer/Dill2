@@ -24,11 +24,11 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 		
 		if ($ftps_conn)
 		{
-			// Change timeout to 10 seconds.
+			// Set timeout to 20 seconds.
 			ftp_set_option(
 				$ftps_conn,
 				FTP_TIMEOUT_SEC,
-				10);
+				20);
 				
 			echo "Connection established." . PHP_EOL;
 			
@@ -138,95 +138,69 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 			{
 				continue;
 			}
-			else if($fileinfo->isDir())
+			else
 			{
-				$listing = ftp_nlist(
-					$_ftps_conn,
-					$fileinfo->getFilename());				
-				
-				if (count($listing) >= 2)
+			
+				// Update progress bar.
+				$this->progress_bar_update(
+					sprintf(
+						"Step 1: Processing source path: %s",
+						$local_file_path));
+						
+				if($fileinfo->isDir())
 				{
-					// Directory already exists but without any files.
-					// Go into that directory locally. (Recursion).					
-					ftp_chdir(
+					$listing = ftp_nlist(
 						$_ftps_conn,
-						$fileinfo->getFilename());
-						
-					$this->upload_sync_add_update(
-						$_ftps_conn,
-						$local_file_path,
-						$remote_file_path);
-						
-					ftp_cdup($_ftps_conn);						
-				}
-				else
-				{
-					// Create directory remotely.
-					ftp_mkdir(
-						$_ftps_conn,
-						$fileinfo->getFilename());
-						
-					echo sprintf(
-						"Created directory '%s'." . PHP_EOL,
-						$remote_file_path);	
-
-					// Go into that directory locally. (Recursion).					
-					ftp_chdir(
-						$_ftps_conn,
-						$fileinfo->getFilename());
-						
-					$this->upload_sync_add_update(
-						$_ftps_conn,
-						$local_file_path,
-						$remote_file_path);
-						
-					ftp_cdup($_ftps_conn);	
-				}
-			}				
-			else if($fileinfo->isFile())
-			{
-				// Check if the file already exists.
-				// If the file already exists, compare creation dates.
-				$listing = ftp_nlist(
-					$_ftps_conn,
-					$fileinfo->getFilename());
-				
-				if (empty($listing) == TRUE)
-				{
-					// Upload file.
-					ftp_put(
-						$_ftps_conn,
-						$fileinfo->getFilename(),					
-						$local_file_path,
-						FTP_BINARY);
-						
-					echo sprintf(
-						"Created file '%s'." . PHP_EOL,
-						$remote_file_path);	
-				}
-				else
-				{
-					if (count($listing) == 1)
+						$fileinfo->getFilename());				
+					
+					if (count($listing) >= 2)
 					{
-						// The file exists already.  Check creation dates.
-						$remote_mod_date = ftp_mdtm($_ftps_conn, $fileinfo->getFilename());
-						$local_mod_date = filemtime($local_file_path);
-						
-						if ($local_mod_date > $remote_mod_date)
-						{
-							// Update file.
-							ftp_put(
-								$_ftps_conn,
-								$fileinfo->getFilename(),					
-								$local_file_path,
-								FTP_BINARY);			
-
-							echo sprintf(
-								"Updated file '%s'." . PHP_EOL,
-								$remote_file_path);
-						}
+						// Directory already exists but without any files.
+						// Go into that directory locally. (Recursion).					
+						ftp_chdir(
+							$_ftps_conn,
+							$fileinfo->getFilename());
+							
+						$this->upload_sync_add_update(
+							$_ftps_conn,
+							$local_file_path,
+							$remote_file_path);
+							
+						ftp_cdup($_ftps_conn);						
 					}
 					else
+					{
+						// Create directory remotely.
+						ftp_mkdir(
+							$_ftps_conn,
+							$fileinfo->getFilename());
+							
+						echo sprintf(
+							"Created directory '%s'." . PHP_EOL,
+							$remote_file_path);	
+
+						// Go into that directory locally. (Recursion).					
+						ftp_chdir(
+							$_ftps_conn,
+							$fileinfo->getFilename());
+							
+						$this->upload_sync_add_update(
+							$_ftps_conn,
+							$local_file_path,
+							$remote_file_path);
+							
+						ftp_cdup($_ftps_conn);	
+					}
+				}				
+				else if($fileinfo->isFile())
+				{
+					// Check if the file already exists.
+					// If the file already exists, compare creation dates.
+					$listing = ftp_nlist(
+						$_ftps_conn,
+						$fileinfo->getFilename());
+					
+					if (empty($listing) == TRUE)
 					{
 						// Upload file.
 						ftp_put(
@@ -237,16 +211,46 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 							
 						echo sprintf(
 							"Created file '%s'." . PHP_EOL,
-							$remote_file_path);
-					}					
+							$remote_file_path);	
+					}
+					else
+					{
+						if (count($listing) == 1)
+						{
+							// The file exists already.  Check creation dates.
+							$remote_mod_date = ftp_mdtm($_ftps_conn, $fileinfo->getFilename());
+							$local_mod_date = filemtime($local_file_path);
+							
+							if ($local_mod_date > $remote_mod_date)
+							{
+								// Update file.
+								ftp_put(
+									$_ftps_conn,
+									$fileinfo->getFilename(),					
+									$local_file_path,
+									FTP_BINARY);			
+
+								echo sprintf(
+									"Updated file '%s'." . PHP_EOL,
+									$remote_file_path);
+							}
+						}
+						else
+						{
+							// Upload file.
+							ftp_put(
+								$_ftps_conn,
+								$fileinfo->getFilename(),					
+								$local_file_path,
+								FTP_BINARY);
+								
+							echo sprintf(
+								"Created file '%s'." . PHP_EOL,
+								$remote_file_path);
+						}					
+					}
 				}
-			}
-			
-			// Update progress bar.
-			$this->progress_bar_update(
-				sprintf(
-					"Step 1: Processed source path: %s",
-					$local_file_path));						
+			}					
 		}		
 	}
 	
@@ -280,6 +284,12 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 			}
 			else
 			{
+				// Update progress bar.
+				$this->progress_bar_update(
+					sprintf(
+						"Step 2: Processing destination path: %s",
+						$cur_remote_path));
+					
 				// If the path is a dir, change into it.
 				$listing = ftp_nlist(
 					$_ftps_conn,
@@ -340,12 +350,6 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 					}
 				}
 			}
-			
-			// Update progress bar.
-			$this->progress_bar_update(
-				sprintf(
-					"Step 2: Processed destination path: %s",
-					$cur_remote_path));
 		}		
 	}
 	
