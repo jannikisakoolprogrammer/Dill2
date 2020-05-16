@@ -63,9 +63,6 @@ class UploadWebsiteFTPS_Presenter extends PresenterBase
 			echo $exception_msg . PHP_EOL;
 			$this->view->destroy();
 		}
-			
-		// Show new dialog with either an success message or error message.
-		// TODO...
 	}
 	
 	
@@ -73,6 +70,33 @@ class UploadWebsiteFTPS_Presenter extends PresenterBase
 	{
 		$this->percent += $_percent;		
 		$this->view->update($this->percent);			
+	}
+	
+	
+	public function update(
+		$_percent,
+		$_status_text)
+	{
+		$this->percent += $_percent;
+		$this->view->update(
+			$this->percent,
+			$_status_text);
+		
+		//$this->view->Fit();
+	}
+	
+	
+	public function set_range(
+		$_elements)
+	{
+		$this->view->setRange($_elements);
+	}
+	
+	
+	public function reset_percent()
+	{
+		$this->percent = 0;
+		$this->view->update($this->percent);
 	}
 }
 ?>

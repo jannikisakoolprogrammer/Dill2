@@ -1676,7 +1676,6 @@ class wxDill2Frame extends wxFrame
 			$wxtreeitemdata->element_parent_id = $value["self"]["parent_id"];
 			$wxtreeitemdata->element_sort_id = $value["self"]["sort_id"];
 			$wxtreeitemdata->element_name = $value["self"]["name"];
-			$wxtreeitemdata->element_state = $value["self"]["state"];
 			$wxtreeitemdata->element_type = $value["self"]["type"];
 			
 			// Will only be called in the lowest "level" (no recursion).
