@@ -221,6 +221,15 @@ class wxManageMediaFilesDialog extends wxDialog
 				dialog. */
 				$this->website_project->copy_file( "MEDIA", $filename, $filepath );
 				
+				foreach(array("sync_file_generate") as $tmp_table)
+				{
+					$this->website_project->sync_table_add_file(
+						$tmp_table,
+						"MEDIA" .
+						DIRECTORY_SEPARATOR .
+						$filename);					
+				}			
+				
 				/* Refresh the wxListBox that shows the media files and quit
 				this function. */
 				$this->refresh_related_controls( "MEDIA" );
@@ -290,6 +299,19 @@ class wxManageMediaFilesDialog extends wxDialog
 						$user_listbox_choice,
 						$user_input
 					);
+					
+					foreach(array("sync_file_generate") as $tmp_table)
+					{
+						$this->website_project->sync_table_update_file(
+							$tmp_table,
+							"MEDIA" .
+							DIRECTORY_SEPARATOR .
+							$user_listbox_choice,
+							"MEDIA" .
+							DIRECTORY_SEPARATOR .
+							$user_input);
+					}							
+					
 					// Refresh related controls that display the MEDIA files.
 					$this->refresh_related_controls( "MEDIA" );
 					break;
@@ -309,6 +331,16 @@ class wxManageMediaFilesDialog extends wxDialog
 		);
 		
 		$this->website_project->delete_file( "MEDIA", $file_to_delete );
+		
+		foreach(array("sync_file_generate") as $tmp_table)
+		{
+			$this->website_project->sync_table_delete_file(
+				$tmp_table,
+				"MEDIA" .
+				DIRECTORY_SEPARATOR .
+				$file_to_delete);
+		}				
+		
 		$this->refresh_related_controls( "MEDIA" );
 	}
 	

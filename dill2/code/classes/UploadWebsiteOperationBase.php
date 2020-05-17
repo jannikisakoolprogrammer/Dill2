@@ -67,6 +67,29 @@ abstract class UploadWebsiteOperationBase extends OperationBase
 	{
 		return $this->total_files_dirs;
 	}
+	
+	
+	public function progress_bar_set_range(
+		$_elements)
+	{
+		$this->observers[0]->set_range($_elements);
+	}
+	
+	
+	public function reset_percent()
+	{
+		$this->observers[0]->reset_percent();
+	}
+	
+	
+	public function progress_bar_update(
+		$_status_text,
+		$_value = 1)
+	{
+		$this->observers[0]->update(
+			$_value,
+			$_status_text);
+	}
 }
 
 ?>

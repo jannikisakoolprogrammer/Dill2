@@ -6,6 +6,12 @@ class UploadWebsiteSFTP_Operation_UploadWebsite_AuthSFTP extends UploadWebsiteOp
 {	
 	protected $password = NULL;
 	
+	protected $f_d_to_process_on_source = 0;
+	protected $f_d_to_process_on_destination = 0;
+	protected $dirs_and_files_created_or_updated_or_existing = [];
+	protected $remote_dirs_and_files = [];
+	protected $remote_dirs_and_files_to_delete_recursively = [];
+
 	
 	public function run()
 	{
@@ -15,8 +21,6 @@ class UploadWebsiteSFTP_Operation_UploadWebsite_AuthSFTP extends UploadWebsiteOp
 		$this->port = 22;
 		$this->webserver_path = $this->website_project_settings[0]["sftp_webserver_path"];
 		
-		echo "Total files: " . $this->total_files_dirs . PHP_EOL;
-		
 		// Let's try to establish the connection.
 		$ssh_conn = ssh2_connect(
 			$this->webserver_ip_address,
@@ -25,6 +29,8 @@ class UploadWebsiteSFTP_Operation_UploadWebsite_AuthSFTP extends UploadWebsiteOp
 		if($ssh_conn != FALSE)
 		{
 			// A connection to the web-server has now been established.
+			echo "Connection established." . PHP_EOL;
+			
 			// Accecpt the fingerprint automatically.
 			ssh2_fingerprint($ssh_conn);	
 
@@ -34,35 +40,67 @@ class UploadWebsiteSFTP_Operation_UploadWebsite_AuthSFTP extends UploadWebsiteOp
 				$this->username,
 				$this->password))
 			{
+				echo "Logged in." . PHP_EOL;
+				
 				// And now it is time to upload the website to the webserver.
 				// We change the current directory on the local computer and
 				// on the webserver aswell.
 
 				// Local computer:
-				$root_dir = getcwd() . DIRECTORY_SEPARATOR . $this->website_project->abspath_websiteproject_website;	
+				$root_dir = getcwd() .
+					DIRECTORY_SEPARATOR .
+					$this->website_project->abspath_websiteproject_website;	
 
 				chdir($root_dir);
 					
 				// Now let's upload the website.
 				$ssh2_sftp = ssh2_sftp($ssh_conn);
 				
-				echo "Upload files now..." . PHP_EOL;
+				echo "Updating website." . PHP_EOL;
 				
-				$this->upload_sync(
+				// Calculate files and directories to process on source.
+				$this->calculate_files_dirs_to_process_on_source(
+					$root_dir);
+
+				$this->f_d_to_process_on_source += 1; // Prevent "Done".
+				
+				$this->reset_percent();					
+					
+				$this->progress_bar_set_range(
+					$this->f_d_to_process_on_source);				
+				
+				$this->upload_sync_add_update(
 					$ssh_conn,
 					$ssh2_sftp,
 					$root_dir,
-					$this->webserver_path
-				);
+					$this->webserver_path);
+				
+				
+				// Calculate files and directories to process on destination.
+				$this->calculate_files_dirs_to_process_on_destination();
+					
+				$this->f_d_to_process_on_destination += 1; // Prevent "Done".			
+					
+				$this->reset_percent();
+					
+				$this->progress_bar_set_range(
+					$this->f_d_to_process_on_destination);					
+					
+				$this->upload_sync_delete(
+					$ssh_conn);
 
 				chdir( "../../../bin" );
 				
-				echo "Done with uploading files." . PHP_EOL;
+				echo "Updating website finished." . PHP_EOL;
+				
+				// Update progress bar.
+				$this->progress_bar_update(
+					"Website updated.");				
 			}
 			else
 			{
 				unset( $ssh_conn );				
-				throw new Exception("Upload failed.");
+				throw new Exception("Updating website has failed.");
 			}
 			
 			// Logout
@@ -71,84 +109,102 @@ class UploadWebsiteSFTP_Operation_UploadWebsite_AuthSFTP extends UploadWebsiteOp
 		}
 		else
 		{
-			throw new Exception("Upload failed.");
+			throw new Exception("Updating website has failed.");
 		}
 	}
 	
 	
-	public function upload_sync( $ssh2_conn, $sftp_conn, $src, $dst )
-	{
-		$dirs_and_files_created_or_updated_or_existing = array();
-	
-		$dirit = new DirectoryIterator( $src );
+	public function upload_sync_add_update(
+		$_ssh2_conn,
+		$_sftp_conn,
+		$_src,
+		$_dst)
+	{	
+		$dirit = new DirectoryIterator( $_src );
 		foreach( $dirit as $fileinfo )
 		{
 			if( $fileinfo->isDot())
 			{
 				continue;
 			}
-			if( $fileinfo->isDir())
+			else
 			{
-				$new_dir_path = $dst . "/" . $fileinfo->getFilename();
-				ssh2_sftp_mkdir( $sftp_conn, $new_dir_path );
-				$this->upload_sync(	
-					$ssh2_conn,
-					$sftp_conn,
-					$src . DIRECTORY_SEPARATOR . $fileinfo->getFilename(),
-					$new_dir_path
-				);
-
-				$dirs_and_files_created_or_updated_or_existing[] = $new_dir_path;
-			
-			}
-			else if( $fileinfo->isFile())
-			{
-				// Compare checksums so we know if we need to copy / replace the file or not.
-				$local_file_md5sum = calculate_md5_checksum($src . DIRECTORY_SEPARATOR . $fileinfo->getFilename());
-
-				$remote_file_stream = ssh2_exec(
-					$ssh2_conn,
-					sprintf(
-						"md5sum %s",
-						$dst . "/" . $fileinfo->getFilename()
-					)
-				);
-				stream_set_blocking( $remote_file_stream, TRUE );
-				$remote_file_md5sum = explode(
-					" ",
-					stream_get_contents(
-						$remote_file_stream
-					)
-				)[0];
-				fclose( $remote_file_stream );
-
-				if( $local_file_md5sum !== $remote_file_md5sum )
+				if( $fileinfo->isDir())
 				{
-					echo sprintf( "Sending %s\n", $src . DIRECTORY_SEPARATOR . $fileinfo->getFilename() ) . PHP_EOL;
-					ssh2_scp_send(
-						$ssh2_conn,
-						$src . DIRECTORY_SEPARATOR . $fileinfo->getFilename(),
-						$dst . "/" . $fileinfo->getFilename()
-					);		
+					$new_dir_path = $_dst . "/" . $fileinfo->getFilename();
+					
+					// Update progress bar.
+					$this->progress_bar_update(
+						sprintf(
+							"Step 1: Processing source path: %s",
+							$_src .
+							DIRECTORY_SEPARATOR .
+							$fileinfo->getFilename(),
+							$new_dir_path));
+					
+					ssh2_sftp_mkdir( $_sftp_conn, $new_dir_path );
+					$this->upload_sync_add_update(	
+						$_ssh2_conn,
+						$_sftp_conn,
+						$_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename(),
+						$new_dir_path
+					);
+
+					$this->dirs_and_files_created_or_updated_or_existing[] = $new_dir_path;
+				
 				}
-			
-				$dirs_and_files_created_or_updated_or_existing[] = $dst . "/" . $fileinfo->getFilename();
-						
+				else if( $fileinfo->isFile())
+				{					
+					// Update progress bar.
+					$this->progress_bar_update(
+						sprintf(
+							"Step 1: Processing source path: %s",
+							$_src .
+							DIRECTORY_SEPARATOR .
+							$fileinfo->getFilename()));
+							
+					// Compare checksums so we know if we need to copy / replace the file or not.
+					$local_file_md5sum = calculate_md5_checksum($_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename());
+
+					$remote_file_stream = ssh2_exec(
+						$_ssh2_conn,
+						sprintf(
+							"md5sum %s",
+							$_dst . "/" . $fileinfo->getFilename()
+						)
+					);
+					stream_set_blocking( $remote_file_stream, TRUE );
+					$remote_file_md5sum = explode(
+						" ",
+						stream_get_contents(
+							$remote_file_stream
+						)
+					)[0];
+					fclose( $remote_file_stream );
+
+					if( $local_file_md5sum !== $remote_file_md5sum )
+					{
+						echo sprintf( "Sending %s\n", $_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename() ) . PHP_EOL;
+						ssh2_scp_send(
+							$_ssh2_conn,
+							$_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename(),
+							$_dst . "/" . $fileinfo->getFilename()
+						);		
+					}
+				
+					$this->dirs_and_files_created_or_updated_or_existing[] = $_dst . "/" . $fileinfo->getFilename();
+							
+				}
 			}
-			
-			// Update progress bar.
-			$this->notify_observers();
 		}
-		//$dirs_and_files_created_or_updated_or_existing[] = $dst;
-		//print_r( $dirs_and_files_created_or_updated_or_existing );
 
 		// Delete directories and files inside the current directory.
-		// Get an array of all remote directories and files of the current $dst.
+		// Get an array of all remote directories and files of the current $_dst.
 		$stream1 = ssh2_exec(
-			$ssh2_conn,
+			$_ssh2_conn,
 			sprintf(
 				"dir -m %s",
-				$dst
+				$_dst
 			)
 		);
 
@@ -161,37 +217,83 @@ class UploadWebsiteSFTP_Operation_UploadWebsite_AuthSFTP extends UploadWebsiteOp
 		);
 		fclose( $stream1 );
 
-		$remote_dirs_and_files = array();
-
 		foreach( $remote_dirs_and_files_raw as $thing )
 		{
 			if( strlen( trim( $thing ) )  > 0 )
 			{
-				$remote_dirs_and_files[] = $dst . "/" . trim( $thing );
+				$this->remote_dirs_and_files[] = $_dst . "/" . trim( $thing );
 			}
-		}
-
-		//$remote_dirs_and_files[] = $dst;
-
-		$remote_dirs_and_files_to_delete_recursively = array_diff(
-			$remote_dirs_and_files,
-			$dirs_and_files_created_or_updated_or_existing
+		}		
+	}
+	
+	
+	public function upload_sync_delete(
+		$_ssh2_conn)
+	{
+		$this->remote_dirs_and_files_to_delete_recursively = array_diff(
+			$this->remote_dirs_and_files,
+			$this->dirs_and_files_created_or_updated_or_existing
 		);
 
-		foreach( $remote_dirs_and_files_to_delete_recursively as $d )
+		foreach( $this->remote_dirs_and_files_to_delete_recursively as $d )
 		{
+			// Update progress bar.
+			$this->progress_bar_update(
+				sprintf(
+					"Step 2: Processing destination path: %s",
+					$d));
+						
 			if( ssh2_exec(
-				$ssh2_conn,
+				$_ssh2_conn,
 				sprintf(
 					"rm -r %s",
-					$d
-				)
-			) )
+					$d)))
 			{
 				echo sprintf( "Directory/File %s has been deleted.", $d ) . PHP_EOL;	
 			}	
-		}	
-	}	
+		}			
+	}
+	
+	
+	public function calculate_files_dirs_to_process_on_source(
+		$_src)
+	{
+		$dirit = new DirectoryIterator( $_src );
+		foreach( $dirit as $fileinfo )
+		{
+			if( $fileinfo->isDot())
+			{
+				continue;
+			}
+			if( $fileinfo->isDir())
+			{
+				$this->f_d_to_process_on_source += 1;
+				
+				$this->calculate_files_dirs_to_process_on_source(	
+					$_src .
+					DIRECTORY_SEPARATOR .
+					$fileinfo->getFilename());			
+			}
+			else if( $fileinfo->isFile())
+			{
+				$this->f_d_to_process_on_source += 1;						
+			}
+		}			
+	}
+	
+	
+	public function calculate_files_dirs_to_process_on_destination()
+	{
+		$local_remote_dirs_and_files_to_delete_recursively = array_diff(
+			$this->remote_dirs_and_files,
+			$this->dirs_and_files_created_or_updated_or_existing
+		);
+
+		foreach( $local_remote_dirs_and_files_to_delete_recursively as $d )
+		{
+			$this->f_d_to_process_on_destination += 1;
+		}
+	}
 }
 
 ?>

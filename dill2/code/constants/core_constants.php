@@ -123,6 +123,64 @@ define(
 	"
 );
 
+// Sync information for FTPS is stored in this table. For files!
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_GENERATE",
+	"CREATE TABLE IF NOT EXISTS 'sync_file_generate'
+	(
+		filepath TEXT,
+		modified_date TEXT
+	);");
+	
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_UPLOAD_SFTP",
+	"CREATE TABLE IF NOT EXISTS 'sync_file_upload_sftp'
+	(
+		filepath TEXT,
+		checked INTEGER,
+		uploaded_date TEXT
+	);");
+	
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_UPLOAD_FTPS",
+	"CREATE TABLE IF NOT EXISTS 'sync_file_upload_ftps'
+	(
+		filepath TEXT,
+		checked INTEGER,
+		uploaded_date TEXT
+	);");
+	
+
+
+// Sync information for FTPS is stored in this table. For pages!
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_GENERATE",
+	"CREATE TABLE IF NOT EXISTS 'sync_page_generate'
+	(
+		generated_content TEXT,		
+		filepath TEXT,
+		generated INTEGER,
+		modified_date TEXT
+	);");
+
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_UPLOAD_SFTP",
+	"CREATE TABLE IF NOT EXISTS 'sync_page_upload_sftp'
+	(
+		filepath TEXT,
+		checked INTEGER,
+		uploaded_date TEXT
+	);");
+	
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_UPLOAD_FTPS",
+	"CREATE TABLE IF NOT EXISTS 'sync_page_upload_ftps'
+	(
+		filepath TEXT,
+		checked INTEGER,
+		uploaded_date TEXT
+	);");	
+
 
 // CSS files are stored in this table.
 define(

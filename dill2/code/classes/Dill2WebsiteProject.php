@@ -87,6 +87,24 @@ class Dill2WebsiteProject
 			$this->sqlite3_conn = new SQLite3( $this->db_path );
 			$this->sqlite3_conn->exec( "PRAGMA foreign_keys = ON;" );
 			// $this->sqlite3_conn->exec( DILL2_CORE_WEBSITE_PROJECT_CREATETABLE_WEBSITE_PROJECT_SETTINGS );
+			
+			// Add already existing pictures and downloads to the sync_* tables.
+			// But only if they have not been added before.
+			$this->init_sync_file_tables(
+				"MEDIA", 
+				$this->get_file_names("media"));
+			$this->init_sync_file_tables(
+				"DOWNLOAD",
+				$this->get_file_names("download"));				
+			$this->init_sync_file_tables(
+				"CSS", 
+				$this->get_file_names("css"));
+			$this->init_sync_file_tables(
+				"JS",
+				$this->get_file_names("js"));
+			$this->init_sync_file_tables(
+				"PHP", 
+				$this->get_file_names("php"));				
 		}
 		
 		
@@ -170,6 +188,16 @@ class Dill2WebsiteProject
 		$db->exec( DILL2_CORE_WEBSITE_PROJECT_CREATETABLE_TEMPLATES_JS );
 		$db->exec( DILL2_CORE_WEBSITE_PROJECT_CREATETABLE_WEBSITE_PROJECT_SETTINGS );
 		
+		// Sync tables for files.
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_GENERATE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_UPLOAD_SFTP);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_UPLOAD_FTPS);
+		
+		// Sync tables for pages.
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_GENERATE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_UPLOAD_SFTP);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_UPLOAD_FTPS);
+		
 		// Close the connection.
 		$db->close();
 	}
@@ -235,6 +263,14 @@ class Dill2WebsiteProject
 			// All existing pages are by default of type "HTML".
 			$db->exec(DILL2_CORE_WEBSITE_PROJECT_TABLE_PAGE_SET_TYPE_TO_HTML);		
 		}
+		
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_GENERATE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_UPLOAD_SFTP);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_FILE_UPLOAD_FTPS);
+		
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_GENERATE);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_UPLOAD_SFTP);
+		$db->exec(DILL2_CORE_WEBSITE_PROJECT_DB_CREATETABLE_SYNC_PAGE_UPLOAD_FTPS);
 
 		// Close the connection.
 		$db->close();
@@ -780,6 +816,16 @@ class Dill2WebsiteProject
 		}
 	}
 	
+	// Empties a table.
+	public function db_empty($_table)
+	{
+		$stmt = sprintf(
+			"DELETE FROM %s",
+			$_table);
+			
+		$this->sqlite3_conn->exec($stmt);
+	}
+	
 	
 	private function sqlite3_bind_values( $sqlite3_stmt, $columns, $values, $valuetypes )
 	{
@@ -1185,6 +1231,20 @@ class Dill2WebsiteProject
 					),
 					$text
 				);
+				
+				$rel_f_path = $type .
+					DIRECTORY_SEPARATOR .
+					$name;
+				
+				// Update sync tables.
+				foreach(array("sync_file_generate") as $tmp_table)
+				{
+					$this->sync_table_update_file(
+						$tmp_table,
+						$rel_f_path,
+						$rel_f_path);
+				}
+				
 				break;				
 			}
 			default:
@@ -1205,38 +1265,64 @@ class Dill2WebsiteProject
 			 || $item == "js" 
 			 || $item == "php" 
 			 || $item == "media" 
-			 || $item == "download" ) continue;
+			 || $item == "download" ) continue;		 
 			
 			if( is_dir( $path . DIRECTORY_SEPARATOR . $item ) )
-			{
-				$this->rrmdir( $path . DIRECTORY_SEPARATOR . $item );
+			{				
+				$this->rrmdir( $path . DIRECTORY_SEPARATOR . $item );					
 			}
 			else
 			{
-				unlink( $path . DIRECTORY_SEPARATOR . $item );
+				if (file_exists($path . DIRECTORY_SEPARATOR . $item))
+				{
+					// Check if it can be deleted.
+					if (empty($this->sync_table_select_page(
+						"sync_page_generate",
+						$path .
+						DIRECTORY_SEPARATOR .
+						$item)))
+					{					
+						unlink( $path . DIRECTORY_SEPARATOR . $item );
+					}
+				}
 			}
 		}
+		
 		if($path != $this->abspath_websiteproject_website_pages)
 		{
-			rmdir($path);
+			if(file_exists($path))
+			{
+				// Check if it can be deleted.
+				if (empty($this->sync_table_select_page(
+					"sync_page_generate",
+					$path)))
+				{				
+					rmdir($path);
+				}
+			}
 		}
 	}
 	
 	
 	public function generate_website()
 	{
-		// First of all, delete the entire directory.
-		// EXCEPT the css, js, php, media and download directories.
-		if( file_exists( $this->abspath_websiteproject_website_pages ) )
-		{
-			$this->rrmdir( $this->abspath_websiteproject_website_pages );
-		}
-		
 		// Create the root directory where we put our pages in.
 		if (!file_exists($this->abspath_websiteproject_website_pages))
 		{
 			mkdir( $this->abspath_websiteproject_website_pages );
 		}
+		
+		// Firstly, mark all records in "sync_page_generate" to generated = 0.
+		$this->db_update(
+			"sync_page_generate",
+			array("generated"),
+			array(0),
+			array(SQLITE3_INTEGER),			
+			array(
+				"generated",
+				"=",
+				1,
+				SQLITE3_INTEGER));
 		
 		$all_pages_array = $this->db_select(
 			"page"
@@ -1247,7 +1333,7 @@ class Dill2WebsiteProject
 		);
 		$website_project_title = $website_project_title_array[0]["website_project_title"];
 		
-		$this->generate_pages( NULL, "", $website_project_title, $all_pages_array );
+		$this->generate_pages( NULL, "", $website_project_title, $all_pages_array );	
 
 		// And lastly, let's create a PHP file to redirect the user to the first root page (usually the HOME page).
 		if( count( $all_pages_array ) > 0 )
@@ -1270,13 +1356,77 @@ class Dill2WebsiteProject
 			$php_content = sprintf(
 				"<?php\nheader('Location: /%s');\n?>",
 				$home_page_node[0]["name"]);
-				
-			file_put_contents(
-				$this->abspath_websiteproject_website_pages . "index.php",
-				$php_content
-			);
+			
+			foreach(array("sync_page_generate") as $tmp_table)
+			{
+				$compare_page_to = $this->sync_table_select_page(
+					$tmp_table,
+					$this->abspath_websiteproject_website_pages .
+					DIRECTORY_SEPARATOR .
+					"index.php");
+					
+				if (count($compare_page_to) == 0)
+				{
+					file_put_contents(
+						$this->abspath_websiteproject_website_pages .
+						"index.php",
+						$php_content
+					);
+						
+					$this->sync_table_add_page(
+						$tmp_table,
+						$php_content,
+						$this->abspath_websiteproject_website_pages .
+						DIRECTORY_SEPARATOR .
+						"index.php",
+						1);						
+				}
+				else
+				{
+					if($compare_page_to[0]["generated_content"] != $php_content)
+					{
+						file_put_contents(
+							$this->abspath_websiteproject_website_pages .
+							"index.php",
+							$php_content
+						);
+						
+						$this->sync_table_update_page(
+							$tmp_table,
+							$php_content,
+							$this->abspath_websiteproject_website_pages .
+							DIRECTORY_SEPARATOR .
+							"index.php",
+							1);
+					}
+					else
+					{
+						// Only update "generated" (Set to 1).
+						$this->sync_table_update_page_already_generated(
+							$tmp_table,
+							$this->abspath_websiteproject_website_pages .
+							DIRECTORY_SEPARATOR .
+							"index.php",
+							1);						
+					}
+				}
+			}
 		}
 		
+		foreach(array("sync_page_generate") as $tmp_table)
+		{			
+			// Then delete the records of files that don't exist anymore.
+			$this->sync_table_delete_page($tmp_table);
+		}		
+		
+		
+		// First of all, delete all files that were not generated.
+		// EXCEPT the css, js, php, media and download directories.
+		if(file_exists($this->abspath_websiteproject_website_pages))
+		{
+			$this->rrmdir($this->abspath_websiteproject_website_pages);
+		}
+
 		// Always close progress dialog window.
 		$this->close_observer_generate_website_view();		
 	}
@@ -1325,7 +1475,40 @@ class Dill2WebsiteProject
 		foreach( $nodes as $node )
 		{
 			$cur_dir = $cur_dir_static . DIRECTORY_SEPARATOR . $node["name"];
-			mkdir( $this->abspath_websiteproject_website_pages . $cur_dir );
+			
+			// Before creating the dir, check if it exists in sync-tables.
+			foreach(array("sync_page_generate") as $tmp_table)
+			{
+				$compare_dir_to = $this->sync_table_select_page(
+					$tmp_table,
+					$this->abspath_websiteproject_website_pages .
+					$cur_dir);
+					
+				if (empty($compare_dir_to))
+				{
+					if (file_exists($this->abspath_websiteproject_website_pages .
+						   $cur_dir) == FALSE)
+					{
+						mkdir($this->abspath_websiteproject_website_pages .
+							$cur_dir);
+					}
+						
+					$this->sync_table_add_page(
+						$tmp_table,
+						"",
+						$this->abspath_websiteproject_website_pages .
+						$cur_dir,
+						1);						
+				}
+				else
+				{
+					$this->sync_table_update_page_already_generated(
+						$tmp_table,
+						$this->abspath_websiteproject_website_pages .
+						$cur_dir,
+						1);						
+				}
+			}
 			
 			// Now let's prepare the file we are going to create in the current directory.
 			// For this, we need the template for the current page.
@@ -1399,10 +1582,80 @@ class Dill2WebsiteProject
 			{
 				$index_file = "index.html"; // Should actually never go here, but let's just do this fallback.
 			}
-			file_put_contents(
-				$this->abspath_websiteproject_website_pages . DIRECTORY_SEPARATOR . $cur_dir . DIRECTORY_SEPARATOR . $index_file,
-				$page_content
-			);
+			
+			// TODO:  Before I put the content, check if the content has changed.
+			// If the content hasn't changed, there is no need to update the file.
+			// Update the sync_tables, too!!
+			
+
+			foreach(array("sync_page_generate") as $tmp_table)
+			{
+				$testtest = $this->abspath_websiteproject_website_pages .
+					$cur_dir .
+					DIRECTORY_SEPARATOR .
+					$index_file;
+				
+				$compare_page_to = $this->sync_table_select_page(
+					$tmp_table,
+					$this->abspath_websiteproject_website_pages .
+					$cur_dir .
+					DIRECTORY_SEPARATOR .
+					$index_file);
+					
+				if (empty($compare_page_to))
+				{
+					file_put_contents(
+						$this->abspath_websiteproject_website_pages .
+						$cur_dir .
+						DIRECTORY_SEPARATOR .
+						$index_file,
+						$page_content
+					);
+						
+					$this->sync_table_add_page(
+						$tmp_table,
+						$page_content,
+						$this->abspath_websiteproject_website_pages .
+						$cur_dir .
+						DIRECTORY_SEPARATOR .
+						$index_file,
+						1);						
+				}
+				else
+				{
+					if($compare_page_to[0]["generated_content"] != $page_content)
+					{
+						// Content has changed.  Update record.
+						file_put_contents(
+							$this->abspath_websiteproject_website_pages .
+							$cur_dir .
+							DIRECTORY_SEPARATOR .
+							$index_file,
+							$page_content
+						);
+						
+						$this->sync_table_update_page(
+							$tmp_table,
+							$page_content,
+							$this->abspath_websiteproject_website_pages .
+							$cur_dir .
+							DIRECTORY_SEPARATOR .
+							$index_file,
+							1);						
+					}
+					else
+					{
+						// Only update "generated" (Set to 1).
+						$this->sync_table_update_page_already_generated(
+							$tmp_table,
+							$this->abspath_websiteproject_website_pages .
+							$cur_dir .
+							DIRECTORY_SEPARATOR .
+							$index_file,
+							1);						
+					}
+				}						
+			}
 			
 			// Upgrade progress bar.
 			$this->notify_observer_generate_website_view();
@@ -1780,6 +2033,339 @@ class Dill2WebsiteProject
 	public function close_observer_generate_website_view()
 	{
 		$this->observer_generate_website_view->Show(0);
+	}
+	
+	
+	public function sync_table_add_file(
+		$_table,
+		$_filepath)
+	{
+		date_default_timezone_set("Europe/Berlin");
+		$datetime_modified = date("d.m.Y-H:i:s");
+		
+		$result = $this->db_select(
+			$_table,
+			"*",		
+			array(
+				"filepath",
+				"=",
+				$_filepath,
+				SQLITE3_TEXT));
+
+		if(empty($result))
+		{
+			// Create record.
+			$this->db_insert(
+				$_table,
+				array(
+					"filepath",
+					"modified_date"),
+				array(
+					$_filepath,
+					$datetime_modified),
+				array(
+					SQLITE3_TEXT,
+					SQLITE3_TEXT));			
+		}
+	}
+	
+	
+	public function sync_table_update_file(
+		$_table,
+		$_filepath_old,
+		$_filepath)
+	{
+		date_default_timezone_set("Europe/Berlin");
+		$datetime_modified = date("d.m.Y-H:i:s");
+		
+		// Make sure the record exists.
+		// If it doesn't, it means that the website project is older than when
+		// this feature was programmed.  Add a record in this case.
+		$result = $this->db_select(
+			$_table,
+			"*",		
+			array(
+				"filepath",
+				"=",
+				$_filepath_old,
+				SQLITE3_TEXT));
+		
+		if ($result == NULL)
+		{
+			$this->sync_table_add_file(
+				$_table,
+				$_filepath_old);
+		}
+		else
+		{
+			$this->db_update(
+				$_table,
+				array(
+					"filepath",
+					"modified_date"),
+				array(
+					$_filepath,
+					$datetime_modified),
+				array(
+					SQLITE3_TEXT,
+					SQLITE3_TEXT),					
+				array(
+					"filepath",
+					"=",
+					$_filepath_old,
+					SQLITE3_TEXT));			
+		}
+	}			
+	
+	
+	public function sync_table_delete_file(
+		$_table,
+		$_filepath)
+	{
+		$this->db_delete(
+			$_table,
+			array(
+				"filepath",
+				"=",
+				$_filepath,
+				SQLITE3_TEXT));
+	}
+	
+	
+	public function init_sync_file_tables(
+		$_type,
+		$_array)
+	{
+		foreach($_array as $element)
+		{
+			$this->sync_table_update_file(
+				"sync_file_generate",
+				$_type . 
+				DIRECTORY_SEPARATOR .
+				$element,
+				$_type .
+				DIRECTORY_SEPARATOR .
+				$element);
+		}
+	}
+	
+	
+	public function sync_table_add_page(
+		$_table,
+		$_generated_content,
+		$_filepath,
+		$_generated)
+	{
+		date_default_timezone_set("Europe/Berlin");
+		$datetime_modified = date("d.m.Y-H:i:s");
+		
+		// Create record.
+		$this->db_insert(
+			$_table,
+			array(
+				"generated_content",
+				"filepath",
+				"generated",
+				"modified_date"),
+			array(
+				$_generated_content,
+				$_filepath,
+				$_generated,
+				$datetime_modified),
+			array(
+				SQLITE3_TEXT,
+				SQLITE3_TEXT,
+				SQLITE3_INTEGER,
+				SQLITE3_TEXT));
+	}
+	
+	
+	public function sync_table_select_page(
+		$_table,
+		$_filepath)
+	{
+		return $this->db_select(
+			$_table,
+			"*",
+			array(
+				"filepath",
+				"=",
+				$_filepath,
+				SQLITE3_TEXT));
+	}
+	
+	
+	public function sync_table_update_page(
+		$_table,
+		$_generated_content,
+		$_filepath,
+		$_generated)
+	{
+		date_default_timezone_set("Europe/Berlin");
+		$datetime_modified = date("d.m.Y-H:i:s");
+		
+		$this->db_update(
+			$_table,
+			array(
+				"generated_content",
+				"filepath",
+				"generated",
+				"modified_date"),
+			array(
+				$_generated_content,
+				$_filepath,
+				$_generated,
+				$datetime_modified),
+			array(
+				SQLITE3_TEXT,
+				SQLITE3_TEXT,
+				SQLITE3_INTEGER,
+				SQLITE3_TEXT),
+			array(
+				"filepath",
+				"=",
+				$_filepath,
+				SQLITE3_TEXT));
+	}
+
+
+	public function sync_table_update_page_already_generated(
+		$_table,
+		$_filepath,
+		$_generated)
+	{	
+		$this->db_update(
+			$_table,
+			array(
+				"filepath",
+				"generated"),
+			array(
+				$_filepath,
+				$_generated),
+			array(
+				SQLITE3_TEXT,
+				SQLITE3_INTEGER),
+			array(
+				"filepath",
+				"=",
+				$_filepath,
+				SQLITE3_TEXT));
+	}
+	
+	
+	public function sync_table_delete_page($_table)
+	{
+		$this->db_delete(
+			$_table,
+			array(
+				"generated",
+				"!=",
+				1,
+				SQLITE3_INTEGER));
+	}	
+	
+	
+	public function sync_file_upload_exists(
+		$_table,
+		$_path)
+	{
+		$result = $this->db_select(
+			$_table,
+			"*",
+			array(
+				"filepath",
+				"=",
+				$_path,
+				SQLITE3_TEXT));
+				
+		if (empty($result) == TRUE)
+		{
+			return FALSE;
+		}
+		else
+		{
+			return TRUE;
+		}
+	}
+	
+	public function sync_file_upload_create(
+		$_table,
+		$_path)
+	{
+		date_default_timezone_set("Europe/Berlin");
+		$datetime_modified = date("d.m.Y-H:i:s");
+		
+		$this->db_insert(
+			$_table,
+			array(
+				"filepath",
+				"checked",
+				"uploaded_date"),
+			array(
+				$_path,
+				1,
+				$datetime_modified),
+			array(
+				SQLITE3_TEXT,
+				SQLITE3_INTEGER,
+				SQLITE3_TEXT));
+				
+	}
+	
+	public function sync_file_upload_update(
+		$_table,
+		$_path)
+	{
+		date_default_timezone_set("Europe/Berlin");
+		$datetime_modified = date("d.m.Y-H:i:s");
+		
+		$this->db_update(
+			$_table,
+			array(
+				"uploaded_date",
+				"checked"),
+			array(
+				$datetime_modified,
+				1),
+			array(
+				SQLITE3_TEXT,
+				SQLITE3_INTEGER),
+			array(
+				"filepath",
+				"=",
+				$_path,
+				SQLITE3_TEXT));
+	}
+	
+	
+	public function sync_file_upload_update_checked(
+		$_table,
+		$_path)
+	{
+		$this->db_update(
+			$_table,
+			array("checked"),
+			array(1),
+			array(SQLITE3_INTEGER),
+			array(
+				"filepath",
+				"=",
+				$_path,
+				SQLITE3_TEXT));
+	}
+	
+	
+	public function sync_file_upload_delete(
+		$_table
+	)
+	{
+		$this->db_delete(
+			$_table,
+			array(
+				"checked",
+				"=",
+				0,
+				SQLITE3_INTEGER));
 	}
 }
 ?>

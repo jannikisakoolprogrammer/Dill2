@@ -6,6 +6,9 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTPS extends UploadWebsiteOp
 {	
 	protected $password = NULL;
 	
+	protected $f_d_to_process_on_source = 0;
+	protected $f_d_to_process_on_destination = 0;
+	
 	
 	public function run()
 	{
@@ -15,23 +18,29 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTPS extends UploadWebsiteOp
 		$this->port = 21;
 		$this->webserver_path = $this->website_project_settings[0]["ftps_webserver_path"];
 		
-		echo "Total files: " . $this->total_files_dirs . PHP_EOL;
-		
-		echo "IMPORTANT NOTICE: FTPS support will be added once wxPHP is ready for PHP7 :)." . PHP_EOL;
-		
-		// Connent using FTP
-		// Note: FTPS support will be added once wxPHP is ready for PHP7 :).
-		$ftps_conn = ftp_connect(
+		if (function_exists("ftp_ssl_connect") == FALSE)
+		{
+			$dlg = new wxMessageDialog(
+				NULL,
+				sprintf(
+				"%s",
+				"Function 'ftp_ssl_connect' does not exist.  Please use FTP."),
+				"Error");
+			$dlg->ShowModal();			
+			throw new Exception("ERROR");
+		}
+
+		$ftps_conn = ftp_ssl_connect(
 			$this->webserver_ip_address,
 			$this->port);
-		
+	
 		if ($ftps_conn)
 		{
-			// Change timeout to 10 seconds.
+			// Set timeout to 20 seconds.
 			ftp_set_option(
 				$ftps_conn,
 				FTP_TIMEOUT_SEC,
-				10);
+				20);
 				
 			echo "Connection established." . PHP_EOL;
 			
@@ -40,43 +49,76 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTPS extends UploadWebsiteOp
 				$this->username,
 				$this->password))
 			{
-				echo "Logged in." . PHP_EOL;			
+				echo "Logged in." . PHP_EOL;
 				
 				// Change directory on local computer.
-				$root_dir = getcwd() . DIRECTORY_SEPARATOR . $this->website_project->abspath_websiteproject_website;
-				
-				@$this->upload_sync_delete_all(
-					$ftps_conn,
-					$this->webserver_path);			
-				
+				$root_dir = getcwd() . 
+					DIRECTORY_SEPARATOR .
+					$this->website_project->abspath_websiteproject_website;
+								
 				chdir($root_dir);
+				
+				// Change directory on remote computer.
 				ftp_chdir(
 					$ftps_conn,
 					$this->webserver_path);
 				
-				echo "Upload files now..." . PHP_EOL;
+				echo "Updating website." . PHP_EOL;
 				
-				$this->upload_sync(
+				// Calculate files and directories to process on source.
+				$this->calculate_files_dirs_to_process_on_source(
+					$root_dir);
+					
+				$this->f_d_to_process_on_source += 1; // Prevent "Done".
+					
+				$this->reset_percent();					
+					
+				$this->progress_bar_set_range(
+					$this->f_d_to_process_on_source);				
+				
+				// Upload sync add / update
+				$this->upload_sync_add_update(
 					$ftps_conn,
 					$root_dir,
-					$this->webserver_path
-				);
+					$this->webserver_path);
+					
+				// Calculate files and directories to process on destination.
+				$this->calculate_files_dirs_to_process_on_destination(
+					$ftps_conn);
+					
+				$this->f_d_to_process_on_destination += 1; // Prevent "Done".
+					
+				$this->reset_percent();
+					
+				$this->progress_bar_set_range(
+					$this->f_d_to_process_on_destination);					
+					
+				// Upload sync delete
+				$this->upload_sync_delete(
+					$ftps_conn,
+					".",
+					$this->webserver_path,
+					$root_dir);
 
 				chdir( "../../../bin" );
 				
-				echo "Done with uploading files." . PHP_EOL;
+				echo "Updating website finished." . PHP_EOL;
+				
+				// Update progress bar.
+				$this->progress_bar_update(
+					"Website updated.");
 			}
 			else
 			{
 				throw new Exception("Login failed.");
-			}
+			}			
 			
-			ftp_close($ftps_conn);			
+			ftp_close($ftps_conn);
 		}
 		else
 		{
 			throw new Exception("Connection failed.");
-		}
+		}		
 	}
 	
 	
@@ -88,16 +130,275 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTPS extends UploadWebsiteOp
 		}
 
 		return (substr($haystack, -$length) === $needle);
-	}	
+	}
 	
 	
-	public function upload_sync_delete_all(
+	public function upload_sync_add_update(
 		$_ftps_conn,
-		$_dst)
+		$_local_file_path,
+		$_remote_file_path)	
 	{
+		// Add, update files in that exist in "sync_file_upload_ftps" and "sync_page_upload_ftps".
+		// We iterate through local dir.
+		$dirit = new DirectoryIterator($_local_file_path);
+		foreach($dirit as $fileinfo)
+		{
+			$local_file_path = $_local_file_path . DIRECTORY_SEPARATOR . $fileinfo->getFilename();
+			$remote_file_path = $_remote_file_path . DIRECTORY_SEPARATOR . $fileinfo->getFilename();
+			
+			if( $fileinfo->isDot())
+			{
+				continue;
+			}
+			else
+			{
+			
+				// Update progress bar.
+				$this->progress_bar_update(
+					sprintf(
+						"Step 1: Processing source path: %s",
+						$local_file_path));
+						
+				if($fileinfo->isDir())
+				{
+					$listing = ftp_nlist(
+						$_ftps_conn,
+						$fileinfo->getFilename());				
+					
+					if (count($listing) >= 2)
+					{
+						// Directory already exists but without any files.
+						// Go into that directory locally. (Recursion).					
+						ftp_chdir(
+							$_ftps_conn,
+							$fileinfo->getFilename());
+							
+						$this->upload_sync_add_update(
+							$_ftps_conn,
+							$local_file_path,
+							$remote_file_path);
+							
+						ftp_cdup($_ftps_conn);						
+					}
+					else
+					{
+						// Create directory remotely.
+						ftp_mkdir(
+							$_ftps_conn,
+							$fileinfo->getFilename());
+							
+						echo sprintf(
+							"Created directory '%s'." . PHP_EOL,
+							$remote_file_path);	
+
+						// Go into that directory locally. (Recursion).					
+						ftp_chdir(
+							$_ftps_conn,
+							$fileinfo->getFilename());
+							
+						$this->upload_sync_add_update(
+							$_ftps_conn,
+							$local_file_path,
+							$remote_file_path);
+							
+						ftp_cdup($_ftps_conn);	
+					}
+				}				
+				else if($fileinfo->isFile())
+				{
+					// Check if the file already exists.
+					// If the file already exists, compare creation dates.
+					$listing = ftp_nlist(
+						$_ftps_conn,
+						$fileinfo->getFilename());
+					
+					if (empty($listing) == TRUE)
+					{
+						// Upload file.
+						ftp_put(
+							$_ftps_conn,
+							$fileinfo->getFilename(),					
+							$local_file_path,
+							FTP_BINARY);
+							
+						echo sprintf(
+							"Created file '%s'." . PHP_EOL,
+							$remote_file_path);	
+					}
+					else
+					{
+						if (count($listing) == 1)
+						{
+							// The file exists already.  Check creation dates.
+							$remote_mod_date = ftp_mdtm($_ftps_conn, $fileinfo->getFilename());
+							$local_mod_date = filemtime($local_file_path);
+							
+							if ($local_mod_date > $remote_mod_date)
+							{
+								// Update file.
+								ftp_put(
+									$_ftps_conn,
+									$fileinfo->getFilename(),					
+									$local_file_path,
+									FTP_BINARY);			
+
+								echo sprintf(
+									"Updated file '%s'." . PHP_EOL,
+									$remote_file_path);
+							}
+						}
+						else
+						{
+							// Upload file.
+							ftp_put(
+								$_ftps_conn,
+								$fileinfo->getFilename(),					
+								$local_file_path,
+								FTP_BINARY);
+								
+							echo sprintf(
+								"Created file '%s'." . PHP_EOL,
+								$remote_file_path);
+						}					
+					}
+				}
+			}					
+		}		
+	}
+	
+	
+	public function upload_sync_delete(
+		$_ftps_conn,
+		$_dst,
+		$_cur_remote_path,
+		$_cur_local_path)	
+	{			
 		$dirs_files = ftp_nlist(
 			$_ftps_conn,
-			$_dst);
+			".");
+			
+		foreach ($dirs_files as $x)
+		{
+			$cur_remote_path = $_cur_remote_path . DIRECTORY_SEPARATOR . $x;
+			$cur_local_path = $_cur_local_path . DIRECTORY_SEPARATOR . $x;
+			
+			if ($this->ends_with(
+				$x,
+				".."))
+			{
+				continue;
+			}
+			else if ($this->ends_with(
+				$x,
+				"."))
+			{
+				continue;
+			}
+			else
+			{
+				// Update progress bar.
+				$this->progress_bar_update(
+					sprintf(
+						"Step 2: Processing destination path: %s",
+						$cur_remote_path));
+					
+				// If the path is a dir, change into it.
+				$listing = ftp_nlist(
+					$_ftps_conn,
+					$x);
+					
+				if (count($listing) == 2)
+				{
+					// It is a directory.
+					// Check if the directory exists locally.  If not, delete it remotely.
+
+					if (file_exists($cur_local_path) == FALSE)
+					{
+						ftp_rmdir(
+							$_ftps_conn,
+							$x);
+						echo sprintf(
+							"Deleted directory '%s'." . PHP_EOL,
+							$cur_remote_path);
+					}
+				}
+				else if (count($listing) > 2)
+				{
+					// It is a directory with files in it.  Change into it.
+					ftp_chdir(
+						$_ftps_conn,
+						$x);
+								
+					$this->upload_sync_delete(
+						$_ftps_conn,
+						$_dst,
+						$cur_remote_path,
+						$cur_local_path);						
+														
+					ftp_cdup($_ftps_conn);
+					
+					// Check if dir exists locally.  If not, deleted it remotely.
+					if (file_exists($cur_local_path) == FALSE)
+					{
+						ftp_rmdir(
+							$_ftps_conn,
+							$x);
+						echo sprintf(
+							"Deleted directory '%s'." . PHP_EOL,
+							$cur_remote_path);
+					}					
+				}
+				else if (count($listing) == 1)
+				{
+					// It is a file.
+					if (file_exists($cur_local_path) == FALSE)
+					{
+						ftp_delete(
+							$_ftps_conn,
+							$x);
+						echo sprintf(
+							"Deleted file '%s'." . PHP_EOL,
+							$cur_remote_path);							
+					}
+				}
+			}
+		}		
+	}
+	
+	
+	public function calculate_files_dirs_to_process_on_source(
+		$_local_file_path)
+	{
+		$dirit = new DirectoryIterator($_local_file_path);
+		foreach($dirit as $fileinfo)
+		{
+			$local_file_path = $_local_file_path . DIRECTORY_SEPARATOR . $fileinfo->getFilename();
+			
+			if( $fileinfo->isDot())
+			{
+				continue;
+			}
+			else if($fileinfo->isDir())
+			{
+				$this->f_d_to_process_on_source += 1;
+				
+				$this->calculate_files_dirs_to_process_on_source(
+					$local_file_path);
+			}				
+			else if($fileinfo->isFile())
+			{
+				$this->f_d_to_process_on_source += 1;
+			}	
+		}			
+	}
+	
+	
+	public function calculate_files_dirs_to_process_on_destination(
+		$_ftps_conn)
+	{			
+		$dirs_files = ftp_nlist(
+			$_ftps_conn,
+			".");
 			
 		foreach ($dirs_files as $x)
 		{
@@ -115,90 +416,32 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTPS extends UploadWebsiteOp
 			}
 			else
 			{
-				// Assume it is a file and try to delete it.				
-				if (ftp_delete(
+				$listing = ftp_nlist(
 					$_ftps_conn,
-					$x) == FALSE)
-				{
-					// If it is not a file, then it is a directory.  Go into that directory.
-					$this->upload_sync_delete_all(
-						$_ftps_conn,
-						$x);
-					
-					// Delete the directory now.
-					ftp_rmdir(
-						$_ftps_conn,
-						$x);
-				}
-			}
-		}
-	}
-	
-	
-	public function upload_sync(
-		$_ftps_conn,
-		$_src,
-		$_dst)
-	{
-		$dirs_and_files_created_or_updated_or_existing = array();
-	
-		$dirit = new DirectoryIterator( $_src );
-		foreach( $dirit as $fileinfo )
-		{
-			if( $fileinfo->isDot())
-			{
-				continue;
-			}
-			
-			if( $fileinfo->isDir())
-			{
-				$new_src_path = $_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename();
-				$new_dst_path = $_dst . DIRECTORY_SEPARATOR . $fileinfo->getFilename();
-				
-				echo sprintf(
-					"Creating directory %s\n",
-					$new_dst_path) . PHP_EOL;
-				
-				ftp_mkdir(
-					$_ftps_conn,
-					$fileinfo->getFilename());
-					
-				ftp_chdir(
-					$_ftps_conn,
-					$fileinfo->getFilename());					
-					
-				$this->upload_sync(	
-					$_ftps_conn,
-					$new_src_path,
-					$fileinfo->getFilename());
-				
-				ftp_cdup($_ftps_conn);
-			}
-			else if( $fileinfo->isFile())
-			{
-				// Comparing checksums is not possible with only ftp access.
-				// Comparing file sizes is not supported on every ftp server.
-				// This, I won't be implementing any of those features at the moment.
-				// This may change in future; who knows.
-				
-				// For now, every file will be replaced.
-				// Compare checksums so we know if we need to copy / replace the file or not.
+					$x);
 
-				echo sprintf(
-					"Uploading file %s\n",
-					$_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename()) . PHP_EOL;
+				if (count($listing) >= 2)
+				{
+					// It is a directory with files in it.  Change into it.					
+					$this->f_d_to_process_on_destination += 1;
 					
-				ftp_put(
-					$_ftps_conn,
-					$fileinfo->getFilename(),					
-					$_src . DIRECTORY_SEPARATOR . $fileinfo->getFilename(),
-					FTP_BINARY);
-			}
-			
-			// Update progress bar.
-			$this->notify_observers();
-		}	
-	}	
+					ftp_chdir(
+						$_ftps_conn,
+						$x);
+								
+					$this->calculate_files_dirs_to_process_on_destination(
+						$_ftps_conn);						
+														
+					ftp_cdup($_ftps_conn);				
+				}
+				else if (count($listing) == 1)
+				{
+					// It is a file.
+					$this->f_d_to_process_on_destination += 1;
+				}
+			}	
+		}			
+	}
 }
 
 ?>
