@@ -1356,20 +1356,16 @@ class Dill2WebsiteProject
 			$php_content = sprintf(
 				"<?php\nheader('Location: /%s');\n?>",
 				$home_page_node[0]["name"]);
-				
-			file_put_contents(
-				$this->abspath_websiteproject_website_pages . "index.php",
-				$php_content
-			);
 			
 			foreach(array("sync_page_generate") as $tmp_table)
 			{
 				$compare_page_to = $this->sync_table_select_page(
 					$tmp_table,
 					$this->abspath_websiteproject_website_pages .
+					DIRECTORY_SEPARATOR .
 					"index.php");
 					
-				if (empty($compare_page_to))
+				if (count($compare_page_to) == 0)
 				{
 					file_put_contents(
 						$this->abspath_websiteproject_website_pages .
