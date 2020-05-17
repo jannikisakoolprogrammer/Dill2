@@ -2531,6 +2531,7 @@ class wxDill2Frame extends wxFrame
 		$presenter->run();
 	}
 	
+	
 	/*
 	Event handler method that is called when the menu item to upload a website
 	over FTPS has been clicked.
@@ -2544,8 +2545,8 @@ class wxDill2Frame extends wxFrame
 			$view,
 			$model,
 			$logic);
-		
-		$presenter->run();
+			
+		$presenter->run();		
 	}
 
 

@@ -11,8 +11,6 @@ class UploadWebsiteFTPS_View extends wxGenericProgressDialog
 			100,
 			$_wxwindow_parent,
 			wxPD_APP_MODAL);
-		
-		$this->SetSize(1024, 150);
 	}
 }
 ?>

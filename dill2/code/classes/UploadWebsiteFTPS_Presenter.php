@@ -51,7 +51,6 @@ class UploadWebsiteFTPS_Presenter extends PresenterBase
 			
 			// Register presenter as observer.
 			$this->logic->get_operation()->register_observer($this);					
-			
 			$this->logic->run();
 			
 			$status = TRUE;
