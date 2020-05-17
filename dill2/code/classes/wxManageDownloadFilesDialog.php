@@ -195,7 +195,7 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 		while( $dialog->ShowModal() == wxID_OK )
 		{
 			// The user must have entered something into the dialog.
-			$filepath = trim( $dialog->GetPath());
+			$filepath = trim($dialog->GetPath());
 			$filename = $dialog->GetFilename();
 			
 			// Verify that a file with the same name does not yet exist.

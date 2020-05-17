@@ -1362,7 +1362,7 @@ class wxDill2Frame extends wxFrame
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_GENERATE_WEBSITE, TRUE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_START_TESTSERVER, TRUE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_WEBSITE_PROJECT_SETTINGS, TRUE );
-		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_FILE_NEW_PROJECT, FALSE );
+		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_FILE_NEW_PROJECT, TRUE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_PROJECT_CREATE_BACKUP, TRUE );
 		$this->wxmenubar_mainframe_mainmenu->Enable( DILL2_WXID_MAINFRAME_WXMENU_FILE_OPEN_PROJECT, TRUE );
 		$this->wxmenubar_mainframe_mainmenu->Enable(
@@ -1375,6 +1375,17 @@ class wxDill2Frame extends wxFrame
 		$this->root2 = NULL;
 		
 		$this->on_dill2_mainframe_wxmenu_stop_testserver_clicked();
+		
+    	// Refresh the content of certain controls (wxWidgets).
+    	$this->refresh_website_structure();
+    	$this->wxlistbox_mainframe_templates_reload(
+    		$this->website_project->get_template_names()
+    	);
+    	$this->wxlistbox_mainframe_cssfiles_reload();
+    	$this->wxlistbox_mainframe_javascript_files_reload();
+		$this->wxlistbox_mainframe_php_files_reload();
+    	$this->wxlistbox_mainframe_media_files_reload();
+		$this->wxlistbox_mainframe_download_files_reload();		
     }
     
     
@@ -2208,6 +2219,8 @@ class wxDill2Frame extends wxFrame
 		$website_project_settings_array = $this->website_project->db_select(
 			"website_project_settings"
 		);
+		
+		echo $this->website_project->abspath_websiteproject_website;
 
         switch( php_uname('s'))
         {
@@ -3129,7 +3142,7 @@ class wxDill2Frame extends wxFrame
 	public function prepare_preview_image( $_filename )
 	{
 		wxInitAllImageHandlers();
-		
+	
 		$wxbitmap = new wxBitmap(
 			$this->website_project->media_files_path .
 			DIRECTORY_SEPARATOR .
@@ -3152,7 +3165,7 @@ class wxDill2Frame extends wxFrame
 		else if ( $w < $h )
 		{
 			$wximage = $wximage->Scale(
-				DILL2_CORE_CONSTANT_PREVIEW_IMAGE_HEIGHT, // width in this case !
+				DILL2_CORE_CONSTANT_PREVIEW_IMAGE_HEIGHT, // width in this case!
 				DILL2_CORE_CONSTANT_PREVIEW_IMAGE_WIDTH // height in this case!
 			);
 		}
@@ -3173,7 +3186,7 @@ class wxDill2Frame extends wxFrame
 		);
 		
 		$this->wxpanel_picture_preview->Refresh();
-		
+			
 		return TRUE;
 	}
 	

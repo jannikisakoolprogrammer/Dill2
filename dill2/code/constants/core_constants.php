@@ -244,6 +244,7 @@ define(
 		sftp_username TEXT,
 		sftp_password TEXT,
 		sftp_privatekey TEXT,
+		sftp_privatekey_passphrase TEXT,
 		sftp_authentication_method TEXT,
 		ftps_webserver_path TEXT,
 		ftps_webserver_ip_address TEXT,

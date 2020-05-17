@@ -96,7 +96,7 @@ class WebsiteProjectSettings_Model extends ModelBase
 		$this->set_sftp_username("");
 		$this->set_sftp_password("");
 		$this->set_sftp_privatekey("");
-		$this->set_sftp_privatekey_passhrase("");
+		$this->set_sftp_privatekey_passphrase("");
 		$this->set_sftp_authentication_method(DILL2_SFTP_AUTHENTICATION_METHOD_SSH); // Default is SSH
 		
 		$this->set_ftps_webserver_path("/var/www");

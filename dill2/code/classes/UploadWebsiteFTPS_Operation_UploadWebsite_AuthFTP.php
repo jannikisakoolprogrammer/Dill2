@@ -222,7 +222,7 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 							$local_mod_date = filemtime($local_file_path);
 							
 							if ($local_mod_date > $remote_mod_date)
-							{
+							{							
 								// Update file.
 								ftp_put(
 									$_ftps_conn,
