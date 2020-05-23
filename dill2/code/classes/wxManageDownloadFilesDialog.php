@@ -198,6 +198,19 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 			$filepath = trim($dialog->GetPath());
 			$filename = $dialog->GetFilename();
 			
+			// Check if filename is valid.
+			if ($this->website_project->is_valid_filename($filename) == FALSE)
+			{
+				/* Show a dialog telling the user that the filename is invalid. */
+				$wxmessagedialog = new wxMessageDialog(
+					$dialog,
+					"Error:  Invalid filename.  Only printable ASCII characters allowed.",
+					DILL2_TEXT_DIALOG_ERROR_CAPTION
+				);
+				$wxmessagedialog->ShowModal();
+				continue;				
+			}
+			
 			// Verify that a file with the same name does not yet exist.
 			if( $this->website_project->exists_file( "DOWNLOAD", $filename ) )
 			{
@@ -276,6 +289,19 @@ class wxManageDOWNLOADFilesDialog extends wxDialog
 			}
 			else
 			{
+				// Check if filename is valid.
+				if ($this->website_project->is_valid_filename($user_input) == FALSE)
+				{
+					/* Show a dialog telling the user that the filename is invalid. */
+					$wxmessagedialog = new wxMessageDialog(
+						$dialog,
+						"Error:  Invalid filename.  Only printable ASCII characters allowed.",
+						DILL2_TEXT_DIALOG_ERROR_CAPTION
+					);
+					$wxmessagedialog->ShowModal();
+					continue;				
+				}				
+				
 				/* Make sure that the user has typed in a new filename which does
 				not already exist. */
 				if( $this->website_project->exists_file( "DOWNLOAD", $user_input ) )

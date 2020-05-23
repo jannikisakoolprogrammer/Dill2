@@ -520,6 +520,19 @@ class wxManageWebsiteStructureDialog extends wxDialog
 				continue;				
 			}
 			
+			// Check if filename is valid.
+			if ($this->website_project->is_valid_filename($wxtextctrl_page_name->GetValue()) == FALSE)
+			{
+				/* Show a dialog telling the user that the filename is invalid. */
+				$wxmessagedialog = new wxMessageDialog(
+					$wxdialog,
+					"Error:  Invalid filename.  Only printable ASCII characters allowed.",
+					DILL2_TEXT_DIALOG_ERROR_CAPTION
+				);
+				$wxmessagedialog->ShowModal();
+				continue;				
+			}				
+			
 			/* If no template was chosen, show an error dialog and make
 			sure the users chooses one. */
 			if ($wxlistbox_template_name->GetSelection() == wxNOT_FOUND)
@@ -1072,6 +1085,19 @@ class wxManageWebsiteStructureDialog extends wxDialog
 					
 				continue;				
 			}
+			
+			// Check if filename is valid.
+			if ($this->website_project->is_valid_filename($user_input_pagename) == FALSE)
+			{
+				/* Show a dialog telling the user that the filename is invalid. */
+				$wxmessagedialog = new wxMessageDialog(
+					$wxdialog,
+					"Error:  Invalid filename.  Only printable ASCII characters allowed.",
+					DILL2_TEXT_DIALOG_ERROR_CAPTION
+				);
+				$wxmessagedialog->ShowModal();
+				continue;				
+			}				
 			
 			/* If no template was chosen, show an error dialog and make
 			sure the users chooses one. */

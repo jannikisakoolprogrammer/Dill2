@@ -122,7 +122,7 @@ define( "DILL2_TEXT_MAINFRAME_WXSTATICTEXT_PICTURE_PREVIEW", "Picture preview" )
 define( "DILL2_USERS_MANUAL_LABEL", "Dill 2 - Users manual" );
 define( "DILL2_USERS_MANUAL_LINK", "" );
 define( "DILL2_WEBSITE_LABEL", "Dill2 - Official project website" );
-define( "DILL2_WEBSITE_LINK", "http://www.merelyajourneytowardslivingoutside.info/COMPUTER_PROGRAMMING/TOOLS/DILL_2/" );
+define( "DILL2_WEBSITE_LINK", "http://www.merelyajourneytowardslivingoutside.info/COMPUTERS/TOOLS/DILL_2/" );
 
 
 // wxNewWebsiteProjectDialog.php

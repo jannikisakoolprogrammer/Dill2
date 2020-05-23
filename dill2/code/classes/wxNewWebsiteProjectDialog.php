@@ -150,6 +150,19 @@ class wxNewWebsiteProjectDialog extends wxDialog
 			$result = $this->ShowModal();
 			if ( $result == wxID_OK )
 			{
+				// Check if filename is valid.
+				if (Dill2WebsiteProject::is_valid_filename_static($this->wxtextentry_newproject->GetValue()) == FALSE)
+				{
+					/* Show a dialog telling the user that the filename is invalid. */
+					$wxmessagedialog = new wxMessageDialog(
+						$this,
+						"Error:  Invalid filename.  Only printable ASCII characters allowed.",
+						DILL2_TEXT_DIALOG_ERROR_CAPTION
+					);
+					$wxmessagedialog->ShowModal();
+					continue;				
+				}	
+				
 				// Procedure for creating a new website project:
 				// A website project with the same name must not yet exist.
 				if( !file_exists( ".." .

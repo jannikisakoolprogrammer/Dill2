@@ -209,6 +209,19 @@ class wxManageTemplatesDialog extends wxDialog
 		{
 			$user_input = $wxdialog->GetValue();
 			
+			// Check if filename is valid.
+			if ($this->website_project->is_valid_filename($user_input) == FALSE)
+			{
+				/* Show a dialog telling the user that the filename is invalid. */
+				$wxmessagedialog = new wxMessageDialog(
+					$this,
+					"Error:  Invalid filename.  Only printable ASCII characters allowed.",
+					DILL2_TEXT_DIALOG_ERROR_CAPTION
+				);
+				$wxmessagedialog->ShowModal();
+				continue;				
+			}				
+			
 			/* The name for the template which the user has entered must not
 			already be taken. */
 			if( !$this->website_project->db_value_exists(
@@ -290,6 +303,20 @@ class wxManageTemplatesDialog extends wxDialog
 		while( $wxdialog->ShowModal() == wxID_OK )
 		{
 			$user_input = $wxdialog->GetValue();
+			
+			// Check if filename is valid.
+			if ($this->website_project->is_valid_filename($user_input) == FALSE)
+			{
+				/* Show a dialog telling the user that the filename is invalid. */
+				$wxmessagedialog = new wxMessageDialog(
+					$this,
+					"Error:  Invalid filename.  Only printable ASCII characters allowed.",
+					DILL2_TEXT_DIALOG_ERROR_CAPTION
+				);
+				$wxmessagedialog->ShowModal();
+				continue;				
+			}	
+				
 			// A template with the same name must not already exist.
 			if( !$this->website_project->db_value_exists(
 				$user_input,

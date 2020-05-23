@@ -2352,5 +2352,40 @@ class Dill2WebsiteProject
 				0,
 				SQLITE3_INTEGER));
 	}
+	
+	
+	public function is_valid_filename(
+		$_input)
+	{
+		$regex = "/[^\x20-\x7e]/";
+		if (preg_match(
+			$regex,
+			$_input))
+		{
+			return FALSE;
+		}
+		else
+		{
+			return TRUE;
+		}
+		
+	}
+	
+	public static function is_valid_filename_static(
+		$_input)
+	{
+		$regex = "/[^\x20-\x7e]/";
+		if (preg_match(
+			$regex,
+			$_input))
+		{
+			return FALSE;
+		}
+		else
+		{
+			return TRUE;
+		}
+		
+	}	
 }
 ?>
