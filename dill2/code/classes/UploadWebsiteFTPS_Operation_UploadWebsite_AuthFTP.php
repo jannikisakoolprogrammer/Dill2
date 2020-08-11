@@ -17,6 +17,7 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 		$this->password = file_get_contents($this->website_project_settings[0]["ftps_password"]);
 		$this->port = 21;
 		$this->webserver_path = $this->website_project_settings[0]["ftps_webserver_path"];
+		$this->mode_passive = $this->website_project_settings[0]["ftps_mode_passive"];
 		
 		$ftps_conn = ftp_connect(
 			$this->webserver_ip_address,
