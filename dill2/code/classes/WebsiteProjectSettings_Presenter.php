@@ -117,6 +117,9 @@ class WebsiteProjectSettings_Presenter extends PresenterBase
 
 		$this->view->wxcheckbox_ftps_use_ftp->SetValue(
 			$this->model->get_ftps_use_ftp());
+		
+		$this->view->wxcheckbox_ftps_mode_passive->SetValue(
+			$this->model->get_ftps_mode_passive());
 	}
 	
 	
@@ -169,8 +172,11 @@ class WebsiteProjectSettings_Presenter extends PresenterBase
 			$this->view->wxfilepickerctrl_ftps_password->GetPath());
 
 		$this->model->set_ftps_use_ftp(
-			$this->view->wxcheckbox_ftps_use_ftp->GetValue());		
-		
+			$this->view->wxcheckbox_ftps_use_ftp->GetValue());
+			
+		$this->model->set_ftps_mode_passive(
+			$this->view->wxcheckbox_ftps_mode_passive->GetValue());
+			
 		
 		$this->model->save_settings();
 	}

@@ -16,7 +16,8 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTPS extends UploadWebsiteOp
 		$this->username = $this->website_project_settings[0]["ftps_username"];
 		$this->password = file_get_contents($this->website_project_settings[0]["ftps_password"]);
 		$this->port = 21;
-		$this->webserver_path = $this->website_project_settings[0]["ftps_webserver_path"];
+		$this->webserver_path = $this->website_project_settings[0]["ftps_webserver_path"];		
+		$this->mode_passive = $this->website_project_settings[0]["ftps_mode_passive"];
 		
 		if (function_exists("ftp_ssl_connect") == FALSE)
 		{
@@ -50,6 +51,11 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTPS extends UploadWebsiteOp
 				$this->password))
 			{
 				echo "Logged in." . PHP_EOL;
+				
+				// Set mode to either active or passive.  True = passive.
+				ftp_pasv(
+					$ftps_conn,
+					$this->mode_passive);					
 				
 				// Change directory on local computer.
 				$root_dir = getcwd() . 

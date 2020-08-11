@@ -10,6 +10,7 @@ abstract class UploadWebsiteOperationBase extends OperationBase
 	protected $webserver_path = NULL;
 	protected $username = NULL;
 	protected $port = NULL;
+	protected $mode_passive = 1;
 	
 	protected $website_project = NULL;
 	protected $total_files_dirs = 0;

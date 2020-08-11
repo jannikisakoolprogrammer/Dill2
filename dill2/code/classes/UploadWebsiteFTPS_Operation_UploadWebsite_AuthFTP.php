@@ -39,6 +39,11 @@ class UploadWebsiteFTPS_Operation_UploadWebsite_AuthFTP extends UploadWebsiteOpe
 			{
 				echo "Logged in." . PHP_EOL;
 				
+				// Set mode to either active or passive.  True = passive.
+				ftp_pasv(
+					$ftps_conn,
+					$this->mode_passive);		
+				
 				// Change directory on local computer.
 				$root_dir = getcwd() . 
 					DIRECTORY_SEPARATOR .

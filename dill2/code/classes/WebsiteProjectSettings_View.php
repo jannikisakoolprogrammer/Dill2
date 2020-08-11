@@ -821,8 +821,7 @@ class WebsiteProjectSettings_View extends wxFrame
 			boolval(
 				0
 			)
-		);
-		
+		);	
 		
 		$this->wxboxsizer_horizontal_use_ftp = new wxBoxSizer(wxHORIZONTAL);
 		
@@ -846,7 +845,54 @@ class WebsiteProjectSettings_View extends wxFrame
 			$this->wxboxsizer_horizontal_use_ftp,
 			0,
 			wxEXPAND | wxALL,
-			1);		
+			1);
+			
+			
+		//
+		// Use passive mode.
+		//
+		// Label
+		$this->wxstatictext_ftps_mode_passive = new wxStaticText(
+			$this->wxpanel_ftps_settings,
+			DILL2_WXID_WXSTATICTEXT_FTPS_MODE_PASSIVE,
+			DILL2_LABEL_WXSTATICTEXT_FTPS_MODE_PASSIVE
+		);
+		
+		// Checkbox
+		$this->wxcheckbox_ftps_mode_passive = new wxCheckBox(
+			$this->wxpanel_ftps_settings,
+			DILL2_WXID_WXCHECKBOX_FTPS_MODE_PASSIVE,
+			"");
+			
+		$this->wxcheckbox_ftps_mode_passive->SetValue(
+			boolval(
+				0
+			)
+		);	
+
+		$this->wxboxsizer_horizontal_mode_passive = new wxBoxSizer(wxHORIZONTAL);
+		
+		$this->wxboxsizer_horizontal_mode_passive->Add(
+			$this->wxstatictext_ftps_mode_passive,
+			0,
+			wxALIGN_LEFT | wxALIGN_CENTRE_VERTICAL);
+		
+		// Spacing
+		$this->wxboxsizer_horizontal_mode_passive->Add(
+			5,
+			0);
+		
+		$this->wxboxsizer_horizontal_mode_passive->Add(
+			$this->wxcheckbox_ftps_mode_passive,
+			1,
+			wxEXPAND | wxALIGN_LEFT |wxALIGN_CENTRE_VERTICAL);
+			
+		// Add to vertical row.
+		$this->wxboxsizer_vertical_ftps_settings->Add(
+			$this->wxboxsizer_horizontal_mode_passive,
+			0,
+			wxEXPAND | wxALL,
+			1);
 		
 			
 		// Now add this page to the notebook.

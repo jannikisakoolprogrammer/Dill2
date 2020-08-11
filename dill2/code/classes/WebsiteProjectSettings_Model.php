@@ -30,6 +30,7 @@ class WebsiteProjectSettings_Model extends ModelBase
 	protected $ftps_username = "";
 	protected $ftps_password = "";
 	protected $ftps_use_ftp = FALSE;
+	protected $ftps_mode_passive = FALSE;
 	
 	protected $generate_live = NULL;
 	protected $generate_preview = NULL;
@@ -104,6 +105,7 @@ class WebsiteProjectSettings_Model extends ModelBase
 		$this->set_ftps_username("");
 		$this->set_ftps_password("");
 		$this->set_ftps_use_ftp(FALSE);
+		$this->set_ftps_mode_passive(TRUE);
 	}
 	
 	
@@ -126,7 +128,8 @@ class WebsiteProjectSettings_Model extends ModelBase
 				"ftps_webserver_ip_address",
 				"ftps_username",
 				"ftps_password",
-				"ftps_use_ftp"
+				"ftps_use_ftp",
+				"ftps_mode_passive"
 			),
 			array(
 				$this->get_website_project_title(),
@@ -143,7 +146,8 @@ class WebsiteProjectSettings_Model extends ModelBase
 				$this->get_ftps_webserver_ip_address(),
 				$this->get_ftps_username(),
 				$this->get_ftps_password(),
-				$this->get_ftps_use_ftp()
+				$this->get_ftps_use_ftp(),
+				$this->get_ftps_mode_passive()
 			),
 			array(
 				SQLITE3_TEXT,
@@ -161,6 +165,7 @@ class WebsiteProjectSettings_Model extends ModelBase
 				SQLITE3_TEXT,
 				SQLITE3_TEXT,
 				SQLITE3_TEXT,
+				SQLITE3_INTEGER,
 				SQLITE3_INTEGER
 			)
 		);		
@@ -194,6 +199,7 @@ class WebsiteProjectSettings_Model extends ModelBase
 		$this->set_ftps_username($this->settings_array[0]["ftps_username"]);
 		$this->set_ftps_password($this->settings_array[0]["ftps_password"]);
 		$this->set_ftps_use_ftp($this->settings_array[0]["ftps_use_ftp"]);
+		$this->set_ftps_mode_passive($this->settings_array[0]["ftps_mode_passive"]);
 	}
 	
 	
@@ -396,6 +402,20 @@ class WebsiteProjectSettings_Model extends ModelBase
 	}
 	
 	
+	// Sets whether to use active or passive mode.  Passive mode is "TRUE".
+	public function set_ftps_mode_passive($_ftps_mode_passive)
+	{
+		return $this->ftps_mode_passive = $_ftps_mode_passive;
+	}	
+	
+	
+	// Returns whether to use active or passive mode.  Passive mode is "TRUE".
+	public function get_ftps_mode_passive()
+	{
+		return $this->ftps_mode_passive;
+	}	
+	
+	
 	public function save_settings()
 	{
 		$this->website_project->db_update(
@@ -415,7 +435,8 @@ class WebsiteProjectSettings_Model extends ModelBase
 				"ftps_webserver_ip_address",
 				"ftps_username",
 				"ftps_password",
-				"ftps_use_ftp"
+				"ftps_use_ftp",
+				"ftps_mode_passive"
 			),
 			array(
 				$this->get_website_project_title(),
@@ -432,7 +453,8 @@ class WebsiteProjectSettings_Model extends ModelBase
 				$this->get_ftps_webserver_ip_address(),
 				$this->get_ftps_username(),
 				$this->get_ftps_password(),
-				$this->get_ftps_use_ftp()
+				$this->get_ftps_use_ftp(),
+				$this->get_ftps_mode_passive()
 			),
 			array(
 				SQLITE3_TEXT,
@@ -450,6 +472,7 @@ class WebsiteProjectSettings_Model extends ModelBase
 				SQLITE3_TEXT,
 				SQLITE3_TEXT,
 				SQLITE3_TEXT,
+				SQLITE3_INTEGER,
 				SQLITE3_INTEGER
 			),
 			array(

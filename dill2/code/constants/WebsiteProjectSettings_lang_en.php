@@ -60,6 +60,9 @@ define(
 define(
 	"DILL2_LABEL_WXSTATICTEXT_FTPS_USE_FTP",
 	"Use FTP instead:");
+define(
+	"DILL2_LABEL_WXSTATICTEXT_FTPS_MODE_PASSIVE",
+	"Use passive mode:");	
 	
 	
 // Ok, cancel buttons.

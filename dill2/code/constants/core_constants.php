@@ -251,6 +251,7 @@ define(
 		ftps_username TEXT,
 		ftps_password TEXT,
 		ftps_use_ftp INTEGER,
+		ftps_mode_passive INTEGER,
 		generate_live INTEGER,
 		generate_preview INTEGER,
 		upload_live_preview TEXT
@@ -349,6 +350,10 @@ define(
 define(
 	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_FTPS_USE_FTP",
 	"ALTER TABLE 'website_project_settings' ADD COLUMN ftps_use_ftp INTEGER;");
+	
+define(
+	"DILL2_CORE_WEBSITE_PROJECT_ALTER_TABLE_WEBSITE_PROJECT_SETTINGS_ADD_COL_FTPS_MODE_PASSIVE",
+	"ALTER TABLE 'website_project_settings' ADD COLUMN ftps_mode_passive INTEGER;");	
 
 
 ////////////////////////////////////////////////////////////////////////////////
