@@ -13,6 +13,19 @@ Info:  This file contains the class Dill2WebsiteProject, which represents a
 
 *******************************************************************************/
 
+set_include_path(
+	".." . DIRECTORY_SEPARATOR .
+	"dill2" . DIRECTORY_SEPARATOR .
+	"code" . DIRECTORY_SEPARATOR .
+	"parsedown-master");
+
+require_once(
+	".." . DIRECTORY_SEPARATOR .
+	"dill2" . DIRECTORY_SEPARATOR .
+	"code" . DIRECTORY_SEPARATOR .
+	"parsedown-master" . DIRECTORY_SEPARATOR . 
+	"Parsedown.php");
+
 
 class Dill2WebsiteProject
 {
@@ -1527,9 +1540,10 @@ class Dill2WebsiteProject
 			);
 			
 			// We put the content of the current page.
+			$markdown_parser = new Parsedown();
 			$page_content = str_replace(
 				"#content#",
-				$node["content"],
+				$markdown_parser->text($node["content"]),
 				$page_content
 			);
 			
