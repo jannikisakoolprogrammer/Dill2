@@ -5,5 +5,6 @@ The program is fairly stable, and now I am now on to new paths =).
 
 Help can be found here on my website:
 https://www.merelyajourneytowardslivingoutside.info/SOFTWARE/TOOLS/DILL_2/
+Yeah, this website was created with Dill2, and is still maintained using it!
 
 Köszi szépen és sziasztok!
